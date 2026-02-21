@@ -48,6 +48,7 @@ export const KUMO_CODE_STYLING = {
     margin: "m-0",
     padding: "p-0",
     width: "w-auto",
+    overflow: "overflow-x-auto",
   },
   /** Border and background */
   appearance: {
@@ -100,7 +101,7 @@ export function codeVariants({
 }: KumoCodeVariantsProps = {}) {
   return cn(
     // Base styles
-    "m-0 w-auto rounded-none border-none bg-transparent p-0 font-mono text-sm leading-[20px] text-kumo-strong",
+    "m-0 w-auto rounded-none border-none bg-transparent p-0 font-mono text-sm leading-[20px] text-kumo-strong overflow-x-auto",
     // Apply lang-specific styles (currently none, but extensible)
     KUMO_CODE_VARIANTS.lang[lang].classes,
   );
