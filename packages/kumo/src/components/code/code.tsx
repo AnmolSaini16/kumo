@@ -50,6 +50,12 @@ export const KUMO_CODE_STYLING = {
     width: "w-auto",
     overflow: "overflow-x-auto",
   },
+  /** Scrollbar styling */
+  scrollbar: {
+    height: "h-1.5",
+    track: "bg-transparent",
+    thumb: "rounded-full bg-kumo-line/50",
+  },
   /** Border and background */
   appearance: {
     borderRadius: "rounded-none",
@@ -102,6 +108,8 @@ export function codeVariants({
   return cn(
     // Base styles
     "m-0 w-auto rounded-none border-none bg-transparent p-0 font-mono text-sm leading-[20px] text-kumo-strong overflow-x-auto",
+    // Subtle scrollbar styling - thin track with light thumb
+    "[&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-kumo-line/50",
     // Apply lang-specific styles (currently none, but extensible)
     KUMO_CODE_VARIANTS.lang[lang].classes,
   );
