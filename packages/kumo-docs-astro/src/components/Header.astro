@@ -1,4 +1,6 @@
 ---
+import { ThemeToggle } from "./ThemeToggle";
+
 declare const __KUMO_VERSION__: string;
 
 const kumoVersion = typeof __KUMO_VERSION__ !== "undefined" ? __KUMO_VERSION__ : "dev";
@@ -21,5 +23,8 @@ const kumoVersion = typeof __KUMO_VERSION__ !== "undefined" ? __KUMO_VERSION__ :
         v{kumoVersion}
       </span>
     </a>
+    <div class="ml-4">
+      <ThemeToggle client:only="react" />
+    </div>
   </div>
 </header>
