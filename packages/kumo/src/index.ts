@@ -203,6 +203,7 @@ export {
   type DayPickerProps,
 } from "./components/date-picker";
 
+export { Flow } from "./components/flow";
 // Sidebar
 export {
   Sidebar,

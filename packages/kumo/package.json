@@ -1,6 +1,6 @@
 {
   "name": "@cloudflare/kumo",
-  "version": "1.6.0",
+  "version": "1.9.0",
   "private": false,
   "type": "module",
   "description": "Kumo - Cloudflare's component library for building modern web applications",
@@ -179,6 +179,10 @@
       "types": "./dist/src/components/cloudflare-logo/index.d.ts",
       "import": "./dist/components/cloudflare-logo.js"
     },
+    "./components/flow": {
+      "types": "./dist/src/components/flow/index.d.ts",
+      "import": "./dist/components/flow.js"
+    },
     "./components/sidebar": {
       "types": "./dist/src/components/sidebar/index.d.ts",
       "import": "./dist/components/sidebar.js"
@@ -231,6 +235,10 @@
       "types": "./dist/src/primitives/context-menu.d.ts",
       "import": "./dist/primitives/context-menu.js"
     },
+    "./primitives/csp-provider": {
+      "types": "./dist/src/primitives/csp-provider.d.ts",
+      "import": "./dist/primitives/csp-provider.js"
+    },
     "./primitives/dialog": {
       "types": "./dist/src/primitives/dialog.d.ts",
       "import": "./dist/primitives/dialog.js"
@@ -238,6 +246,10 @@
     "./primitives/direction-provider": {
       "types": "./dist/src/primitives/direction-provider.d.ts",
       "import": "./dist/primitives/direction-provider.js"
+    },
+    "./primitives/drawer": {
+      "types": "./dist/src/primitives/drawer.d.ts",
+      "import": "./dist/primitives/drawer.js"
     },
     "./primitives/field": {
       "types": "./dist/src/primitives/field.d.ts",
@@ -398,6 +410,7 @@
     "test:unit": "vitest run --project=unit",
     "test:coverage": "vitest run --coverage",
     "test:exports": "vitest run --project=unit tests/imports/export-path-validation.test.ts",
+    "test:watch": "vitest run --project=unit --watch",
     "typecheck": "tsc --noEmit",
     "validate:build": "vitest run --project=unit tests/imports/export-path-validation.test.ts",
     "validate:changeset": "tsx ../../ci/scripts/validate-kumo-changeset.ts"
@@ -414,8 +427,9 @@
     }
   },
   "dependencies": {
-    "@base-ui/react": "^1.0.0",
+    "@base-ui/react": "^1.2.0",
     "clsx": "^2.1.1",
+    "motion": "^12.34.1",
     "react-day-picker": "^9.13.2",
     "tailwind-merge": "^3.4.0"
   },
