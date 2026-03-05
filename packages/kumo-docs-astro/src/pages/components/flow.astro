@@ -15,6 +15,8 @@ import {
   FlowDisabledDemo,
   FlowParallelAlignEndDemo,
   FlowParallelNestedListDemo,
+  FlowVerticalDemo,
+  FlowVerticalParallelDemo,
 } from "../../components/demos/FlowDemo";
 ---
 
@@ -325,6 +327,46 @@ export default function Example() {
           <FlowParallelAlignEndDemo client:visible />
         </ComponentExample>
       </div>
+
+      <div>
+        <Heading level={3}>Vertical Orientation</Heading>
+        <p class="mb-4">
+          Use the{" "}
+          <code class="rounded bg-kumo-control px-1 py-0.5">orientation</code> prop
+          to change the flow direction from horizontal (default) to vertical. In
+          vertical orientation, nodes flow from top to bottom.
+        </p>
+        <ComponentExample
+          code={`<Flow orientation="vertical">
+  <Flow.Node>Step 1</Flow.Node>
+  <Flow.Node>Step 2</Flow.Node>
+  <Flow.Node>Step 3</Flow.Node>
+</Flow>`}
+        >
+          <FlowVerticalDemo client:visible />
+        </ComponentExample>
+      </div>
+
+      <div>
+        <Heading level={3}>Vertical with Parallel Branches</Heading>
+        <p class="mb-4">
+          Parallel branches in vertical orientation are displayed horizontally,
+          with connectors flowing from top to bottom.
+        </p>
+        <ComponentExample
+          code={`<Flow orientation="vertical">
+  <Flow.Node>Start</Flow.Node>
+  <Flow.Parallel>
+    <Flow.Node>Branch A</Flow.Node>
+    <Flow.Node>Branch B</Flow.Node>
+    <Flow.Node>Branch C</Flow.Node>
+  </Flow.Parallel>
+  <Flow.Node>End</Flow.Node>
+</Flow>`}
+        >
+          <FlowVerticalParallelDemo client:visible />
+        </ComponentExample>
+      </div>
     </div>
   </ComponentSection>
 
@@ -393,14 +435,27 @@ export default function Example() {
             </thead>
             <tbody class="text-kumo-strong">
               <tr class="border-b border-kumo-line">
+                <td class="px-4 py-3 font-mono">orientation</td>
+                <td class="px-4 py-3 font-mono">"horizontal" | "vertical"</td>
+                <td class="px-4 py-3"
+                  >Flow direction. <code
+                    class="rounded bg-kumo-control px-1 py-0.5">"horizontal"</code
+                  > (default) flows left to right, <code
+                    class="rounded bg-kumo-control px-1 py-0.5">"vertical"</code
+                  > flows top to bottom.</td
+                >
+              </tr>
+              <tr class="border-b border-kumo-line">
                 <td class="px-4 py-3 font-mono">align</td>
                 <td class="px-4 py-3 font-mono">"start" | "center"</td>
                 <td class="px-4 py-3"
-                  >Vertical alignment of nodes. <code
-                    class="rounded bg-kumo-control px-1 py-0.5">"start"</code
-                  > (default) aligns to top, <code
+                  >Cross-axis alignment of nodes. In horizontal orientation, controls
+                  vertical alignment. In vertical orientation, controls horizontal
+                  alignment. <code class="rounded bg-kumo-control px-1 py-0.5"
+                    >"start"</code
+                  > (default) aligns to top/left, <code
                     class="rounded bg-kumo-control px-1 py-0.5">"center"</code
-                  > vertically centers nodes.</td
+                  > centers nodes.</td
                 >
               </tr>
               <tr class="border-b border-kumo-line">

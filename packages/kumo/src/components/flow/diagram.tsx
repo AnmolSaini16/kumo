@@ -34,7 +34,6 @@ const PAN_SPACING = {
 /** Minimum scrollbar thumb size in percentage to ensure visibility */
 const MIN_SCROLLBAR_THUMB_SIZE = 10;
 
-// Vertical orientation is currently a no-op
 type Orientation = "horizontal" | "vertical";
 type Align = "start" | "center";
 
@@ -60,9 +59,11 @@ export function useDiagramContext(): DiagramContextValue {
 interface FlowDiagramProps {
   orientation?: Orientation;
   /**
-   * Controls vertical alignment of nodes in horizontal orientation.
-   * - `start`: Nodes align to the top (default)
-   * - `center`: Nodes are vertically centered
+   * Controls cross-axis alignment of nodes.
+   * - In horizontal orientation: controls vertical alignment (top vs center)
+   * - In vertical orientation: controls horizontal alignment (left vs center)
+   * - `start`: Nodes align to the top (horizontal) or left (vertical)
+   * - `center`: Nodes are centered on the cross-axis
    */
   align?: Align;
   className?: string;
@@ -388,19 +389,35 @@ export function FlowNodeList({ children }: { children: ReactNode }) {
       if (currentRect && nextRect) {
         const isDisabled =
           currentNode.props.disabled || nextNode.props.disabled;
-        edges.push({
-          x1: currentRect.left - offsetX + currentRect.width,
-          y1: currentRect.top - offsetY + currentRect.height / 2,
-          x2: nextRect.left - offsetX,
-          y2: nextRect.top - offsetY + nextRect.height / 2,
-          disabled: isDisabled,
-          single: true,
-        });
+
+        if (orientation === "vertical") {
+          // Vertical: connectors flow top-to-bottom
+          // Start from bottom center of current node, end at top center of next node
+          edges.push({
+            x1: currentRect.left - offsetX + currentRect.width / 2,
+            y1: currentRect.top - offsetY + currentRect.height,
+            x2: nextRect.left - offsetX + nextRect.width / 2,
+            y2: nextRect.top - offsetY,
+            disabled: isDisabled,
+            single: true,
+          });
+        } else {
+          // Horizontal: connectors flow left-to-right
+          // Start from right center of current node, end at left center of next node
+          edges.push({
+            x1: currentRect.left - offsetX + currentRect.width,
+            y1: currentRect.top - offsetY + currentRect.height / 2,
+            x2: nextRect.left - offsetX,
+            y2: nextRect.top - offsetY + nextRect.height / 2,
+            disabled: isDisabled,
+            single: true,
+          });
+        }
       }
     }
 
     return edges;
-  }, [descendants.descendants]);
+  }, [descendants.descendants, orientation]);
 
   // Get the first and last node's anchor points for parent registration
   const firstNode = descendants.descendants[0];
@@ -430,11 +447,11 @@ export function FlowNodeList({ children }: { children: ReactNode }) {
         <ul
           className={cn(
             "ml-0 list-none",
-            orientation === "vertical"
-              ? "grid auto-rows-min gap-16"
-              : "flex gap-16",
+            orientation === "vertical" ? "flex flex-col gap-16" : "flex gap-16",
             orientation === "horizontal" &&
               (align === "center" ? "items-center" : "items-start"),
+            // In vertical orientation, always center horizontally for visual balance
+            orientation === "vertical" && "items-center",
           )}
         >
           {children}

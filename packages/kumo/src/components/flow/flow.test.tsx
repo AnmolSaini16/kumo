@@ -79,6 +79,64 @@ describe("Flow", () => {
     });
   });
 
+  describe("Vertical orientation", () => {
+    it("renders vertical flow with sequential nodes", () => {
+      render(
+        <Flow orientation="vertical">
+          <Flow.Node>Step 1</Flow.Node>
+          <Flow.Node>Step 2</Flow.Node>
+          <Flow.Node>Step 3</Flow.Node>
+        </Flow>,
+      );
+
+      expect(screen.getByText("Step 1")).toBeTruthy();
+      expect(screen.getByText("Step 2")).toBeTruthy();
+      expect(screen.getByText("Step 3")).toBeTruthy();
+    });
+
+    it("assigns correct node indices in vertical orientation", () => {
+      render(
+        <Flow orientation="vertical">
+          <Flow.Node>First</Flow.Node>
+          <Flow.Node>Second</Flow.Node>
+        </Flow>,
+      );
+
+      shouldHaveIndex(screen.getByText("First"), 0);
+      shouldHaveIndex(screen.getByText("Second"), 1);
+    });
+
+    it("renders vertical flow with parallel branches", () => {
+      render(
+        <Flow orientation="vertical">
+          <Flow.Node>Start</Flow.Node>
+          <Flow.Parallel>
+            <Flow.Node>Branch A</Flow.Node>
+            <Flow.Node>Branch B</Flow.Node>
+          </Flow.Parallel>
+          <Flow.Node>End</Flow.Node>
+        </Flow>,
+      );
+
+      expect(screen.getByText("Start")).toBeTruthy();
+      expect(screen.getByText("Branch A")).toBeTruthy();
+      expect(screen.getByText("Branch B")).toBeTruthy();
+      expect(screen.getByText("End")).toBeTruthy();
+    });
+
+    it("applies flex-col and items-center classes for vertical orientation", () => {
+      render(
+        <Flow orientation="vertical">
+          <Flow.Node>Step 1</Flow.Node>
+        </Flow>,
+      );
+
+      const list = screen.getByRole("list");
+      expect(list.className).toContain("flex-col");
+      expect(list.className).toContain("items-center");
+    });
+  });
+
   it("renders parallel branches alongside sequential nodes", () => {
     render(
       <Flow>
