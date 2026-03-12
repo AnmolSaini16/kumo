@@ -138,7 +138,10 @@ const LinkBase = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
   const element = useRender({
     render: render ?? <LinkComponent />,
     ref,
-    props: mergeProps<"a">(defaultProps, props, { className }),
+    props: mergeProps<"a">(defaultProps, props, {
+      className,
+      "data-kumo": "link",
+    } as Record<string, unknown>),
   });
 
   return element;

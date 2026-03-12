@@ -128,6 +128,7 @@ export function Tooltip({
       <TooltipBase.Portal>
         <TooltipBase.Positioner align={align} side={side} sideOffset={10}>
           <TooltipBase.Popup
+            data-kumo="tooltip"
             className={cn(
               "flex origin-[var(--transform-origin)] flex-col rounded-md bg-kumo-base px-2.5 py-1.5 text-sm text-kumo-default",
               "shadow-lg shadow-kumo-tip-shadow outline outline-kumo-fill",

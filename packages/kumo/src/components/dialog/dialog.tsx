@@ -216,6 +216,7 @@ function DialogContent({
       <BaseBackdrop className="fixed inset-0 bg-kumo-overlay opacity-80 transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0" />
       <Surface
         as={BasePopup}
+        data-kumo="dialog"
         className={cn(dialogVariants({ size }), className)}
         style={
           {
@@ -303,7 +304,9 @@ function DialogTitle({ className, ...props }: DialogTitleProps) {
   const role = useDialogRole();
   const BaseTitle =
     role === "alertdialog" ? AlertDialogBase.Title : DialogBase.Title;
-  return <BaseTitle className={className} {...props} />;
+  return (
+    <BaseTitle data-kumo="dialog-title" className={className} {...props} />
+  );
 }
 
 DialogTitle.displayName = "Dialog.Title";
@@ -324,7 +327,13 @@ function DialogDescription({ className, ...props }: DialogDescriptionProps) {
     role === "alertdialog"
       ? AlertDialogBase.Description
       : DialogBase.Description;
-  return <BaseDescription className={className} {...props} />;
+  return (
+    <BaseDescription
+      data-kumo="dialog-description"
+      className={className}
+      {...props}
+    />
+  );
 }
 
 DialogDescription.displayName = "Dialog.Description";

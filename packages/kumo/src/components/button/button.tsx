@@ -238,6 +238,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        data-kumo="button"
         className={cn(
           buttonVariants({ variant, size, shape }),
           "outline-none focus:opacity-100 focus-visible:ring-1 focus-visible:ring-kumo-ring *:in-focus:opacity-100", // Focus styles
@@ -316,6 +317,7 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement, LinkButtonProps>(
     return (
       <LinkComponent
         ref={ref}
+        data-kumo="link-button"
         className={cn(
           buttonVariants({ variant, size, shape }),
           "flex items-center no-underline!",

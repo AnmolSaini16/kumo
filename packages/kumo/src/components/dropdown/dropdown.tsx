@@ -88,6 +88,7 @@ const DropdownMenuContent = React.forwardRef<
       {...props}
     >
       <DropdownMenuPrimitive.Popup
+        data-kumo="dropdown"
         className={cn(
           "overflow-hidden bg-kumo-control text-kumo-default", // background
           "rounded-lg shadow-lg ring ring-kumo-line", // border part
@@ -215,6 +216,7 @@ const DropdownMenuItem = React.forwardRef<
     return (
       <DropdownMenuPrimitive.Item
         ref={ref}
+        data-kumo="dropdown-item"
         className={cn(
           "relative flex cursor-default items-center rounded-md px-2 py-1.5 text-base outline-hidden select-none focus:text-kumo-default data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-kumo-overlay",
           inset && "pl-8",
@@ -278,6 +280,7 @@ const DropdownMenuLinkItem = React.forwardRef<
     return (
       <DropdownMenuPrimitive.LinkItem
         ref={ref}
+        data-kumo="dropdown-link-item"
         className={cn(
           "relative flex cursor-default items-center rounded-md px-2 py-1.5 text-base outline-hidden select-none",
           "focus:text-kumo-default data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-kumo-overlay",
@@ -303,6 +306,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
 >(({ className, children, checked, ...props }, ref) => (
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
+    data-kumo="dropdown-checkbox-item"
     className={cn(
       "relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-base outline-hidden transition-colors select-none focus:bg-kumo-tint focus:text-kumo-default data-disabled:pointer-events-none data-disabled:opacity-50",
       className,
@@ -327,6 +331,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.GroupLabel
     ref={ref}
+    data-kumo="dropdown-label"
     className={cn(
       "px-2 py-1.5 text-base font-semibold",
       inset && "pl-8",
@@ -343,6 +348,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
+    data-kumo="dropdown-separator"
     className={cn("-mx-1 my-1 h-px bg-kumo-line", className)}
     {...props}
   />
@@ -371,6 +377,7 @@ const DropdownMenuRadioItem = React.forwardRef<
 >(({ className, children, inset, icon: IconComponent, ...props }, ref) => (
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
+    data-kumo="dropdown-radio-item"
     className={cn(
       "relative flex cursor-default items-center rounded-md px-2 py-1.5 text-base outline-hidden select-none",
       "data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-kumo-tint",

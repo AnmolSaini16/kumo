@@ -228,8 +228,10 @@ const SwitchBase = forwardRef<HTMLButtonElement, SwitchProps>(
             "interactive flex items-center gap-2 rounded-full border border-transparent bg-kumo-recessed p-1 transition-colors",
             switchVariants({ size, variant }),
             {
-              "bg-kumo-brand": state.checked && !disabled && variant !== "error",
-              "bg-kumo-danger": state.checked && !disabled && variant === "error",
+              "bg-kumo-brand":
+                state.checked && !disabled && variant !== "error",
+              "bg-kumo-danger":
+                state.checked && !disabled && variant === "error",
               "hover:bg-kumo-brand-hover":
                 state.checked &&
                 !transitioning &&
@@ -240,7 +242,8 @@ const SwitchBase = forwardRef<HTMLButtonElement, SwitchProps>(
                 !transitioning &&
                 !disabled &&
                 variant === "error",
-              "hover:bg-kumo-interact": !state.checked && !transitioning && !disabled,
+              "hover:bg-kumo-interact":
+                !state.checked && !transitioning && !disabled,
               "cursor-not-allowed opacity-50": disabled,
             },
             transitioning ? "cursor-wait" : !disabled ? "cursor-pointer" : "",
@@ -260,6 +263,7 @@ const SwitchBase = forwardRef<HTMLButtonElement, SwitchProps>(
               {...restRootProps}
               {...props}
               ref={rootRef}
+              data-kumo="switch"
               type="button"
               role={role}
               {...checkedA11yProps}
@@ -356,8 +360,10 @@ const SwitchItem = forwardRef<HTMLButtonElement, SwitchItemProps>(
               "interactive flex items-center gap-2 rounded-full border border-transparent bg-kumo-recessed p-1 transition-colors",
               switchVariants({ size, variant }),
               {
-                "bg-kumo-brand": state.checked && !disabled && variant !== "error",
-                "bg-kumo-danger": state.checked && !disabled && variant === "error",
+                "bg-kumo-brand":
+                  state.checked && !disabled && variant !== "error",
+                "bg-kumo-danger":
+                  state.checked && !disabled && variant === "error",
                 "hover:bg-kumo-brand-hover":
                   state.checked &&
                   !transitioning &&
@@ -368,7 +374,8 @@ const SwitchItem = forwardRef<HTMLButtonElement, SwitchItemProps>(
                   !transitioning &&
                   !disabled &&
                   variant === "error",
-                "hover:bg-kumo-interact": !state.checked && !transitioning && !disabled,
+                "hover:bg-kumo-interact":
+                  !state.checked && !transitioning && !disabled,
                 "cursor-not-allowed opacity-50": disabled,
               },
               transitioning ? "cursor-wait" : !disabled ? "cursor-pointer" : "",
@@ -385,6 +392,7 @@ const SwitchItem = forwardRef<HTMLButtonElement, SwitchItemProps>(
               <button
                 {...restRootProps}
                 ref={rootRef}
+                data-kumo="switch"
                 type="button"
                 role={role}
                 {...checkedA11yProps}
@@ -424,6 +432,7 @@ function SwitchGroup({
   return (
     <SwitchGroupContext.Provider value={{ controlFirst }}>
       <Fieldset.Root
+        data-kumo="switch-group"
         className={cn(
           "flex flex-col gap-4 rounded-lg border border-kumo-line p-4",
           className,
@@ -435,7 +444,9 @@ function SwitchGroup({
         </Fieldset.Legend>
         <div className="flex flex-col gap-2">{children}</div>
         {error && <p className="text-sm text-kumo-danger">{error}</p>}
-        {description && <p className="text-sm text-kumo-subtle">{description}</p>}
+        {description && (
+          <p className="text-sm text-kumo-subtle">{description}</p>
+        )}
       </Fieldset.Root>
     </SwitchGroupContext.Provider>
   );

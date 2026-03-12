@@ -263,6 +263,7 @@ export function Select<T, Multiple extends boolean | undefined = false>({
 
   const selectControl = (
     <SelectBase.Root
+      data-kumo="select"
       {...props}
       items={normalizedItems}
       disabled={loading || props.disabled}

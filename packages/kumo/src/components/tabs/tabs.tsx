@@ -143,6 +143,7 @@ export function Tabs({
   return (
     <TabsPrimitive.Root
       {...rootProps}
+      data-kumo="tabs"
       className={cn("relative isolate min-w-0 font-medium", className)}
       onValueChange={(nextValue) => {
         const stringValue = String(nextValue);
@@ -155,6 +156,7 @@ export function Tabs({
       )}
       <TabsPrimitive.List
         activateOnFocus={activateOnFocus}
+        data-kumo="tabs-list"
         className={cn(
           "scrollbar-hide relative flex min-w-0 shrink items-stretch",
           isSegmented && "h-8.5 rounded-lg bg-kumo-tint px-px",
@@ -167,6 +169,7 @@ export function Tabs({
             key={tab.value}
             value={tab.value}
             render={tab.render}
+            data-kumo="tabs-tab"
             className={cn(
               "relative z-2 flex cursor-pointer items-center rounded bg-transparent text-base whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-kumo-ring",
               isSegmented &&

@@ -111,13 +111,16 @@ export function Label({
   // When used as content inside another styled element, just render inline
   if (asContent) {
     return (
-      <span className={cn(labelContentVariants(), className)}>{content}</span>
+      <span data-kumo="label" className={cn(labelContentVariants(), className)}>
+        {content}
+      </span>
     );
   }
 
   // When used standalone, render as <label> for accessibility
   return (
     <label
+      data-kumo="label"
       htmlFor={htmlFor}
       className={cn(labelVariants(), labelContentVariants(), className)}
     >

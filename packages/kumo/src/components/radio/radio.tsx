@@ -181,6 +181,7 @@ const RadioItem = forwardRef<HTMLButtonElement, RadioItemProps>(
       >
         <BaseRadio.Root
           ref={ref}
+          data-kumo="radio"
           value={value}
           disabled={disabled}
           className={cn(
@@ -221,6 +222,7 @@ function RadioGroup({
   return (
     <RadioGroupContext.Provider value={{ controlPosition }}>
       <BaseRadioGroup
+        data-kumo="radio-group"
         defaultValue={defaultValue}
         value={value}
         onValueChange={(newValue) => onValueChange?.(newValue as string)}
@@ -245,7 +247,9 @@ function RadioGroup({
             {children}
           </div>
           {error && <p className="text-sm text-kumo-danger">{error}</p>}
-          {description && <p className="text-sm text-kumo-subtle">{description}</p>}
+          {description && (
+            <p className="text-sm text-kumo-subtle">{description}</p>
+          )}
         </Fieldset.Root>
       </BaseRadioGroup>
     </RadioGroupContext.Provider>

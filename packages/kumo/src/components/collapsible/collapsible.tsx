@@ -80,11 +80,12 @@ export const Collapsible = forwardRef<HTMLDivElement, CollapsibleProps>(
     }, [open, onOpenChange]);
 
     return (
-      <div ref={ref}>
+      <div ref={ref} data-kumo="collapsible">
         <button
           type="button"
           aria-expanded={open}
           aria-controls={contentId}
+          data-kumo="collapsible-trigger"
           className={collapsibleVariants()}
           onClick={handleOpen}
         >
@@ -96,6 +97,7 @@ export const Collapsible = forwardRef<HTMLDivElement, CollapsibleProps>(
         {open && (
           <div
             id={contentId}
+            data-kumo="collapsible-content"
             className={cn(
               "my-2 space-y-4 border-l-2 border-kumo-fill pl-4",
               className,

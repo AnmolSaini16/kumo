@@ -255,6 +255,7 @@ const CheckboxBase = forwardRef<HTMLButtonElement, CheckboxProps>(
     const checkboxControl = (
       <BaseCheckbox.Root
         ref={ref}
+        data-kumo="checkbox"
         name={name}
         checked={checked}
         indeterminate={indeterminate}
@@ -356,6 +357,7 @@ const CheckboxItem = forwardRef<HTMLButtonElement, CheckboxItemProps>(
       >
         <BaseCheckbox.Root
           ref={ref}
+          data-kumo="checkbox"
           value={value}
           name={name}
           checked={checked}
@@ -409,6 +411,7 @@ function CheckboxGroup({
   return (
     <CheckboxGroupContext.Provider value={{ controlFirst }}>
       <BaseCheckboxGroup
+        data-kumo="checkbox-group"
         defaultValue={defaultValue}
         value={value}
         onValueChange={onValueChange}

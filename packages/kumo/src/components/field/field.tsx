@@ -122,7 +122,10 @@ export function Field({
   const showOptional = required === false;
 
   return (
-    <FieldBase.Root className={fieldVariants({ controlFirst })}>
+    <FieldBase.Root
+      data-kumo="field"
+      className={fieldVariants({ controlFirst })}
+    >
       <FieldBase.Label className="text-base font-medium text-kumo-default">
         <Label showOptional={showOptional} tooltip={labelTooltip} asContent>
           {label}

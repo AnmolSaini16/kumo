@@ -104,7 +104,10 @@ export function Badge({
   children,
 }: BadgeProps) {
   return (
-    <span className={cn(badgeVariants({ variant }), className)}>
+    <span
+      data-kumo="badge"
+      className={cn(badgeVariants({ variant }), className)}
+    >
       {children}
     </span>
   );

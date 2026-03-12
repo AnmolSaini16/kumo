@@ -155,6 +155,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const input = (
     <BaseInput
       ref={ref}
+      data-kumo="input"
       className={cn(
         inputVariants({ size, variant, focusIndicator: true }),
         className,
