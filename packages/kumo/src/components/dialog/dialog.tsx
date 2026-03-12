@@ -283,12 +283,16 @@ type BaseDialogTriggerProps = ComponentPropsWithoutRef<
 
 export type DialogTriggerProps = BaseDialogTriggerProps;
 
-function DialogTrigger({ children, ...props }: DialogTriggerProps) {
+function DialogTrigger({ children, render, ...props }: DialogTriggerProps) {
   const role = useDialogRole();
   const BaseTrigger =
     role === "alertdialog" ? AlertDialogBase.Trigger : DialogBase.Trigger;
   return (
-    <BaseTrigger data-kumo="dialog-trigger" {...props}>
+    <BaseTrigger
+      data-kumo={render ? undefined : "dialog-trigger"}
+      render={render}
+      {...props}
+    >
       {children}
     </BaseTrigger>
   );
