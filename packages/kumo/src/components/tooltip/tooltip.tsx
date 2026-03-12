@@ -120,6 +120,7 @@ export function Tooltip({
   return (
     <TooltipBase.Root {...props}>
       <TooltipBase.Trigger
+        data-kumo="tooltip-trigger"
         className={className}
         render={asChild ? (children as TriggerProps["render"]) : undefined}
       >
