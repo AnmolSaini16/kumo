@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -11,30 +12,23 @@ export default defineConfig({
     browser: {
       enabled: true,
       provider: playwright(),
-      // https://vitest.dev/config/browser/playwright
       instances: [{ browser: "chromium" }],
       expect: {
         toMatchScreenshot: {
-          /**
-           * Store reference screenshots in __screenshots__/ next to test files.
-           * Includes browser and platform in the filename so darwin/linux
-           * screenshots don't collide (font rendering differs across platforms).
-           */
-          resolveScreenshotPath: ({
-            testFileDirectory,
-            testFileName,
-            testName,
-            browserName,
-            platform,
-            ext,
-          }) =>
-            `${testFileDirectory}/__screenshots__/${testFileName}/${testName}-${browserName}-${platform}${ext}`,
+          resolveScreenshotPath: (data) => {
+            const path = resolve(
+              data.root,
+              data.testFileDirectory,
+              "__screenshots__",
+              data.testFileName,
+              `${data.testName}-${data.browserName}-${data.platform}${data.ext}`,
+            );
+            console.log("[resolveScreenshotPath]", path);
+            return path;
+          },
         },
       },
     },
-    /**
-     * Intentionally tiny timeout because components should render quick
-     */
     testTimeout: 2_000,
   },
 });
