@@ -62,7 +62,7 @@ describe("Combobox visual regression", () => {
     await expect.element(listbox).toBeVisible();
 
     // Scroll to the bottom to verify scrolling works
-    await listbox.element().scrollTo({ top: 99999 });
+    listbox.element().scrollTo({ top: 99999 });
 
     await expect(listbox).toMatchScreenshot("dropdown-scrolled-to-bottom");
   });
