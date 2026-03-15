@@ -61,9 +61,14 @@ describe("Combobox visual regression", () => {
     const listbox = page.getByRole("listbox");
     await expect.element(listbox).toBeVisible();
 
-    // Scroll to the bottom to verify scrolling works
-    listbox.element().scrollTo({ top: 99999 });
-
-    await expect(listbox).toMatchScreenshot("dropdown-scrolled-to-bottom");
+    // Verify the dropdown is scrollable by checking computed overflow style.
+    // The #127 regression changed overflow-y-auto to overflow-hidden,
+    // clipping content and preventing users from scrolling to later items.
+    const el = listbox.element();
+    const overflow = getComputedStyle(el).overflowY;
+    expect(
+      overflow,
+      "listbox should have overflow-y: auto or scroll, not hidden",
+    ).toMatch(/auto|scroll/);
   });
 });
