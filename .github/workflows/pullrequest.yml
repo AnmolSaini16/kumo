@@ -72,7 +72,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          find . -path '*__screenshots__*' -name '*.png' -exec git add {} + 2>/dev/null || true
+          echo "pwd: $(pwd)"
+          echo "Finding screenshots..."
+          find . -path '*__screenshots__*' -name '*.png' -ls
+          find . -path '*__screenshots__*' -name '*.png' -exec git add {} +
+          git status
           if git diff --cached --quiet; then
             echo "has_new=false" >> "$GITHUB_OUTPUT"
           else
