@@ -293,7 +293,7 @@ The package includes comprehensive import validation tests that ensure all compo
 **Run tests:**
 
 ```bash
-# Watch mode
+# Unit tests (watch mode)
 pnpm test
 
 # Single run
@@ -304,6 +304,9 @@ pnpm test:ui
 
 # With coverage
 pnpm test:coverage
+
+# Browser tests (visual regression)
+pnpm test:browser
 ```
 
 **What's tested:**
@@ -317,6 +320,57 @@ pnpm test:coverage
 - Build configuration consistency
 
 **Zero maintenance:** Tests automatically discover components and blocks from the filesystem and validate against package.json. When adding new items, tests will fail with exact code snippets to fix configuration.
+
+#### Visual Regression Tests
+
+Visual regression tests use Vitest browser mode with Playwright to take screenshots of rendered components and compare them against reference images. This catches styling regressions that unit tests can't — like a color token change making an icon invisible, or an overflow class breaking scrollability.
+
+**How it works:**
+
+1. Tests live in `*.browser.test.tsx` files alongside components
+2. Components render in a real Chromium browser with full CSS/Tailwind
+3. `toMatchScreenshot()` captures a screenshot and compares it pixel-by-pixel against a stored reference
+4. If pixels differ, the test fails with a visual diff
+
+**First run:** Creates reference screenshots in `__screenshots__/` and fails — review them before committing.
+
+**Updating references:** Run `pnpm test:browser -- --update` to accept new screenshots after intentional changes.
+
+**Important: Only Linux screenshots are committed.** Screenshots include the platform in their filename (e.g., `trigger-value-chromium-linux.png`). Font rendering differs across OSes, so macOS/Windows screenshots are gitignored — CI (Ubuntu) is the source of truth. When adding new visual tests:
+
+1. Write your `*.browser.test.tsx` test
+2. Run `pnpm test:browser` locally to verify it works (your local screenshots are gitignored)
+3. Push your PR — CI will auto-commit the Linux reference screenshots to your branch on the first run
+4. CI re-runs and passes with the committed baselines
+
+If a visual test fails because your change *actually* altered the component's appearance, CI will upload a `visual-regression-diffs` artifact with the reference, actual, and diff images. Review them, and if the change is intentional, run `pnpm test:browser -- --update` locally then push the updated `-linux.png` files.
+
+**Adding a new visual test:**
+
+```tsx
+// src/components/my-component/my-component.browser.test.tsx
+import { beforeAll, describe, expect, test } from "vitest";
+import { render } from "vitest-browser-react";
+import { MyComponent } from ".";
+
+describe("MyComponent visual regression", () => {
+  beforeAll(async () => {
+    await document.fonts.ready;
+  });
+
+  test("renders correctly", async () => {
+    const { getByTestId } = await render(
+      <div data-testid="wrapper" style={{ padding: 16 }}>
+        <MyComponent />
+      </div>,
+    );
+
+    const wrapper = getByTestId("wrapper");
+    await expect.element(wrapper).toBeVisible();
+    await expect(wrapper).toMatchScreenshot("default");
+  });
+});
+```
 
 ## Beta Releases
 

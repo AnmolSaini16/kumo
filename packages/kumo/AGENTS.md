@@ -89,6 +89,7 @@ Output: ai/component-registry.{json,md} + ai/schemas.ts
 - **Structural tests** in `tests/imports/`: validate all export paths resolve, package.json matches vite entries
 - **Sparse component tests**: Only 3/35 components have unit tests; emphasis on infrastructure testing
 - **`describe.skipIf(!isBuilt)`**: Export validation tests skip gracefully when `dist/` missing
+- **Visual regression tests** (`*.browser.test.tsx`): Vitest browser mode + Playwright screenshots. Run with `pnpm test:browser`. Only Linux (`-linux.png`) screenshots are committed (CI is source of truth). macOS/Windows screenshots are gitignored.
 
 ## ANTI-PATTERNS
 

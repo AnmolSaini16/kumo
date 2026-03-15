@@ -42,3 +42,55 @@ jobs:
 
       - run: pnpm --filter @cloudflare/kumo build
       - run: pnpm --filter @cloudflare/kumo test
+
+  test-browser:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - run: pnpm --filter @cloudflare/kumo build
+
+      - name: Install Playwright Browsers
+        run: pnpm --filter @cloudflare/kumo exec playwright install --with-deps chromium
+
+      - name: Run visual regression tests
+        id: visual-tests
+        continue-on-error: true
+        run: pnpm --filter @cloudflare/kumo test:browser
+
+      - name: Auto-commit new Linux reference screenshots
+        if: steps.visual-tests.outcome == 'failure'
+        id: commit-screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          find . -path '*__screenshots__*' -name '*.png' -exec git add {} + 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "has_new=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: add Linux reference screenshots [skip ci]"
+            git push
+            echo "has_new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload diff artifacts on failure
+        if: steps.visual-tests.outcome == 'failure' && steps.commit-screenshots.outputs.has_new == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-diffs
+          path: packages/kumo/.vitest-attachments/
+          retention-days: 14
+
+      - name: Fail on visual regression
+        if: steps.visual-tests.outcome == 'failure' && steps.commit-screenshots.outputs.has_new == 'false'
+        run: |
+          echo "Visual regression detected. Download the 'visual-regression-diffs' artifact to inspect."
+          exit 1

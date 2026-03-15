@@ -43,6 +43,11 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+.vitest-attachments/
+
+# Visual regression screenshots — only Linux (CI) baselines are committed
+**/__screenshots__/**/*-darwin.png
+**/__screenshots__/**/*-win32.png
 
 # Temporary files
 *.tmp
