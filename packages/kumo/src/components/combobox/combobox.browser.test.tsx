@@ -23,7 +23,7 @@ describe("Combobox visual regression", () => {
 
     const wrapper = getByTestId("trigger-value-wrapper");
     await expect.element(wrapper).toBeVisible();
-    await expect(wrapper).toMatchScreenshot("trigger-value");
+    await expect(wrapper).toMatchScreenshot();
   });
 
   test("TriggerInput caret is visible", async () => {
@@ -37,7 +37,7 @@ describe("Combobox visual regression", () => {
 
     const wrapper = getByTestId("trigger-input-wrapper");
     await expect.element(wrapper).toBeVisible();
-    await expect(wrapper).toMatchScreenshot("trigger-input");
+    await expect(wrapper).toMatchScreenshot();
   });
 
   test("dropdown with many items is scrollable", async () => {

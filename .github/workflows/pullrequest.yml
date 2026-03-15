@@ -72,18 +72,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          echo "HEAD: $(git rev-parse HEAD)"
-          echo "Git log:"
-          git log --oneline -5
-          echo "Existing screenshots in tree:"
-          git ls-tree -r HEAD --name-only | grep __screenshots__ || echo "none in tree"
-          echo "Screenshots on disk:"
-          find . -path '*__screenshots__*' -name '*.png' -ls
-          echo "Force-adding..."
-          find . -path '*__screenshots__*' -name '*.png' | while read f; do
-            git add -f "$f"
-          done
-          git status
+          find . -path '*__screenshots__*' -name '*.png' -exec git add -f {} + 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "has_new=false" >> "$GITHUB_OUTPUT"
           else
