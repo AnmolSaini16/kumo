@@ -43,10 +43,7 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
-
-# Visual regression: ignore diff/actual screenshots but keep reference screenshots
-**/.vitest-attachments/**/*-actual-*.png
-**/.vitest-attachments/**/*-diff-*.png
+.vitest-attachments/
 
 # Visual regression screenshots — only Linux (CI) baselines are committed
 **/__screenshots__/**/*-darwin.png

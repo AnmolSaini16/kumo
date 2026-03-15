@@ -13,6 +13,24 @@ export default defineConfig({
       provider: playwright(),
       // https://vitest.dev/config/browser/playwright
       instances: [{ browser: "chromium" }],
+      expect: {
+        toMatchScreenshot: {
+          /**
+           * Store reference screenshots in __screenshots__/ next to test files.
+           * Includes browser and platform in the filename so darwin/linux
+           * screenshots don't collide (font rendering differs across platforms).
+           */
+          resolveScreenshotPath: ({
+            testFileDirectory,
+            testFileName,
+            testName,
+            browserName,
+            platform,
+            ext,
+          }) =>
+            `${testFileDirectory}/__screenshots__/${testFileName}/${testName}-${browserName}-${platform}${ext}`,
+        },
+      },
     },
     /**
      * Intentionally tiny timeout because components should render quick
