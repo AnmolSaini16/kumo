@@ -75,8 +75,12 @@ jobs:
           echo "pwd: $(pwd)"
           echo "Finding screenshots..."
           find . -path '*__screenshots__*' -name '*.png' -ls
-          find . -path '*__screenshots__*' -name '*.png' -exec git add {} +
+          find . -path '*__screenshots__*' -name '*.png' | while read f; do
+            echo "Adding: $f"
+            git add -f "$f"
+          done
           git status
+          git diff --cached --stat
           if git diff --cached --quiet; then
             echo "has_new=false" >> "$GITHUB_OUTPUT"
           else
