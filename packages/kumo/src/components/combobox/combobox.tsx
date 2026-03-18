@@ -256,10 +256,7 @@ function TriggerValue({
           iconStyles.iconRight,
         )}
       >
-        <CaretDownIcon
-          size={iconStyles.iconSize}
-          className="fill-current"
-        />
+        <CaretDownIcon size={iconStyles.iconSize} className="fill-current" />
       </ComboboxBase.Icon>
     </ComboboxBase.Trigger>
   );
@@ -325,10 +322,7 @@ function TriggerInput(props: ComboboxBase.Input.Props) {
             iconStyles.caretRight,
           )}
         >
-          <CaretDownIcon
-            size={iconStyles.iconSize}
-            className="fill-current"
-          />
+          <CaretDownIcon size={iconStyles.iconSize} className="fill-current" />
         </ComboboxBase.Icon>
       </ComboboxBase.Trigger>
     </div>
@@ -475,7 +469,7 @@ function TriggerMultipleWithInput<ValueType>({
       {inputSide === "top" && (
         <ComboboxBase.Input
           placeholder={placeholder}
-          className="w-full px-2 py-1 outline-none border-0 bg-inherit"
+          className="w-full px-2 py-1 border-0 bg-inherit"
         />
       )}
       {/* Chips container */}
@@ -499,7 +493,7 @@ function TriggerMultipleWithInput<ValueType>({
         {inputSide === "right" && (
           <ComboboxBase.Input
             placeholder={placeholder}
-            className="min-w-[100px] flex-1 px-2 py-1 outline-none border-0 bg-inherit"
+            className="min-w-[100px] flex-1 px-2 py-1 border-0 bg-inherit"
           />
         )}
       </div>
