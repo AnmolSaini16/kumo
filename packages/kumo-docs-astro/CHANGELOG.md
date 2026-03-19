@@ -1,5 +1,84 @@
 # @cloudflare/kumo-docs-astro
 
+## 1.3.13
+
+### Patch Changes
+
+- 839b0cb: fix: update styling for mostly-used components with new greyscale tokens (combobox, dialog, input, layerCard, select & tabs) as well as homegrid and component preview backgrounds.
+- Updated dependencies [839b0cb]
+- Updated dependencies [7083a17]
+  - @cloudflare/kumo@1.14.1
+
+## 1.3.12
+
+### Patch Changes
+
+- 70a7443: Updated the Contributing docs with content from `CONTRIBUTING.md` so there's a single source of truth for our contribution workflow and repository guidance.
+- Updated dependencies [f2e17d7]
+- Updated dependencies [eba693e]
+- Updated dependencies [db91f50]
+- Updated dependencies [80afd4d]
+- Updated dependencies [dc9742d]
+- Updated dependencies [f94fee7]
+- Updated dependencies [66012b7]
+- Updated dependencies [8b2d6a0]
+- Updated dependencies [e8acdd8]
+- Updated dependencies [abbf586]
+- Updated dependencies [c6aa554]
+  - @cloudflare/kumo@1.14.0
+
+## 1.3.11
+
+### Patch Changes
+
+- Updated dependencies [c272f6a]
+- Updated dependencies [5e12c15]
+  - @cloudflare/kumo@1.13.1
+
+## 1.3.10
+
+### Patch Changes
+
+- Updated dependencies [56a8b35]
+  - @cloudflare/kumo@1.13.0
+
+## 1.3.9
+
+### Patch Changes
+
+- Updated dependencies [eda8362]
+  - @cloudflare/kumo@1.12.1
+
+## 1.3.8
+
+### Patch Changes
+
+- Updated dependencies [2ff49b7]
+- Updated dependencies [4d6de27]
+- Updated dependencies [59f7935]
+- Updated dependencies [9eaf584]
+  - @cloudflare/kumo@1.12.0
+
+## 1.3.7
+
+### Patch Changes
+
+- Updated dependencies [a53ec1b]
+- Updated dependencies [cb121bc]
+- Updated dependencies [c6a3fb3]
+- Updated dependencies [1bfffaa]
+- Updated dependencies [5d16fdb]
+- Updated dependencies [8b964f5]
+- Updated dependencies [529274d]
+- Updated dependencies [140f4ab]
+- Updated dependencies [f1c6392]
+- Updated dependencies [da03394]
+- Updated dependencies [2f0e572]
+- Updated dependencies [ee1099d]
+- Updated dependencies [6dc952f]
+- Updated dependencies [2352344]
+  - @cloudflare/kumo@1.11.0
+
 ## 1.3.6
 
 ### Patch Changes

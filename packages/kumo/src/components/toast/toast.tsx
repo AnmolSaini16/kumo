@@ -7,6 +7,8 @@ import type React from "react";
 import { cn } from "../../utils/cn";
 import { Button, ButtonProps } from "../../components/button";
 import {
+  CheckCircleIcon,
+  InfoIcon,
   WarningIcon,
   WarningOctagonIcon,
   XIcon,
@@ -40,17 +42,29 @@ export const KUMO_TOAST_VARIANTS = {
       classes: "border-kumo-fill bg-kumo-control",
       description: "Default toast style",
     },
+    success: {
+      classes:
+        "border-kumo-success bg-kumo-control [&_[data-toast-icon]]:text-kumo-success [&_[data-toast-title]]:text-kumo-success",
+      description: "Success toast for confirmations and positive outcomes",
+      icon: CheckCircleIcon,
+    },
     error: {
       classes:
-        "border-kumo-fill bg-kumo-control [&_[data-toast-icon]]:text-[light-dark(var(--color-red-600),var(--color-red-400))] [&_[data-toast-title]]:text-[light-dark(var(--color-red-600),var(--color-red-400))]",
+        "border-kumo-danger bg-kumo-control [&_[data-toast-icon]]:text-kumo-danger [&_[data-toast-title]]:text-kumo-danger",
       description: "Error toast for critical issues",
       icon: WarningOctagonIcon,
     },
     warning: {
       classes:
-        "border-kumo-fill bg-kumo-control [&_[data-toast-icon]]:text-[light-dark(var(--color-amber-700),var(--color-amber-500))] [&_[data-toast-title]]:text-[light-dark(var(--color-amber-700),var(--color-amber-500))]",
+        "border-kumo-warning bg-kumo-control [&_[data-toast-icon]]:text-kumo-warning [&_[data-toast-title]]:text-kumo-warning",
       description: "Warning toast for cautionary messages",
       icon: WarningIcon,
+    },
+    info: {
+      classes:
+        "border-kumo-info bg-kumo-control [&_[data-toast-icon]]:text-kumo-info [&_[data-toast-title]]:text-kumo-info",
+      description: "Info toast for neutral informational messages",
+      icon: InfoIcon,
     },
   },
 } as const;
@@ -299,7 +313,7 @@ function ToastList() {
         toast.bump && "animate-toast-bump",
       )}
     >
-      <div className="absolute inset-0 rounded-[11px] bg-kumo-control/90"></div>
+      <ToastBackground variant={toast.variant} />
       <Toast.Content className="isolate flex flex-col gap-1 transition-opacity [transition-duration:250ms] data-[behind]:pointer-events-none data-[behind]:opacity-0 data-[expanded]:pointer-events-auto data-[expanded]:opacity-100">
         {toast.content ?? (
           <>
@@ -332,6 +346,22 @@ function ToastList() {
       </Toast.Content>
     </Toast.Root>
   ));
+}
+
+const TOAST_TINT_CLASSES: Record<string, string> = {
+  success: "bg-kumo-success-tint/10",
+  error: "bg-kumo-danger-tint/10",
+  warning: "bg-kumo-warning-tint/10",
+  info: "bg-kumo-info-tint/10",
+};
+
+function ToastBackground({ variant }: { variant?: KumoToastVariant }) {
+  const tint = variant && TOAST_TINT_CLASSES[variant];
+  return (
+    <div
+      className={cn("absolute inset-0 rounded-[11px] bg-kumo-control/90", tint)}
+    />
+  );
 }
 
 function ToastIcon({ variant }: { variant?: KumoToastVariant }) {
