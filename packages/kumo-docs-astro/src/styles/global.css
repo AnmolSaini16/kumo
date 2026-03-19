@@ -89,11 +89,13 @@ html {
   content: none;
 }
 
-/* Links — underline on hover only */
-.kumo-prose :where(a) {
+/* Links — underline on hover only.
+   Mirror @tailwindcss/typography's own guard so that <a> elements inside a
+   .not-prose ancestor (e.g. ComponentExample) are excluded. */
+.kumo-prose :where(a:not(.not-prose *)) {
   text-decoration: none;
 }
-.kumo-prose :where(a):hover {
+.kumo-prose :where(a:not(.not-prose *)):hover {
   text-decoration: underline;
 }
 
