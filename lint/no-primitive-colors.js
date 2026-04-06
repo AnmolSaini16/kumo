@@ -103,8 +103,9 @@ const NON_COLOR_UTILITIES = new Set([
 // Patterns that look like color tokens but are actually other utilities
 // These use regex patterns for more flexible matching
 const NON_COLOR_PATTERNS = [
-  // Gradient directions: bg-linear-to-r, bg-linear-to-bl, etc.
+  // Gradient directions: bg-linear-to-r, bg-linear-to-bl, bg-gradient-to-b, etc.
   /^linear-to-[trbl]{1,2}$/,
+  /^gradient-to-[trbl]{1,2}$/,
   // Border directional + size: border-l-2, border-t-4, etc.
   /^[trblxy]-\d+$/,
   // Outline/ring offset utilities: outline-offset-3, ring-offset-2, etc.

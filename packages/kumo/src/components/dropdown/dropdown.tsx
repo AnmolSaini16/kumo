@@ -1,4 +1,5 @@
 import { Menu as DropdownMenuPrimitive } from "@base-ui/react/menu";
+import { ScrollArea } from "@base-ui/react/scroll-area";
 import * as React from "react";
 import { cn } from "../../utils/cn";
 import { useLinkComponent } from "../../utils/link-provider";
@@ -120,9 +121,19 @@ const DropdownMenuContent = React.forwardRef<
               className,
             )}
           >
-            <div className="overflow-y-auto overscroll-contain p-1.5 max-h-[inherit]">
-              {children}
-            </div>
+            <ScrollArea.Root className="group relative flex max-h-[inherit] flex-col">
+              <ScrollArea.Viewport className="max-h-[inherit] overscroll-contain">
+                <ScrollArea.Content className="p-1.5">
+                  {children}
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className="pointer-events-none m-0.5 flex w-1 justify-center rounded-sm opacity-0 transition-opacity data-[hovering]:pointer-events-auto data-[hovering]:opacity-100 data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-0">
+                <ScrollArea.Thumb className="w-full rounded-sm bg-kumo-fill" />
+              </ScrollArea.Scrollbar>
+              {/* Gradient scroll fades — composed outside viewport so they don't affect scroll height */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-1 h-10 rounded-t-lg bg-gradient-to-b from-kumo-control to-transparent opacity-0 transition-opacity group-data-[overflow-y-start]:opacity-100" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-1 h-10 rounded-b-lg bg-gradient-to-t from-kumo-control to-transparent opacity-0 transition-opacity group-data-[overflow-y-end]:opacity-100" />
+            </ScrollArea.Root>
           </DropdownMenuPrimitive.Popup>
         </DropdownMenuPrimitive.Positioner>
       </DropdownMenuPrimitive.Portal>

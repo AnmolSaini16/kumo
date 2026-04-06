@@ -223,3 +223,31 @@
 .kumo-input-placeholder::placeholder {
   color: var(--text-color-kumo-placeholder);
 }
+
+.kumo-scroll-fade::before {
+  --scroll-area-overflow-y-start: inherit;
+  top: 0;
+  height: min(40px, var(--scroll-area-overflow-y-start));
+  margin-bottom: calc(min(40px, var(--scroll-area-overflow-y-start)) * -1);
+  background: linear-gradient(
+    to bottom,
+    var(--color-kumo-control),
+    transparent
+  );
+}
+
+.kumo-scroll-fade::after {
+  --scroll-area-overflow-y-end: inherit;
+  bottom: 0;
+  height: min(40px, var(--scroll-area-overflow-y-end, 0px));
+  margin-top: calc(min(40px, var(--scroll-area-overflow-y-end, 0px)) * -1);
+  background: linear-gradient(to top, var(--color-kumo-control), transparent);
+}
+
+.kumo-scroll-fade::after {
+  --scroll-area-overflow-y-end: inherit;
+  bottom: 0;
+  height: min(40px, var(--scroll-area-overflow-y-end, 40px));
+  margin-top: -40px;
+  background: linear-gradient(to top, var(--color-kumo-control), transparent);
+}
