@@ -216,6 +216,8 @@ export type LinkButtonProps = React.AnchorHTMLAttributes<HTMLAnchorElement> &
 /**
  * Primary action trigger. Supports multiple variants, sizes, shapes, icons, and loading state.
  *
+ * Automatically integrates with Tooltip when `title` prop is provided.
+ *
  * @example
  * ```tsx
  * <Button variant="primary">Save</Button>
