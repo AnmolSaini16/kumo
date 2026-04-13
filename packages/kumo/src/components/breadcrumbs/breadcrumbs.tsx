@@ -306,88 +306,65 @@ export interface BreadcrumbsItemsProps extends KumoBreadcrumbsVariantsProps {
 }
 
 // Layout constants for TreeMenu (pixels)
-const TREE_ROW_HEIGHT = 32;
-const TREE_BASE_X = 12;
-const TREE_INDENT = 14;
-const TREE_BRANCH = 2;
-const TREE_TEXT_GAP = 10;
-
-function treeXLevel(level: number): number {
-  return TREE_BASE_X + level * TREE_INDENT;
-}
-
-function treeXText(level: number): number {
-  return treeXLevel(level) + TREE_BRANCH + TREE_TEXT_GAP;
-}
-
-function treeYCenter(index: number): number {
-  return index * TREE_ROW_HEIGHT + TREE_ROW_HEIGHT / 2;
-}
+const TREE_INDENT = 8;
 
 const TREE_MENU_ITEM_CLASS =
-  "flex h-8 min-w-0 cursor-pointer items-center rounded px-2 text-sm text-kumo-default outline-none select-none data-highlighted:bg-kumo-tint/60";
+  "flex h-9 min-w-0 cursor-pointer items-center gap-2 rounded px-3 text-sm text-kumo-default outline-none select-none data-highlighted:bg-kumo-tint/60";
 
 /**
- * Renders overflow breadcrumb items as an indented tree structure.
+ * L-shaped connector icon for tree hierarchy visualization.
+ */
+function TreeConnector() {
+  return (
+    <svg
+      width="16"
+      height="20"
+      viewBox="0 0 16 20"
+      fill="none"
+      className="shrink-0 text-kumo-line"
+      aria-hidden
+    >
+      <path
+        d="M1 0 V12 H15"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Renders overflow breadcrumb items as an indented tree structure
+ * with disconnected L-shaped connectors showing hierarchy.
  */
 function TreeMenu({ items }: { items: BreadcrumbItem[] }) {
   if (items.length === 0) return null;
 
-  const totalHeight = items.length * TREE_ROW_HEIGHT;
-
   return (
-    <div className="relative" style={{ height: totalHeight }}>
-      <svg
-        className="pointer-events-none absolute inset-0"
-        width="100%"
-        height={totalHeight}
-        aria-hidden
-        focusable="false"
-      >
-        {items.map((_, i) => {
-          if (i === 0) return null;
+    <div className="flex flex-col py-1">
+      {items.map((item, i) => {
+        const paddingLeft = i === 0 ? 12 : 12 + i * TREE_INDENT;
 
-          const x1 = treeXLevel(i - 1) - 6;
-          const x2 = treeXLevel(i) + TREE_BRANCH;
-          const y2 = treeYCenter(i);
-          const y1 =
-            i === 1 ? treeYCenter(0) + TREE_ROW_HEIGHT / 2 : treeYCenter(i - 1);
-
-          return (
-            <path
-              key={i}
-              d={`M ${x1} ${y1} V ${y2} H ${x2}`}
-              stroke="var(--color-kumo-line)"
-              strokeWidth="1"
-              strokeLinecap="butt"
-              strokeLinejoin="miter"
-              fill="none"
-            />
-          );
-        })}
-      </svg>
-
-      <div className="relative flex flex-col">
-        {items.map((item, i) => {
-          const paddingLeft = i === 0 ? 8 : treeXText(i);
-
-          return (
-            <Menu.Item
-              key={i}
-              render={
-                item.render ?? (
-                  <a href={item.href ?? "#"} aria-label={item.label} />
-                )
-              }
-              closeOnClick
-              className={TREE_MENU_ITEM_CLASS}
-              style={{ paddingLeft }}
-            >
-              <span className="min-w-0 truncate">{item.label}</span>
-            </Menu.Item>
-          );
-        })}
-      </div>
+        return (
+          <Menu.Item
+            key={i}
+            render={
+              item.render ?? (
+                <a href={item.href ?? "#"} aria-label={item.label} />
+              )
+            }
+            closeOnClick
+            className={TREE_MENU_ITEM_CLASS}
+            style={{ paddingLeft }}
+          >
+            {i > 0 && <TreeConnector />}
+            <span className="min-w-0 truncate">{item.label}</span>
+          </Menu.Item>
+        );
+      })}
     </div>
   );
 }
