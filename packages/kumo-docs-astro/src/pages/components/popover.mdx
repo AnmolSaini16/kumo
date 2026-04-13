@@ -17,6 +17,7 @@ import {
   PopoverPositionDemo,
   PopoverCustomContentDemo,
   PopoverOpenOnHoverDemo,
+  PopoverVirtualAnchorDemo,
 } from "~/components/demos/PopoverDemo";
 
 {/* Hero Demo */}
@@ -190,44 +191,9 @@ export default function Example() {
   from `getBoundingClientRect()`). This is useful when the trigger and the
   desired anchor are in different component trees.
 </p>
-
-```tsx
-import { Popover } from "@cloudflare/kumo";
-import { useState, useRef } from "react";
-
-function VirtualAnchorExample() {
-  const [open, setOpen] = useState(false);
-  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  return (
-    <>
-      <button
-        ref={buttonRef}
-        onClick={() => {
-          setAnchorRect(buttonRef.current?.getBoundingClientRect() ?? null);
-          setOpen((prev) => !prev);
-        }}
-      >
-        Open popover
-      </button>
-      <Popover open={open} onOpenChange={setOpen}>
-        <Popover.Content
-          side="bottom"
-          anchor={
-            anchorRect ? { getBoundingClientRect: () => anchorRect } : undefined
-          }
-        >
-          <Popover.Title>Virtual Anchor</Popover.Title>
-          <Popover.Description>
-            This popover is anchored to a DOMRect.
-          </Popover.Description>
-        </Popover.Content>
-      </Popover>
-    </>
-  );
-}
-```
+<ComponentExample demo="PopoverVirtualAnchorDemo">
+  <PopoverVirtualAnchorDemo client:load />
+</ComponentExample>
 
 </ComponentSection>
 
