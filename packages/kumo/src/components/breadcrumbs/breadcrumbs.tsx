@@ -321,12 +321,12 @@ function TreeConnector() {
       height="20"
       viewBox="0 0 16 20"
       fill="none"
-      className="shrink-0 text-kumo-subtle"
+      className="shrink-0"
       aria-hidden
     >
       <path
         d="M1 0 V12 H15"
-        stroke="currentColor"
+        className="stroke-kumo-hairline"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
