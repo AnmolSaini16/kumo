@@ -167,12 +167,9 @@ html {
   @apply text-base leading-relaxed;
 }
 
-/* Divider styling */
-.kumo-prose :where(hr) {
-  justify-self: center;
-  width: 100%;
-  margin: 4rem 0;
-  padding: 0;
+/* Horizontal rule */
+.kumo-prose :where(hr):not(:where(.not-prose, .not-prose *)) {
+  margin: 1.5rem 0;
 }
 
 /* kbd styling */
