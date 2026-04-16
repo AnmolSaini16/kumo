@@ -1,5 +1,5 @@
 ---
-import { LinkSimple } from "@phosphor-icons/react";
+import { LinkSimple as LinkSimpleIcon } from "@phosphor-icons/react";
 
 interface Props {
   level: 2 | 3 | 4;
@@ -45,7 +45,7 @@ const baseStyles = levelStyles[level];
       class="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
       aria-hidden="true"
     >
-      <LinkSimple className="size-4 text-kumo-subtle" />
+      <LinkSimpleIcon className="size-4 text-kumo-subtle" />
     </span>
     <slot />
   </a>
