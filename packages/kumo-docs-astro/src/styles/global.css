@@ -39,9 +39,9 @@ html {
   /* Base letter-spacing for prose content */
   letter-spacing: -0.01em;
 
-  /* Body text — use default weight, not strong */
+  /* Body text */
   --tw-prose-body: var(--text-color-kumo-default);
-  /* Headings — use default (near-black), not strong (medium gray) */
+  /* Headings */
   --tw-prose-headings: var(--text-color-kumo-default);
   /* Lead paragraphs */
   --tw-prose-lead: var(--text-color-kumo-default);
