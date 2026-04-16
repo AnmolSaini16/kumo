@@ -1,5 +1,18 @@
 import type { Root } from "mdast";
 
+/** MDX ESM node shape used by mdast-util-mdxjs-esm / remark-mdx. */
+interface MdxjsEsmNode {
+  type: "mdxjsEsm";
+  value: string;
+  data: {
+    estree: {
+      type: "Program";
+      sourceType: "module";
+      body: Record<string, unknown>[];
+    };
+  };
+}
+
 /**
  * Remark plugin that injects MDX component overrides for headings.
  * This makes markdown ## / ### / #### render using the Heading.astro component
@@ -13,7 +26,7 @@ export function remarkHeadingComponents() {
   return (tree: Root) => {
     // Inject import statements at the top of the MDX AST.
     // Uses underscore-prefixed names to avoid conflicts with existing imports in MDX files.
-    const importNode = {
+    const importNode: MdxjsEsmNode = {
       type: "mdxjsEsm",
       value: `import _H2 from '~/components/docs/mdx/H2.astro';
 import _H3 from '~/components/docs/mdx/H3.astro';
@@ -68,7 +81,7 @@ import _H4 from '~/components/docs/mdx/H4.astro';`,
     };
 
     // Inject: export const components = { h2: _H2, h3: _H3, h4: _H4 };
-    const exportNode = {
+    const exportNode: MdxjsEsmNode = {
       type: "mdxjsEsm",
       value: "export const components = { h2: _H2, h3: _H3, h4: _H4 };",
       data: {
@@ -127,7 +140,12 @@ import _H4 from '~/components/docs/mdx/H4.astro';`,
       },
     };
 
-    // Prepend import and export nodes to the tree
-    tree.children.unshift(importNode as any, exportNode as any);
+    // Prepend import and export nodes to the tree.
+    // MdxjsEsmNode (from mdx-js/mdx) isn't part of mdast's RootContent union,
+    // so we widen the array type to accept both standard and MDX ESM nodes.
+    (tree.children as (Root["children"][number] | MdxjsEsmNode)[]).unshift(
+      importNode,
+      exportNode,
+    );
   };
 }
