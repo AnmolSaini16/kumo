@@ -41,8 +41,8 @@ html {
 
   /* Body text — use default weight, not strong */
   --tw-prose-body: var(--text-color-kumo-default);
-  /* Headings — strong emphasis */
-  --tw-prose-headings: var(--text-color-kumo-strong);
+  /* Headings — use default (near-black), not strong (medium gray) */
+  --tw-prose-headings: var(--text-color-kumo-default);
   /* Lead paragraphs */
   --tw-prose-lead: var(--text-color-kumo-default);
   /* Link color */
@@ -78,7 +78,7 @@ html {
 
   /* Dark mode — same tokens, they auto-adapt via light-dark() */
   --tw-prose-invert-body: var(--text-color-kumo-default);
-  --tw-prose-invert-headings: var(--text-color-kumo-strong);
+  --tw-prose-invert-headings: var(--text-color-kumo-default);
   --tw-prose-invert-lead: var(--text-color-kumo-default);
   --tw-prose-invert-links: var(--text-color-kumo-link);
   --tw-prose-invert-bold: var(--text-color-kumo-strong);
