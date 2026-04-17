@@ -41,6 +41,30 @@ describe("getComponentBirthDates", () => {
     vi.restoreAllMocks();
   });
 
+  it("returns empty maps on shallow clone", () => {
+    mockedExecSync.mockImplementation((cmd) => {
+      if (String(cmd).includes("--is-shallow-repository")) {
+        return "true\n" as never;
+      }
+      return "" as never;
+    });
+
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const result = getComponentBirthDates();
+
+    expect(result).toEqual({ components: {}, blocks: {}, charts: {} });
+    // Only the shallow-repo probe should have been invoked — no further git calls.
+    expect(mockedExecSync).toHaveBeenCalledTimes(1);
+    expect(String(mockedExecSync.mock.calls[0][0])).toContain(
+      "--is-shallow-repository",
+    );
+    // And we should not have scanned any directories.
+    expect(mockedReaddirSync).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
   it("includes entries within the cutoff and excludes older ones", () => {
     const recent = daysAgoISO(30);
     const old = daysAgoISO(90);
@@ -76,7 +100,7 @@ describe("getComponentBirthDates", () => {
       throw new Error("git not available");
     });
 
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => { });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(getComponentBirthDates()).toEqual({
       components: {},
       blocks: {},
@@ -90,7 +114,7 @@ describe("getComponentBirthDates", () => {
       throw new Error("read failure");
     });
 
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => { });
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(getComponentBirthDates()).toEqual({
       components: {},
       blocks: {},

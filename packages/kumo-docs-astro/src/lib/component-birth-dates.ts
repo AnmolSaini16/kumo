@@ -97,6 +97,17 @@ function scanPagesDir(
 // Returns first-commit dates for components, blocks, and chart pages added within NEW_ITEM_CUTOFF_DAYS.
 export function getComponentBirthDates(): NewItems {
   try {
+    const isShallow =
+      execSync("git rev-parse --is-shallow-repository", {
+        encoding: "utf-8",
+      }).trim() === "true";
+    if (isShallow) {
+      console.warn(
+        '[kumo-docs-astro] Shallow clone detected — skipping "New" badge detection.',
+      );
+      return { components: {}, blocks: {}, charts: {} };
+    }
+
     const cutoff = new Date(
       Date.now() - NEW_ITEM_CUTOFF_DAYS * 24 * 60 * 60 * 1000,
     );
