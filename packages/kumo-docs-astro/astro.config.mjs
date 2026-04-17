@@ -12,6 +12,7 @@ import { kumoRegistryPlugin } from "./src/lib/vite-plugin-kumo-registry.js";
 import { kumoHmrPlugin } from "./src/lib/vite-plugin-kumo-hmr.js";
 import { markdownPages } from "./src/lib/astro-markdown-pages.js";
 import { remarkHeadingComponents } from "./src/lib/remark-heading-components.js";
+import { getComponentBirthDates } from "./src/lib/component-birth-dates.js";
 
 import sitemap from "@astrojs/sitemap";
 
@@ -63,6 +64,8 @@ function getBuildInfo() {
 }
 
 const buildInfo = getBuildInfo();
+
+const newItems = getComponentBirthDates();
 
 // Detect dev mode: `astro dev` sets this in process.argv
 const isDev = process.argv.includes("dev");
@@ -133,6 +136,7 @@ export default defineConfig({
       __BUILD_COMMIT_DATE__: JSON.stringify(buildInfo.commitDate),
       __BUILD_BRANCH__: JSON.stringify(buildInfo.branch),
       __BUILD_DATE__: JSON.stringify(buildInfo.buildDate),
+      __KUMO_NEW_ITEMS__: JSON.stringify(newItems),
     },
   },
 });

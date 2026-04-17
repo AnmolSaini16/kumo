@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { cn, Button } from "@cloudflare/kumo";
+import { cn, Button, Badge } from "@cloudflare/kumo";
 import {
   CaretDownIcon,
   MagnifyingGlassIcon,
@@ -8,6 +8,7 @@ import {
 import { KumoMenuIcon } from "./KumoMenuIcon";
 import { SearchDialog } from "./SearchDialog";
 import { ThemeToggle } from "./ThemeToggle";
+import { isNewItem, type NewItems } from "../lib/is-new-item";
 
 interface NavItem {
   label: string;
@@ -98,9 +99,10 @@ const blockItems: NavItem[] = [
 declare const __DOCS_VERSION__: string;
 declare const __BUILD_COMMIT__: string;
 declare const __BUILD_DATE__: string;
+declare const __KUMO_NEW_ITEMS__: NewItems;
 
 const LI_STYLE =
-  "block rounded-lg text-kumo-strong hover:text-kumo-default hover:bg-kumo-tint p-2 my-[.05rem] cursor-pointer transition-colors no-underline relative z-10";
+  "flex items-center justify-between rounded-lg text-kumo-strong hover:text-kumo-default hover:bg-kumo-tint p-2 my-[.05rem] cursor-pointer transition-colors no-underline relative z-10";
 const LI_ACTIVE_STYLE = "font-semibold text-kumo-default bg-kumo-tint";
 
 interface SidebarNavProps {
@@ -249,7 +251,10 @@ export function SidebarNav({ currentPath }: SidebarNavProps) {
                     LI_ACTIVE_STYLE,
                 )}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {isNewItem(item.href, __KUMO_NEW_ITEMS__) && (
+                  <Badge variant="secondary">New</Badge>
+                )}
               </a>
             </li>
           ))}
@@ -287,7 +292,10 @@ export function SidebarNav({ currentPath }: SidebarNavProps) {
                   currentPath === item.href && LI_ACTIVE_STYLE,
                 )}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {isNewItem(item.href, __KUMO_NEW_ITEMS__) && (
+                  <Badge variant="secondary">New</Badge>
+                )}
               </a>
             </li>
           ))}
@@ -327,7 +335,10 @@ export function SidebarNav({ currentPath }: SidebarNavProps) {
                     LI_ACTIVE_STYLE,
                 )}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {isNewItem(item.href, __KUMO_NEW_ITEMS__) && (
+                  <Badge variant="secondary">New</Badge>
+                )}
               </a>
             </li>
           ))}
