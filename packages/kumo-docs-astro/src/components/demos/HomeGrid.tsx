@@ -22,6 +22,8 @@ import {
   Loader,
   MenuBar,
   Meter,
+  MetricCard,
+  MetricCardGroup,
   Pagination,
   Popover,
   Radio,
@@ -77,6 +79,7 @@ const componentRoutes: Record<string, string> = {
   loader: "/components/loader",
   "menu-bar": "/components/menu-bar",
   meter: "/components/meter",
+  "metric-card": "/components/metric-card",
   pagination: "/components/pagination",
   popover: "/components/popover",
   radio: "/components/radio",
@@ -124,548 +127,574 @@ export function HomeGrid() {
     id: string;
     Component: React.ReactNode;
   }> = [
-    {
-      name: "Button",
-      id: "button",
-      Component: (
-        <div className="grid gap-3">
-          <Button icon={PlusIcon}>Create Worker</Button>
-          <Button variant="primary" icon={PlusIcon}>
-            Create Worker
-          </Button>
-          <Button loading>Create Worker</Button>
-        </div>
-      ),
-    },
-    {
-      name: "Input",
-      id: "input",
-      Component: (
-        <div className="grid gap-3">
-          <Input placeholder="Type something..." />
-          <Input variant="error" value="Invalid!" />
-        </div>
-      ),
-    },
-    {
-      name: "Select",
-      id: "select",
-      Component: (
-        <Select
-          aria-label="Select version"
-          className="w-[200px]"
-          placeholder="Select version"
-          renderValue={(v) => {
-            const labels: Record<string, string> = {
-              all: "All deployed versions",
-              active: "Active versions",
-              specific: "Specific versions",
-            };
-            if (!v) return "Select a version...";
-            return labels[v as string];
-          }}
-        >
-          <Select.Option value="all">All deployed versions</Select.Option>
-          <Select.Option value="active">Active versions</Select.Option>
-          <Select.Option value="specific">Specific versions</Select.Option>
-        </Select>
-      ),
-    },
-    {
-      name: "Autocomplete",
-      id: "autocomplete",
-      Component: (
-        <Autocomplete
-          items={["Apple", "Banana", "Cherry", "Grape", "Mango", "Orange"]}
-        >
-          <Autocomplete.InputGroup placeholder="Search fruits…" />
-          <Autocomplete.Content>
-            <Autocomplete.List>
-              {(item: string) => (
-                <Autocomplete.Item key={item} value={item}>
-                  {item}
-                </Autocomplete.Item>
-              )}
-            </Autocomplete.List>
-          </Autocomplete.Content>
-        </Autocomplete>
-      ),
-    },
-    {
-      name: "Combobox",
-      id: "combobox",
-      Component: (
-        <Combobox
-          items={[
-            { id: "bug", value: "bug" },
-            { id: "docs", value: "documentation" },
-            { id: "enhancement", value: "enhancement" },
-            { id: "help-wanted", value: "help wanted" },
-            { id: "good-first-issue", value: "good first issue" },
-          ]}
-          onValueChange={setValue}
-          value={value}
-        >
-          <Combobox.TriggerInput placeholder="Select an issue..." />
-          <Combobox.Content>
-            <Combobox.List>
-              {(item: { id: string; value: string }) => (
-                <Combobox.Item key={item.id} value={item.value}>
-                  {item.value}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Content>
-        </Combobox>
-      ),
-    },
-    {
-      name: "Switch",
-      id: "switch",
-      Component: (
-        <Switch
-          checked={switchToggled}
-          onClick={() => {
-            setSwitchToggled(!switchToggled);
-          }}
-        />
-      ),
-    },
-    {
-      name: "Input (with validation)",
-      id: "input",
-      Component: (
-        <Input
-          label="Email"
-          placeholder="name@example.com"
-          type="email"
-          variant="error"
-          error={{
-            message: "Please enter a valid email.",
-            match: "typeMismatch",
-          }}
-          description="The email to send notifications to."
-        />
-      ),
-    },
-    {
-      name: "Dialog",
-      id: "dialog",
-      Component: (
-        <Dialog.Root>
-          <Dialog.Trigger render={(p) => <Button {...p}>Click me!</Button>} />
-          <Dialog>
-            <Dialog.Title>Hello!</Dialog.Title>
-            <Dialog.Description>I'm a dialog.</Dialog.Description>
-          </Dialog>
-        </Dialog.Root>
-      ),
-    },
-    {
-      name: "Tooltip",
-      id: "tooltip",
-      Component: (
-        <TooltipProvider>
-          <div className="flex gap-2">
-            <Tooltip
-              content="Add"
-              open
-              render={
-                <Button shape="square" icon={PlusIcon} aria-label="Add" />
-              }
-            />
-            <Tooltip
-              content="Change language"
-              render={
-                <Button
-                  shape="square"
-                  icon={TranslateIcon}
-                  aria-label="Change language"
-                />
-              }
-            />
+      {
+        name: "Button",
+        id: "button",
+        Component: (
+          <div className="grid gap-3">
+            <Button icon={PlusIcon}>Create Worker</Button>
+            <Button variant="primary" icon={PlusIcon}>
+              Create Worker
+            </Button>
+            <Button loading>Create Worker</Button>
           </div>
-        </TooltipProvider>
-      ),
-    },
-    {
-      name: "Dropdown",
-      id: "dropdown",
-      Component: (
-        <DropdownMenu>
-          <DropdownMenu.Trigger render={<Button icon={PlusIcon}>Add</Button>} />
-          <DropdownMenu.Content>
-            <DropdownMenu.Item>Worker</DropdownMenu.Item>
-            <DropdownMenu.Item>Pages</DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      ),
-    },
-    {
-      name: "Collapsible",
-      id: "collapsible",
-      Component: (
-        <Collapsible.Root
-          open={collapsibleOpen}
-          onOpenChange={setCollapsibleOpen}
-        >
-          <Collapsible.DefaultTrigger>What is Kumo?</Collapsible.DefaultTrigger>
-          <Collapsible.DefaultPanel>
-            Kumo is Cloudflare's component library.
-          </Collapsible.DefaultPanel>
-        </Collapsible.Root>
-      ),
-    },
-    {
-      name: "Checkbox",
-      id: "checkbox",
-      Component: (
-        <Checkbox
-          label="Max bandwidth"
-          checked={checked}
-          onCheckedChange={(checked) => {
-            setChecked(checked);
-          }}
-        />
-      ),
-    },
-    {
-      name: "LayerCard",
-      id: "layer-card",
-      Component: (
-        <LayerCard className="w-[200px]">
-          <LayerCard.Secondary>Next Steps</LayerCard.Secondary>
-          <LayerCard.Primary>Hello</LayerCard.Primary>
-        </LayerCard>
-      ),
-    },
-    {
-      name: "Loader",
-      id: "loader",
-      Component: <Loader />,
-    },
-    {
-      name: "SkeletonLine",
-      id: "skeleton-line",
-      Component: (
-        <div className="flex w-[200px] flex-col gap-2">
-          <SkeletonLine minWidth={50} maxWidth={100} />
-          <SkeletonLine minWidth={100} />
-          <SkeletonLine minWidth={50} maxWidth={150} />
-        </div>
-      ),
-    },
-    {
-      name: "CodeHighlighted",
-      id: "code-highlighted",
-      Component: (
-        <ShikiProvider engine="javascript" languages={["typescript"]}>
-          <CodeHighlighted
-            lang="typescript"
-            code={`const sum = (a: number, b: number) => {
+        ),
+      },
+      {
+        name: "Input",
+        id: "input",
+        Component: (
+          <div className="grid gap-3">
+            <Input placeholder="Type something..." />
+            <Input variant="error" value="Invalid!" />
+          </div>
+        ),
+      },
+      {
+        name: "Select",
+        id: "select",
+        Component: (
+          <Select
+            aria-label="Select version"
+            className="w-[200px]"
+            placeholder="Select version"
+            renderValue={(v) => {
+              const labels: Record<string, string> = {
+                all: "All deployed versions",
+                active: "Active versions",
+                specific: "Specific versions",
+              };
+              if (!v) return "Select a version...";
+              return labels[v as string];
+            }}
+          >
+            <Select.Option value="all">All deployed versions</Select.Option>
+            <Select.Option value="active">Active versions</Select.Option>
+            <Select.Option value="specific">Specific versions</Select.Option>
+          </Select>
+        ),
+      },
+      {
+        name: "Autocomplete",
+        id: "autocomplete",
+        Component: (
+          <Autocomplete
+            items={["Apple", "Banana", "Cherry", "Grape", "Mango", "Orange"]}
+          >
+            <Autocomplete.InputGroup placeholder="Search fruits…" />
+            <Autocomplete.Content>
+              <Autocomplete.List>
+                {(item: string) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Content>
+          </Autocomplete>
+        ),
+      },
+      {
+        name: "Combobox",
+        id: "combobox",
+        Component: (
+          <Combobox
+            items={[
+              { id: "bug", value: "bug" },
+              { id: "docs", value: "documentation" },
+              { id: "enhancement", value: "enhancement" },
+              { id: "help-wanted", value: "help wanted" },
+              { id: "good-first-issue", value: "good first issue" },
+            ]}
+            onValueChange={setValue}
+            value={value}
+          >
+            <Combobox.TriggerInput placeholder="Select an issue..." />
+            <Combobox.Content>
+              <Combobox.List>
+                {(item: { id: string; value: string }) => (
+                  <Combobox.Item key={item.id} value={item.value}>
+                    {item.value}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Content>
+          </Combobox>
+        ),
+      },
+      {
+        name: "Switch",
+        id: "switch",
+        Component: (
+          <Switch
+            checked={switchToggled}
+            onClick={() => {
+              setSwitchToggled(!switchToggled);
+            }}
+          />
+        ),
+      },
+      {
+        name: "Input (with validation)",
+        id: "input",
+        Component: (
+          <Input
+            label="Email"
+            placeholder="name@example.com"
+            type="email"
+            variant="error"
+            error={{
+              message: "Please enter a valid email.",
+              match: "typeMismatch",
+            }}
+            description="The email to send notifications to."
+          />
+        ),
+      },
+      {
+        name: "Dialog",
+        id: "dialog",
+        Component: (
+          <Dialog.Root>
+            <Dialog.Trigger render={(p) => <Button {...p}>Click me!</Button>} />
+            <Dialog>
+              <Dialog.Title>Hello!</Dialog.Title>
+              <Dialog.Description>I'm a dialog.</Dialog.Description>
+            </Dialog>
+          </Dialog.Root>
+        ),
+      },
+      {
+        name: "Tooltip",
+        id: "tooltip",
+        Component: (
+          <TooltipProvider>
+            <div className="flex gap-2">
+              <Tooltip
+                content="Add"
+                open
+                render={
+                  <Button shape="square" icon={PlusIcon} aria-label="Add" />
+                }
+              />
+              <Tooltip
+                content="Change language"
+                render={
+                  <Button
+                    shape="square"
+                    icon={TranslateIcon}
+                    aria-label="Change language"
+                  />
+                }
+              />
+            </div>
+          </TooltipProvider>
+        ),
+      },
+      {
+        name: "Dropdown",
+        id: "dropdown",
+        Component: (
+          <DropdownMenu>
+            <DropdownMenu.Trigger render={<Button icon={PlusIcon}>Add</Button>} />
+            <DropdownMenu.Content>
+              <DropdownMenu.Item>Worker</DropdownMenu.Item>
+              <DropdownMenu.Item>Pages</DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        ),
+      },
+      {
+        name: "Collapsible",
+        id: "collapsible",
+        Component: (
+          <Collapsible.Root
+            open={collapsibleOpen}
+            onOpenChange={setCollapsibleOpen}
+          >
+            <Collapsible.DefaultTrigger>What is Kumo?</Collapsible.DefaultTrigger>
+            <Collapsible.DefaultPanel>
+              Kumo is Cloudflare's component library.
+            </Collapsible.DefaultPanel>
+          </Collapsible.Root>
+        ),
+      },
+      {
+        name: "Checkbox",
+        id: "checkbox",
+        Component: (
+          <Checkbox
+            label="Max bandwidth"
+            checked={checked}
+            onCheckedChange={(checked) => {
+              setChecked(checked);
+            }}
+          />
+        ),
+      },
+      {
+        name: "LayerCard",
+        id: "layer-card",
+        Component: (
+          <LayerCard className="w-[200px]">
+            <LayerCard.Secondary>Next Steps</LayerCard.Secondary>
+            <LayerCard.Primary>Hello</LayerCard.Primary>
+          </LayerCard>
+        ),
+      },
+      {
+        name: "Loader",
+        id: "loader",
+        Component: <Loader />,
+      },
+      {
+        name: "SkeletonLine",
+        id: "skeleton-line",
+        Component: (
+          <div className="flex w-[200px] flex-col gap-2">
+            <SkeletonLine minWidth={50} maxWidth={100} />
+            <SkeletonLine minWidth={100} />
+            <SkeletonLine minWidth={50} maxWidth={150} />
+          </div>
+        ),
+      },
+      {
+        name: "CodeHighlighted",
+        id: "code-highlighted",
+        Component: (
+          <ShikiProvider engine="javascript" languages={["typescript"]}>
+            <CodeHighlighted
+              lang="typescript"
+              code={`const sum = (a: number, b: number) => {
   return a + b;
 };`}
+            />
+          </ShikiProvider>
+        ),
+      },
+      {
+        name: "Banner",
+        id: "banner",
+        Component: (
+          <div className="flex flex-col gap-2">
+            <Banner text="This is a default banner." />
+            <Banner
+              icon={<WarningIcon weight="fill" />}
+              text="This is an alert banner."
+              variant="alert"
+            />
+            <Banner
+              icon={<WarningOctagonIcon weight="fill" />}
+              text="This is an error banner."
+              variant="error"
+            />
+          </div>
+        ),
+      },
+      {
+        name: "Tabs",
+        id: "tabs",
+        Component: (
+          <Tabs
+            tabs={[
+              { value: "home", label: "Home" },
+              { value: "about", label: "About" },
+              { value: "contact", label: "Contact" },
+            ]}
           />
-        </ShikiProvider>
-      ),
-    },
-    {
-      name: "Banner",
-      id: "banner",
-      Component: (
-        <div className="flex flex-col gap-2">
-          <Banner text="This is a default banner." />
-          <Banner
-            icon={<WarningIcon weight="fill" />}
-            text="This is an alert banner."
-            variant="alert"
+        ),
+      },
+      {
+        name: "Badge",
+        id: "badge",
+        Component: (
+          <div className="flex flex-col gap-2">
+            <Badge variant="blue">Blue</Badge>
+            <Badge variant="green">Green</Badge>
+            <Badge variant="orange">Orange</Badge>
+            <Badge variant="neutral">Neutral</Badge>
+            <Badge variant="red">Red</Badge>
+          </div>
+        ),
+      },
+      {
+        name: "Toast",
+        id: "toast",
+        Component: (
+          <Toasty>
+            <ToastTriggerButton />
+          </Toasty>
+        ),
+      },
+      {
+        name: "Pagination",
+        id: "pagination",
+        Component: (
+          <Pagination
+            page={paginationPage}
+            perPage={10}
+            totalCount={100}
+            setPage={setPaginationPage}
+            className="w-auto"
+          >
+            <Pagination.Controls />
+          </Pagination>
+        ),
+      },
+      {
+        name: "InputArea",
+        id: "input-area",
+        Component: <InputArea placeholder="Enter your name" />,
+      },
+      {
+        name: "InputGroup",
+        id: "input-group",
+        Component: <InputGroupDemo />,
+      },
+      {
+        name: "Meter",
+        id: "meter",
+        Component: (
+          <Meter value={75} label="My meter" customValue="100 / 5,000" />
+        ),
+      },
+      {
+        name: "MetricCard",
+        id: "metric-card",
+        Component: (
+          <MetricCardGroup>
+            <MetricCard
+              label="Requests"
+              value="1.2"
+              unit="M"
+              trend={{ direction: "up", label: "12%", isPositive: true }}
+            />
+            <MetricCard
+              label="CPU Time (P90)"
+              value="3.2"
+              unit="ms"
+              trend={{ direction: "down", label: "8%", isPositive: true }}
+              sparkline={{
+                data: [
+                  4.1, 3.9, 4.2, 3.8, 3.5, 3.9, 3.6, 3.4, 3.7, 3.3, 3.5, 3.1, 3.4,
+                  3.0, 3.3, 3.2,
+                ],
+              }}
+            />
+          </MetricCardGroup>
+        ),
+      },
+      {
+        name: "MenuBar",
+        id: "menu-bar",
+        Component: (
+          <MenuBar
+            isActive={menuBarActive}
+            options={[
+              {
+                icon: <TextBolderIcon />,
+                onClick: () =>
+                  setMenuBarActive(menuBarActive === 0 ? undefined : 0),
+                tooltip: "Bold",
+              },
+              {
+                icon: <TextItalicIcon />,
+                onClick: () =>
+                  setMenuBarActive(menuBarActive === 1 ? undefined : 1),
+                tooltip: "Italic",
+              },
+            ]}
           />
-          <Banner
-            icon={<WarningOctagonIcon weight="fill" />}
-            text="This is an error banner."
-            variant="error"
-          />
-        </div>
-      ),
-    },
-    {
-      name: "Tabs",
-      id: "tabs",
-      Component: (
-        <Tabs
-          tabs={[
-            { value: "home", label: "Home" },
-            { value: "about", label: "About" },
-            { value: "contact", label: "Contact" },
-          ]}
-        />
-      ),
-    },
-    {
-      name: "Badge",
-      id: "badge",
-      Component: (
-        <div className="flex flex-col gap-2">
-          <Badge variant="blue">Blue</Badge>
-          <Badge variant="green">Green</Badge>
-          <Badge variant="orange">Orange</Badge>
-          <Badge variant="neutral">Neutral</Badge>
-          <Badge variant="red">Red</Badge>
-        </div>
-      ),
-    },
-    {
-      name: "Toast",
-      id: "toast",
-      Component: (
-        <Toasty>
-          <ToastTriggerButton />
-        </Toasty>
-      ),
-    },
-    {
-      name: "Pagination",
-      id: "pagination",
-      Component: (
-        <Pagination
-          page={paginationPage}
-          perPage={10}
-          totalCount={100}
-          setPage={setPaginationPage}
-          className="w-auto"
-        >
-          <Pagination.Controls />
-        </Pagination>
-      ),
-    },
-    {
-      name: "InputArea",
-      id: "input-area",
-      Component: <InputArea placeholder="Enter your name" />,
-    },
-    {
-      name: "InputGroup",
-      id: "input-group",
-      Component: <InputGroupDemo />,
-    },
-    {
-      name: "Meter",
-      id: "meter",
-      Component: (
-        <Meter value={75} label="My meter" customValue="100 / 5,000" />
-      ),
-    },
-    {
-      name: "MenuBar",
-      id: "menu-bar",
-      Component: (
-        <MenuBar
-          isActive={menuBarActive}
-          options={[
-            {
-              icon: <TextBolderIcon />,
-              onClick: () =>
-                setMenuBarActive(menuBarActive === 0 ? undefined : 0),
-              tooltip: "Bold",
-            },
-            {
-              icon: <TextItalicIcon />,
-              onClick: () =>
-                setMenuBarActive(menuBarActive === 1 ? undefined : 1),
-              tooltip: "Italic",
-            },
-          ]}
-        />
-      ),
-    },
-    {
-      name: "DatePicker",
-      id: "date-picker",
-      Component: (
-        <div className="-m-4 scale-85">
-          <DatePicker mode="single" />
-        </div>
-      ),
-    },
-    {
-      name: "Breadcrumbs",
-      id: "breadcrumbs",
-      Component: (
-        <div className="flex items-center gap-1 text-sm">
-          <span className="text-kumo-subtle">Home</span>
-          <span className="text-kumo-inactive">/</span>
-          <span className="text-kumo-subtle">Docs</span>
-          <span className="text-kumo-inactive">/</span>
-          <span className="font-medium">Page</span>
-        </div>
-      ),
-    },
-    {
-      name: "ClipboardText",
-      id: "clipboard-text",
-      Component: <ClipboardText text="npx kumo add button" />,
-    },
-    {
-      name: "CommandPalette",
-      id: "command-palette",
-      Component: (
-        <Button icon={MagnifyingGlassIcon}>Open Command Palette</Button>
-      ),
-    },
-    {
-      name: "Flow",
-      id: "flow",
-      Component: (
-        <Flow>
-          <Flow.Node>Step 1</Flow.Node>
-          <Flow.Node>Step 2</Flow.Node>
-        </Flow>
-      ),
-    },
-    {
-      name: "Link",
-      id: "link",
-      Component: (
-        <div className="flex flex-col gap-2 text-sm">
-          <Link href="#">Default link</Link>
-          <Link href="#" variant="current">
-            Current color link
-          </Link>
-          <Link href="#" variant="plain">
-            Plain link
-          </Link>
-        </div>
-      ),
-    },
-    {
-      name: "Empty",
-      id: "empty",
-      Component: (
-        <div className="flex flex-col items-center gap-1 text-center">
-          <span className="text-sm font-medium">No results</span>
-          <span className="text-xs text-kumo-subtle">
-            Try a different search
-          </span>
-        </div>
-      ),
-    },
-    {
-      name: "Grid",
-      id: "grid",
-      Component: (
-        <Grid variant="side-by-side" gap="sm" className="w-[140px]">
-          <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
-            1
-          </GridItem>
-          <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
-            2
-          </GridItem>
-          <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
-            3
-          </GridItem>
-          <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
-            4
-          </GridItem>
-        </Grid>
-      ),
-    },
-    {
-      name: "Label",
-      id: "label",
-      Component: (
-        <div className="flex flex-col gap-2">
-          <Label>Default Label</Label>
-          <Label showOptional>Optional Field</Label>
-          <Label tooltip="More info">With Tooltip</Label>
-        </div>
-      ),
-    },
-    {
-      name: "Popover",
-      id: "popover",
-      Component: (
-        <Popover>
-          <Popover.Trigger render={<Button />}>Open Popover</Popover.Trigger>
-          <Popover.Content>
-            <Popover.Title>Popover Title</Popover.Title>
-            <Popover.Description>This is a popover.</Popover.Description>
-          </Popover.Content>
-        </Popover>
-      ),
-    },
-    {
-      name: "Radio",
-      id: "radio",
-      Component: (
-        <Radio.Group legend="Select option" defaultValue="option1">
-          <Radio.Item value="option1" label="Option 1" />
-          <Radio.Item value="option2" label="Option 2" />
-        </Radio.Group>
-      ),
-    },
-    {
-      name: "SensitiveInput",
-      id: "sensitive-input",
-      Component: <SensitiveInput value="super-secret-api-key" readOnly />,
-    },
-    {
-      name: "Table",
-      id: "table",
-      Component: (
-        <Table className="w-[200px] text-sm">
-          <Table.Header>
-            <Table.Row>
-              <Table.Head>Name</Table.Head>
-              <Table.Head>Status</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell>Worker 1</Table.Cell>
-              <Table.Cell>Active</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Worker 2</Table.Cell>
-              <Table.Cell>Paused</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Worker 3</Table.Cell>
-              <Table.Cell>Active</Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
-      ),
-    },
-    {
-      name: "TableOfContents",
-      id: "table-of-contents",
-      Component: (
-        <TableOfContents>
-          <TableOfContents.Title>On this page</TableOfContents.Title>
-          <TableOfContents.List>
-            <TableOfContents.Item active>Introduction</TableOfContents.Item>
-            <TableOfContents.Item>Installation</TableOfContents.Item>
-            <TableOfContents.Item>Usage</TableOfContents.Item>
-          </TableOfContents.List>
-        </TableOfContents>
-      ),
-    },
-    {
-      name: "Text",
-      id: "text",
-      Component: (
-        <div className="flex flex-col gap-1">
-          <Text size="lg" bold>
-            Large Bold Text
-          </Text>
-          <Text size="base">Regular text content</Text>
-          <Text size="sm" color="subtle">
-            Small subtle text
-          </Text>
-        </div>
-      ),
-    },
-  ];
+        ),
+      },
+      {
+        name: "DatePicker",
+        id: "date-picker",
+        Component: (
+          <div className="-m-4 scale-85">
+            <DatePicker mode="single" />
+          </div>
+        ),
+      },
+      {
+        name: "Breadcrumbs",
+        id: "breadcrumbs",
+        Component: (
+          <div className="flex items-center gap-1 text-sm">
+            <span className="text-kumo-subtle">Home</span>
+            <span className="text-kumo-inactive">/</span>
+            <span className="text-kumo-subtle">Docs</span>
+            <span className="text-kumo-inactive">/</span>
+            <span className="font-medium">Page</span>
+          </div>
+        ),
+      },
+      {
+        name: "ClipboardText",
+        id: "clipboard-text",
+        Component: <ClipboardText text="npx kumo add button" />,
+      },
+      {
+        name: "CommandPalette",
+        id: "command-palette",
+        Component: (
+          <Button icon={MagnifyingGlassIcon}>Open Command Palette</Button>
+        ),
+      },
+      {
+        name: "Flow",
+        id: "flow",
+        Component: (
+          <Flow>
+            <Flow.Node>Step 1</Flow.Node>
+            <Flow.Node>Step 2</Flow.Node>
+          </Flow>
+        ),
+      },
+      {
+        name: "Link",
+        id: "link",
+        Component: (
+          <div className="flex flex-col gap-2 text-sm">
+            <Link href="#">Default link</Link>
+            <Link href="#" variant="current">
+              Current color link
+            </Link>
+            <Link href="#" variant="plain">
+              Plain link
+            </Link>
+          </div>
+        ),
+      },
+      {
+        name: "Empty",
+        id: "empty",
+        Component: (
+          <div className="flex flex-col items-center gap-1 text-center">
+            <span className="text-sm font-medium">No results</span>
+            <span className="text-xs text-kumo-subtle">
+              Try a different search
+            </span>
+          </div>
+        ),
+      },
+      {
+        name: "Grid",
+        id: "grid",
+        Component: (
+          <Grid variant="side-by-side" gap="sm" className="w-[140px]">
+            <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
+              1
+            </GridItem>
+            <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
+              2
+            </GridItem>
+            <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
+              3
+            </GridItem>
+            <GridItem className="rounded bg-kumo-control p-3 text-center text-xs">
+              4
+            </GridItem>
+          </Grid>
+        ),
+      },
+      {
+        name: "Label",
+        id: "label",
+        Component: (
+          <div className="flex flex-col gap-2">
+            <Label>Default Label</Label>
+            <Label showOptional>Optional Field</Label>
+            <Label tooltip="More info">With Tooltip</Label>
+          </div>
+        ),
+      },
+      {
+        name: "Popover",
+        id: "popover",
+        Component: (
+          <Popover>
+            <Popover.Trigger render={<Button />}>Open Popover</Popover.Trigger>
+            <Popover.Content>
+              <Popover.Title>Popover Title</Popover.Title>
+              <Popover.Description>This is a popover.</Popover.Description>
+            </Popover.Content>
+          </Popover>
+        ),
+      },
+      {
+        name: "Radio",
+        id: "radio",
+        Component: (
+          <Radio.Group legend="Select option" defaultValue="option1">
+            <Radio.Item value="option1" label="Option 1" />
+            <Radio.Item value="option2" label="Option 2" />
+          </Radio.Group>
+        ),
+      },
+      {
+        name: "SensitiveInput",
+        id: "sensitive-input",
+        Component: <SensitiveInput value="super-secret-api-key" readOnly />,
+      },
+      {
+        name: "Table",
+        id: "table",
+        Component: (
+          <Table className="w-[200px] text-sm">
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Name</Table.Head>
+                <Table.Head>Status</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>Worker 1</Table.Cell>
+                <Table.Cell>Active</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Worker 2</Table.Cell>
+                <Table.Cell>Paused</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Worker 3</Table.Cell>
+                <Table.Cell>Active</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        ),
+      },
+      {
+        name: "TableOfContents",
+        id: "table-of-contents",
+        Component: (
+          <TableOfContents>
+            <TableOfContents.Title>On this page</TableOfContents.Title>
+            <TableOfContents.List>
+              <TableOfContents.Item active>Introduction</TableOfContents.Item>
+              <TableOfContents.Item>Installation</TableOfContents.Item>
+              <TableOfContents.Item>Usage</TableOfContents.Item>
+            </TableOfContents.List>
+          </TableOfContents>
+        ),
+      },
+      {
+        name: "Text",
+        id: "text",
+        Component: (
+          <div className="flex flex-col gap-1">
+            <Text size="lg" bold>
+              Large Bold Text
+            </Text>
+            <Text size="base">Regular text content</Text>
+            <Text size="sm" color="subtle">
+              Small subtle text
+            </Text>
+          </div>
+        ),
+      },
+    ];
 
   return (
     <ul className="grid auto-rows-min grid-cols-1 gap-px bg-kumo-hairline md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

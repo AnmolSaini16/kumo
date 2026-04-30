@@ -1,0 +1,159 @@
+---
+layout: ~/layouts/MdxDocLayout.astro
+title: "MetricCard"
+description: "Displays a single metric value with optional trend indicator, sparkline, and loading/error states."
+sourceFile: "components/metric-card"
+---
+
+import ComponentExample from "~/components/docs/ComponentExample.astro";
+import ComponentSection from "~/components/docs/ComponentSection.astro";
+import PropsTable from "~/components/docs/PropsTable.astro";
+import {
+  MetricCardGroupDemo,
+  MetricCardHorizontalGroupDemo,
+  MetricCardGroupVerticalDemo,
+  MetricCardGroupWithoutTitleDemo,
+  MetricCardVariantsDemo,
+  MetricCardStatesDemo,
+  MetricCardSparklineDemo,
+  MetricCardInteractiveDemo,
+} from "~/components/demos/MetricCardDemo";
+
+{/* Hero Demo */}
+
+<ComponentSection>
+  <ComponentExample demo="MetricCardGroupDemo">
+    <MetricCardGroupDemo client:visible />
+  </ComponentExample>
+</ComponentSection>
+
+{/* Installation */}
+
+<ComponentSection>
+
+## Installation
+
+### Barrel
+
+```tsx
+import { MetricCard, MetricCardGroup } from "@cloudflare/kumo";
+```
+
+### Granular
+
+```tsx
+import { MetricCard } from "@cloudflare/kumo/components/metric-card";
+import { MetricCardGroup } from "@cloudflare/kumo/components/metric-card-group";
+```
+
+</ComponentSection>
+
+{/* Usage */}
+
+<ComponentSection>
+
+## Usage
+
+```tsx
+import { MetricCard, MetricCardGroup } from "@cloudflare/kumo";
+
+export default function Example() {
+  return (
+    <MetricCardGroup title="Overview">
+      <MetricCard label="Requests" value="1.2M" />
+      <MetricCard label="Error Rate" value="0.3" unit="%" />
+    </MetricCardGroup>
+  );
+}
+```
+
+</ComponentSection>
+
+{/* Examples */}
+
+<ComponentSection>
+
+## Examples
+
+### Horizontal Group
+
+<p>
+  The default layout arranges metric cards in a horizontal row with vertical
+  dividers.
+</p>
+<ComponentExample demo="MetricCardHorizontalGroupDemo">
+  <MetricCardHorizontalGroupDemo client:visible />
+</ComponentExample>
+
+### Vertical Group
+
+<p>Use `orientation="vertical"` for sidebar or narrow container layouts.</p>
+<ComponentExample demo="MetricCardGroupVerticalDemo">
+  <MetricCardGroupVerticalDemo client:visible />
+</ComponentExample>
+
+### Without Title
+
+<p>Omit the `title` prop for a minimal layout without a header.</p>
+<ComponentExample demo="MetricCardGroupWithoutTitleDemo">
+  <MetricCardGroupWithoutTitleDemo client:visible />
+</ComponentExample>
+
+### Sparklines
+
+<p>Add sparkline visualizations with themed or custom colors.</p>
+<ComponentExample demo="MetricCardSparklineDemo">
+  <MetricCardSparklineDemo client:visible />
+</ComponentExample>
+
+### Color Variants
+
+<p>Use semantic color variants to convey status at a glance.</p>
+<ComponentExample demo="MetricCardVariantsDemo">
+  <MetricCardVariantsDemo client:visible />
+</ComponentExample>
+
+### Interactive Cards
+
+<p>
+  Cards become clickable when given an `href` or `onClick` prop. Use `tooltip`
+  to add contextual information, and `tooltipIcon` to override the default icon.
+  The `title` prop accepts JSX content for custom header layouts such as a title
+  with an action button.
+</p>
+<ComponentExample demo="MetricCardInteractiveDemo">
+  <MetricCardInteractiveDemo client:only="react" />
+</ComponentExample>
+
+### Loading and Error States
+
+<p>MetricCard supports `loading` and `error` states for async data.</p>
+<ComponentExample demo="MetricCardStatesDemo">
+  <MetricCardStatesDemo client:visible />
+</ComponentExample>
+
+</ComponentSection>
+
+{/* API Reference */}
+
+<ComponentSection>
+
+## API Reference
+
+### MetricCard
+
+<p>
+  Compact card displaying a single metric value with optional trend, sparkline,
+  and loading/error states.
+</p>
+<PropsTable component="MetricCard" />
+
+### MetricCardGroup
+
+<p>
+  Groups MetricCard children inside a card with an optional header and
+  configurable orientation.
+</p>
+<PropsTable component="MetricCardGroup" />
+
+</ComponentSection>
