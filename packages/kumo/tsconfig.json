@@ -22,7 +22,6 @@
     "src/design-tokens",
     "scripts/**/dist",
     "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.stories.tsx"
+    "**/*.test.tsx"
   ]
 }

@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "react";
 import { cn } from "../../utils/cn";
 import { LayerCard } from "../layer-card/layer-card";
 
-// Variants (lint-enforced exports)
+// Variants
 
 /** MetricCardGroup variant definitions mapping orientation to layout classes. */
 export const KUMO_METRIC_CARD_GROUP_VARIANTS = {

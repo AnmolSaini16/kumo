@@ -14,7 +14,7 @@ import { SkeletonLine } from "../loader/skeleton-line";
 import { Text } from "../text";
 import { Tooltip } from "../tooltip";
 
-// Variants (lint-enforced exports)
+// Variants
 
 /** MetricCard variant definitions mapping variant names to their Tailwind classes. */
 export const KUMO_METRIC_CARD_VARIANTS = {

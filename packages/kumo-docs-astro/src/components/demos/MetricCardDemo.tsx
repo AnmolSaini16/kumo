@@ -234,7 +234,7 @@ export function MetricCardInteractiveDemo() {
         label="Errors"
         value="842"
         tooltip="Failed invocations returning non-2xx status"
-        onClick={() => { }}
+        onClick={() => {}}
       />
     </MetricCardGroup>
   );
