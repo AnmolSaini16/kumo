@@ -467,13 +467,13 @@ export function HomeGrid() {
             label="Requests"
             value="1.2"
             unit="M"
-            trend={{ direction: "up", label: "12%", isPositive: true }}
+            trend={{ direction: "up", label: "12%" }}
           />
           <MetricCard
             label="CPU Time (P90)"
             value="3.2"
             unit="ms"
-            trend={{ direction: "down", label: "8%", isPositive: true }}
+            trend={{ direction: "down", label: "8%", lessIsBetter: true }}
             sparkline={{
               data: [
                 4.1, 3.9, 4.2, 3.8, 3.5, 3.9, 3.6, 3.4, 3.7, 3.3, 3.5, 3.1, 3.4,

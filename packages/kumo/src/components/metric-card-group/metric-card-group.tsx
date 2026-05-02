@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode } from "react";
+import { Children, forwardRef, type ReactNode } from "react";
 import type { HTMLAttributes } from "react";
 import { cn } from "../../utils/cn";
 import { LayerCard } from "../layer-card/layer-card";
@@ -9,10 +9,9 @@ import { LayerCard } from "../layer-card/layer-card";
 export const KUMO_METRIC_CARD_GROUP_VARIANTS = {
   orientation: {
     horizontal: {
-      classes:
-        "flex flex-wrap gap-px overflow-hidden bg-kumo-line [&>*]:min-w-[170px] [&>*]:min-h-[115px] [&>*]:basis-[170px] [&>*]:grow",
+      classes: "grid grid-cols-1 overflow-hidden",
       description:
-        "Responsive row of cards with gap dividers, wrapping into rows",
+        "Responsive grid of cards using container queries, up to 6 columns",
     },
     vertical: {
       classes: "flex flex-col divide-y divide-kumo-line",
@@ -50,6 +49,27 @@ export function metricCardGroupVariants({
         KUMO_METRIC_CARD_GROUP_DEFAULT_VARIANTS.orientation
       ].classes,
   );
+}
+
+/**
+ * Container-query breakpoint classes for horizontal MetricCardGroup.
+ * Each breakpoint adds a column at 170px increments (matching card min-width).
+ * Capped by child count so a 3-card group never gets a 4-column class.
+ */
+const CONTAINER_BREAKPOINTS = [
+  "@[340px]/metrics:grid-cols-2",
+  "@[510px]/metrics:grid-cols-3",
+  "@[680px]/metrics:grid-cols-4",
+  "@[850px]/metrics:grid-cols-5",
+  "@[1020px]/metrics:grid-cols-6",
+] as const;
+
+function getResponsiveGridClasses(childCount: number): string {
+  const maxBreakpoints = Math.min(
+    Math.max(childCount - 1, 0),
+    CONTAINER_BREAKPOINTS.length,
+  );
+  return CONTAINER_BREAKPOINTS.slice(0, maxBreakpoints).join(" ");
 }
 
 // MetricCardGroup
@@ -104,6 +124,11 @@ export const MetricCardGroup = forwardRef<HTMLDivElement, MetricCardGroupProps>(
     ref,
   ) {
     const innerClasses = metricCardGroupVariants({ orientation });
+    const childCount = Children.count(children);
+    const responsiveClasses =
+      orientation === "horizontal"
+        ? getResponsiveGridClasses(childCount)
+        : undefined;
 
     return (
       <LayerCard
@@ -113,14 +138,28 @@ export const MetricCardGroup = forwardRef<HTMLDivElement, MetricCardGroupProps>(
       >
         {title && <LayerCard.Secondary>{title}</LayerCard.Secondary>}
         <LayerCard.Primary className="p-0">
-          <div
-            className={cn(
-              innerClasses,
-              "[&>*]:h-auto [&>*]:ring-0 [&>*]:rounded-none [&>*]:bg-kumo-base",
-            )}
-          >
-            {children}
-          </div>
+          {orientation === "horizontal" ? (
+            <div className="@container/metrics">
+              <div
+                className={cn(
+                  innerClasses,
+                  responsiveClasses,
+                  "[&>*]:h-auto [&>*]:ring-[0.5px] [&>*]:ring-kumo-line [&>*]:rounded-none [&>*]:bg-kumo-base",
+                )}
+              >
+                {children}
+              </div>
+            </div>
+          ) : (
+            <div
+              className={cn(
+                innerClasses,
+                "[&>*]:h-auto [&>*]:ring-0 [&>*]:rounded-none [&>*]:bg-kumo-base",
+              )}
+            >
+              {children}
+            </div>
+          )}
         </LayerCard.Primary>
       </LayerCard>
     );

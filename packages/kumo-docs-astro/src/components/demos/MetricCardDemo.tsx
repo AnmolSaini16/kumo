@@ -1,63 +1,87 @@
-import { MetricCard, MetricCardGroup, Button } from "@cloudflare/kumo";
-import { ArrowRightIcon, QuestionIcon } from "@phosphor-icons/react";
+import { MetricCard, MetricCardGroup, Badge } from "@cloudflare/kumo";
+import { QuestionIcon } from "@phosphor-icons/react";
+
+/**
+ * Deterministic sparkline generator using sin/cos for natural-looking oscillations.
+ * Produces smooth, realistic time-series data with a linear trend + wave-like noise.
+ */
+function buildSparkline(
+  base: number,
+  end: number,
+  points = 24,
+  seed = 0,
+  noiseAmp = 0.12,
+): number[] {
+  return Array.from({ length: points }, (_, i) => {
+    const t = i / (points - 1);
+    const trend = base + (end - base) * t;
+    const noise =
+      Math.sin(seed * 3.7 + i * 1.3) * noiseAmp * base +
+      Math.cos(seed * 2.1 + i * 0.7) * noiseAmp * 0.5 * base;
+    return Math.max(0, trend + noise);
+  });
+}
 
 export function MetricCardGroupDemo() {
   return (
-    <MetricCardGroup title="Workers Analytics">
+    <MetricCardGroup title="Activity">
       <MetricCard
-        label="Requests"
-        value="1.2"
-        unit="M"
-        trend={{ direction: "up", label: "12%", isPositive: true }}
+        label="Web traffic"
+        value="2.4M"
+        trend={{ direction: "up", label: "12%" }}
+        sparkline={{ data: buildSparkline(1.8, 2.4, 24, 1, 0.08) }}
       />
       <MetricCard
-        label="CPU Time (P90)"
-        value="3.2"
-        unit="ms"
-        trend={{ direction: "down", label: "8%", isPositive: true }}
-        sparkline={{
-          data: [
-            4.1, 3.9, 4.2, 3.8, 3.5, 3.9, 3.6, 3.4, 3.7, 3.3, 3.5, 3.1, 3.4,
-            3.0, 3.3, 3.2,
-          ],
-        }}
+        label="Total bandwidth"
+        value="1.8"
+        unit="TB"
+        trend={{ direction: "up", label: "9%" }}
+        sparkline={{ data: buildSparkline(1.2, 1.8, 24, 2, 0.07) }}
       />
       <MetricCard
-        label="Errors"
-        value="842"
-        trend={{ direction: "up", label: "13.8%", isPositive: false }}
+        label="Cache rate"
+        value="92.1"
+        unit="%"
+        trend={{ direction: "up", label: "3.2%" }}
       />
-      <MetricCard label="Wall Time" value="24" unit="ms" />
+      <MetricCard
+        label="Client errors"
+        value="4.8k"
+        trend={{ direction: "down", label: "8%", lessIsBetter: true }}
+      />
     </MetricCardGroup>
   );
 }
 
 export function MetricCardHorizontalGroupDemo() {
   return (
-    <MetricCardGroup title="Summary">
+    <MetricCardGroup title="Performance">
       <MetricCard
-        label="Total requests"
-        value="2.8"
-        unit="M"
-        trend={{ direction: "up", label: "9%", isPositive: true }}
-        sparkline={{
-          data: [
-            1.9, 2.1, 2.0, 2.3, 2.1, 2.4, 2.2, 2.5, 2.3, 2.6, 2.4, 2.7, 2.6,
-            2.8,
-          ],
-          color: "var(--color-kumo-brand)",
-        }}
+        label="CPU time P90"
+        value="3.2"
+        unit="ms"
+        trend={{ direction: "down", label: "8%", lessIsBetter: true }}
+        sparkline={{ data: buildSparkline(4.1, 3.2, 24, 5, 0.08) }}
       />
-      <MetricCard label="Successful requests" value="2.7" unit="M" />
-      <MetricCard label="Failed requests" value="12.4" unit="k" />
+      <MetricCard
+        label="Workers errors"
+        value="0"
+        trend={{ direction: "neutral", label: "0.0%", isNeutral: true }}
+        sparkline={{ data: [0, 0], theme: "danger" }}
+      />
+      <MetricCard
+        label="Workers invocations"
+        value="1.2M"
+        trend={{ direction: "up", label: "12%" }}
+      />
     </MetricCardGroup>
   );
 }
 
 export function MetricCardGroupVerticalDemo() {
   return (
-    <div className="max-w-xs">
-      <MetricCardGroup orientation="vertical" title="Registrar">
+    <div className="max-w-sm mx-auto">
+      <MetricCardGroup title="Registrar" orientation="vertical">
         <MetricCard label="Active domains" value="142" />
         <MetricCard label="Expiring soon" value="3" />
         <MetricCard label="Pending transfers" value="2" />
@@ -71,65 +95,18 @@ export function MetricCardGroupWithoutTitleDemo() {
     <MetricCardGroup>
       <MetricCard
         label="Web traffic"
-        value="2.4"
-        unit="M"
-        sparkline={{
-          data: [1.8, 2.1, 1.9, 2.3, 2.0, 2.4, 2.2, 2.5, 2.1, 2.6, 2.3, 2.4],
-        }}
+        value="2.4M"
+        sparkline={{ data: buildSparkline(1.8, 2.4, 24, 7, 0.08) }}
       />
       <MetricCard
         label="Total bandwidth"
-        value="1.8"
-        unit="PB"
-        sparkline={{
-          data: [
-            1.2, 1.25, 1.3, 1.28, 1.35, 1.4, 1.38, 1.45, 1.5, 1.48, 1.55, 1.6,
-            1.8,
-          ],
-        }}
+        value="842"
+        unit="GB"
+        sparkline={{ data: buildSparkline(620, 842, 24, 9, 0.07) }}
       />
       <MetricCard
-        label="Cache rate"
-        value="89.2"
-        unit="%"
-        sparkline={{
-          data: [
-            85, 86.5, 84, 87, 85.5, 88, 86, 89, 87.5, 88.5, 86.5, 88, 89, 89.2,
-          ],
-        }}
-      />
-    </MetricCardGroup>
-  );
-}
-
-export function MetricCardVariantsDemo() {
-  return (
-    <MetricCardGroup title="Health">
-      <MetricCard
-        label="CPU Time (P90)"
-        value="4.1"
-        unit="ms"
-        variant="default"
-      />
-      <MetricCard
-        label="Request duration"
-        value="45"
-        unit="ms"
-        variant="success"
-      />
-      <MetricCard
-        label="Workers errors"
-        value="2.3"
-        unit="k"
-        variant="danger"
-        trend={{ direction: "up", label: "0.8%", isPositive: false }}
-      />
-      <MetricCard
-        label="Subrequests"
-        value="847"
-        unit="k"
-        variant="warning"
-        trend={{ direction: "up", label: "23%", isPositive: false }}
+        label="Workers invocations"
+        value="1.2M"
       />
     </MetricCardGroup>
   );
@@ -137,62 +114,51 @@ export function MetricCardVariantsDemo() {
 
 export function MetricCardStatesDemo() {
   return (
-    <MetricCardGroup title="Dashboard">
-      <MetricCard
-        label="Workers invocations"
-        value="12.4"
-        unit="k"
-        trend={{ direction: "up", label: "8%", isPositive: true }}
-      />
-      <MetricCard label="Build minutes" value="" loading />
-      <MetricCard label="Logins blocked" value="" error />
+    <MetricCardGroup title="Browser Rendering">
+      <MetricCard label="Browser sessions" loading />
+      <MetricCard label="Browser hours" error />
     </MetricCardGroup>
   );
 }
 
 export function MetricCardSparklineDemo() {
   return (
-    <MetricCardGroup title="Traffic Overview">
+    <MetricCardGroup title="Performance">
       <MetricCard
-        label="Bandwidth"
-        value="3.5"
-        unit="GB"
+        label="Cache rate"
+        value="92.1"
+        unit="%"
+        trend={{ direction: "up", label: "3.2%" }}
         sparkline={{
-          data: [
-            2.1, 2.4, 2.2, 2.7, 2.5, 2.9, 2.6, 3.1, 2.8, 3.2, 3.0, 3.4, 3.3,
-            3.5,
-          ],
+          data: buildSparkline(88, 92.1, 24, 10, 0.05),
           theme: "success",
         }}
       />
       <MetricCard
-        label="Visits"
-        value="48.2"
-        unit="k"
+        label="Client errors"
+        value="4.8k"
+        trend={{ direction: "down", label: "8%", lessIsBetter: true }}
         sparkline={{
-          data: [32, 35, 33, 38, 36, 40, 37, 42, 39, 44, 41, 48.2],
-          theme: "neutral",
-        }}
-      />
-      <MetricCard
-        label="Page views"
-        value="126"
-        unit="k"
-        sparkline={{
-          data: [85, 90, 82, 95, 88, 102, 92, 108, 97, 115, 105, 120, 110, 126],
+          data: buildSparkline(6200, 4800, 24, 11, 0.12),
           theme: "danger",
         }}
       />
       <MetricCard
-        label="Cached requests"
-        value="92.1"
-        unit="%"
+        label="CPU time P90"
+        value="3.2"
+        unit="ms"
+        trend={{ direction: "down", label: "8%", lessIsBetter: true }}
         sparkline={{
-          data: [
-            88, 89.5, 87, 90, 88.5, 91, 89, 91.5, 90, 92, 90.5, 91.8, 91, 92.1,
-          ],
-          color: "var(--text-color-kumo-brand)",
+          data: buildSparkline(4.1, 3.2, 24, 12, 0.08),
+          theme: "neutral",
         }}
+      />
+      <MetricCard
+        label="Uptime"
+        value="99.99"
+        unit="%"
+        trend={{ direction: "neutral", label: "0.0%", isNeutral: true }}
+        sparkline={{ data: [99.98, 99.98, 99.99, 99.99, 99.98, 99.99, 99.99, 99.99, 99.98, 99.99, 99.99, 99.99, 99.99, 99.98, 99.99, 99.99, 99.99, 99.99, 99.98, 99.99, 99.99, 99.99, 99.99, 99.99], yMin: 99.9 }}
       />
     </MetricCardGroup>
   );
@@ -200,30 +166,15 @@ export function MetricCardSparklineDemo() {
 
 export function MetricCardInteractiveDemo() {
   return (
-    <MetricCardGroup
-      title={
-        <div className="flex w-full items-center justify-between">
-          <div>Workers Overview</div>
-          <Button
-            variant="ghost"
-            size="sm"
-            shape="square"
-            aria-label="View all workers"
-          >
-            <ArrowRightIcon size={16} />
-          </Button>
-        </div>
-      }
-    >
+    <MetricCardGroup title="Workers Overview">
       <MetricCard
-        label="Requests"
-        value="1.2"
-        unit="M"
-        tooltip="Total HTTP requests in the selected period"
+        label="Workers invocations"
+        value="1.2M"
+        tooltip="Total invocations across all Workers"
         href="#"
       />
       <MetricCard
-        label="CPU Time (P90)"
+        label="CPU time P90"
         value="3.2"
         unit="ms"
         tooltip="90th percentile CPU time per invocation"
@@ -231,11 +182,27 @@ export function MetricCardInteractiveDemo() {
         href="#"
       />
       <MetricCard
-        label="Errors"
+        label="Workers errors"
         value="842"
         tooltip="Failed invocations returning non-2xx status"
         onClick={() => {}}
       />
+    </MetricCardGroup>
+  );
+}
+
+export function MetricCardBadgeValueDemo() {
+  return (
+    <MetricCardGroup title="System Status">
+      <MetricCard
+        label="API"
+        value={<Badge variant="success">Operational</Badge>}
+      />
+      <MetricCard
+        label="Database"
+        value={<Badge variant="warning">Degraded</Badge>}
+      />
+      <MetricCard label="Uptime" value="99.9" unit="%" />
     </MetricCardGroup>
   );
 }

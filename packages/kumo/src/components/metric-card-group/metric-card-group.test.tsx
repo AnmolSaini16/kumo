@@ -1,7 +1,10 @@
 import { createRef } from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { MetricCardGroup } from "./metric-card-group";
+import {
+  MetricCardGroup,
+  KUMO_METRIC_CARD_GROUP_VARIANTS,
+} from "./metric-card-group";
 
 describe("MetricCardGroup", () => {
   // Rendering
@@ -61,13 +64,18 @@ describe("MetricCardGroup", () => {
         <div>Card</div>
       </MetricCardGroup>,
     );
-    const innerDiv = container.querySelector(".flex-wrap");
+    const innerDiv = container.querySelector(".grid");
     expect(innerDiv).toBeTruthy();
-    expect(innerDiv?.className).toContain("gap-px");
-    expect(innerDiv?.className).toContain("bg-kumo-line");
+    expect(innerDiv?.className).toContain("grid-cols-1");
     expect(innerDiv?.className).toContain("overflow-hidden");
-    // Consistent card heights when wrapping (matches sparkline card height)
-    expect(innerDiv?.className).toContain("[&>*]:min-h-[115px]");
+    expect(innerDiv?.className).not.toContain("gap-px");
+    expect(innerDiv?.className).not.toContain("bg-kumo-line");
+    // Each card gets a 0.5px ring to create dividers between adjacent cards
+    expect(innerDiv?.className).toContain("[&>*]:ring-[0.5px]");
+    expect(innerDiv?.className).toContain("[&>*]:ring-kumo-line");
+    // Container query context is on a parent wrapper so breakpoints can query it
+    const containerDiv = innerDiv?.parentElement;
+    expect(containerDiv?.className).toContain("@container/metrics");
   });
 
   it("applies vertical layout classes when orientation is vertical", () => {
@@ -79,6 +87,111 @@ describe("MetricCardGroup", () => {
     const innerDiv = container.querySelector(".divide-y");
     expect(innerDiv).toBeTruthy();
     expect(innerDiv?.className).toContain("flex-col");
+  });
+
+  // Container query responsive grid
+
+  it("does not add container query classes for vertical orientation", () => {
+    const { container } = render(
+      <MetricCardGroup orientation="vertical">
+        <div>Card One</div>
+        <div>Card Two</div>
+        <div>Card Three</div>
+      </MetricCardGroup>,
+    );
+    const innerDiv = container.querySelector(".divide-y");
+    expect(innerDiv).toBeTruthy();
+    expect(innerDiv?.className).not.toContain("@container/metrics");
+    expect(innerDiv?.className).not.toContain("grid-cols");
+  });
+
+  it("adds responsive breakpoint classes based on child count", () => {
+    const { container } = render(
+      <MetricCardGroup>
+        <div>Card One</div>
+        <div>Card Two</div>
+        <div>Card Three</div>
+      </MetricCardGroup>,
+    );
+    const innerDiv = container.querySelector(".grid");
+    expect(innerDiv).toBeTruthy();
+    // 3 children → 2 breakpoints (cols-2 and cols-3)
+    expect(innerDiv?.className).toContain(
+      "@[340px]/metrics:grid-cols-2",
+    );
+    expect(innerDiv?.className).toContain(
+      "@[510px]/metrics:grid-cols-3",
+    );
+    // Should NOT include cols-4 or higher
+    expect(innerDiv?.className).not.toContain(
+      "@[680px]/metrics:grid-cols-4",
+    );
+  });
+
+  it("does not add breakpoint classes for a single child", () => {
+    const { container } = render(
+      <MetricCardGroup>
+        <div>Only Card</div>
+      </MetricCardGroup>,
+    );
+    const innerDiv = container.querySelector(".grid");
+    expect(innerDiv).toBeTruthy();
+    expect(innerDiv?.className).toContain("grid-cols-1");
+    // 1 child → 0 breakpoints
+    expect(innerDiv?.className).not.toContain(
+      "@[340px]/metrics:grid-cols-2",
+    );
+  });
+
+  it("caps responsive breakpoints at 6 columns for many children", () => {
+    const { container } = render(
+      <MetricCardGroup>
+        <div>Card 1</div>
+        <div>Card 2</div>
+        <div>Card 3</div>
+        <div>Card 4</div>
+        <div>Card 5</div>
+        <div>Card 6</div>
+        <div>Card 7</div>
+        <div>Card 8</div>
+      </MetricCardGroup>,
+    );
+    const innerDiv = container.querySelector(".grid");
+    expect(innerDiv).toBeTruthy();
+    // 8 children → all 5 breakpoints (max 6 cols)
+    expect(innerDiv?.className).toContain(
+      "@[340px]/metrics:grid-cols-2",
+    );
+    expect(innerDiv?.className).toContain(
+      "@[510px]/metrics:grid-cols-3",
+    );
+    expect(innerDiv?.className).toContain(
+      "@[680px]/metrics:grid-cols-4",
+    );
+    expect(innerDiv?.className).toContain(
+      "@[850px]/metrics:grid-cols-5",
+    );
+    expect(innerDiv?.className).toContain(
+      "@[1020px]/metrics:grid-cols-6",
+    );
+  });
+
+  // Variant definitions
+
+  it("has grid-based horizontal variant classes", () => {
+    const horizontal =
+      KUMO_METRIC_CARD_GROUP_VARIANTS.orientation.horizontal;
+    expect(horizontal.classes).toContain("grid");
+    expect(horizontal.classes).toContain("grid-cols-1");
+    expect(horizontal.classes).not.toContain("flex-wrap");
+    expect(horizontal.classes).not.toContain("[&>*]:min-w-[170px]");
+    expect(horizontal.classes).not.toContain("[&>*]:min-h-[115px]");
+  });
+
+  it("keeps vertical variant unchanged", () => {
+    const vertical =
+      KUMO_METRIC_CARD_GROUP_VARIANTS.orientation.vertical;
+    expect(vertical.classes).toBe("flex flex-col divide-y divide-kumo-line");
   });
 
   // Props and ref forwarding

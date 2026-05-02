@@ -7,75 +7,30 @@ import {
   type Ref,
 } from "react";
 import type { HTMLAttributes } from "react";
-import { InfoIcon, TrendDownIcon, TrendUpIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, InfoIcon, TrendDownIcon, TrendUpIcon } from "@phosphor-icons/react";
 import { cn } from "../../utils/cn";
 import { Button } from "../button";
 import { SkeletonLine } from "../loader/skeleton-line";
 import { Text } from "../text";
 import { Tooltip } from "../tooltip";
 
-// Variants
+/** @internal Placeholder — MetricCard has no visual variants. */
+export const KUMO_METRIC_CARD_VARIANTS = {} as const;
 
-/** MetricCard variant definitions mapping variant names to their Tailwind classes. */
-export const KUMO_METRIC_CARD_VARIANTS = {
-  variant: {
-    default: {
-      classes: "text-kumo-default",
-      description: "Default metric display",
-    },
-    success: {
-      classes: "text-kumo-success",
-      description: "Success metric highlighting positive values",
-    },
-    danger: {
-      classes: "text-kumo-danger",
-      description: "Danger metric highlighting critical values",
-    },
-    warning: {
-      classes: "text-kumo-warning",
-      description: "Warning metric highlighting cautionary values",
-    },
-  },
-} as const;
-
-export const KUMO_METRIC_CARD_DEFAULT_VARIANTS = {
-  variant: "default",
-} as const;
-
-// Derived types from KUMO_METRIC_CARD_VARIANTS
-export type KumoMetricCardVariant =
-  keyof typeof KUMO_METRIC_CARD_VARIANTS.variant;
-
-export interface KumoMetricCardVariantsProps {
-  /**
-   * Color variant for the metric value text.
-   * @default "default"
-   */
-  variant?: KumoMetricCardVariant;
-}
-
-export function metricCardVariants({
-  variant = KUMO_METRIC_CARD_DEFAULT_VARIANTS.variant,
-}: KumoMetricCardVariantsProps = {}) {
-  const variantConfig = KUMO_METRIC_CARD_VARIANTS.variant[variant];
-  return cn(
-    "text-xl font-semibold leading-7 tabular-nums",
-    variantConfig?.classes ??
-      KUMO_METRIC_CARD_VARIANTS.variant[
-        KUMO_METRIC_CARD_DEFAULT_VARIANTS.variant
-      ].classes,
-  );
-}
+/** @internal Placeholder — MetricCard has no visual variants. */
+export const KUMO_METRIC_CARD_DEFAULT_VARIANTS = {} as const;
 
 // Sub-types
 
 export interface MetricCardTrend {
-  /** Arrow direction: up, down, or neutral (no arrow). */
+  /** Arrow direction: up, down, or neutral. */
   direction: "up" | "down" | "neutral";
   /** Pre-formatted trend label, e.g. "13.8%", "2.3pp", "5.1ms". */
   label: string;
-  /** Semantic meaning: controls green (positive) vs red (negative) coloring. */
-  isPositive: boolean;
+  /** When true, a downward trend is positive (green) and upward is negative (red). */
+  lessIsBetter?: boolean;
+  /** When true, forces neutral/gray coloring regardless of direction. */
+  isNeutral?: boolean;
 }
 
 /** Props passed to a custom tooltip icon component. */
@@ -105,23 +60,32 @@ export interface MetricCardSparkline {
  * @example
  * ```tsx
  * <MetricCard label="Requests" value="1.2M" />
- * <MetricCard label="Error rate" value="0.3" unit="%" variant="success" />
+ * <MetricCard label="Error rate" value="0.3" unit="%" />
  * <MetricCard
  *   label="p99 Latency"
  *   value="142"
  *   unit="ms"
- *   trend={{ direction: "down", label: "12%", isPositive: true }}
+ *   trend={{ direction: "down", label: "12%", lessIsBetter: true }}
  * />
+ * ```
+ *
+ * @example Loading and error states (value omitted)
+ * ```tsx
+ * <MetricCard label="Requests" loading />
+ * <MetricCard label="Requests" error />
  * ```
  */
 export interface MetricCardProps
-  extends KumoMetricCardVariantsProps,
-    // "lang" omitted to prevent it from appearing in the component API reference (inherited from HTMLAttributes)
-    Omit<HTMLAttributes<HTMLElement>, "onClick" | "lang"> {
+  extends // "lang" omitted to prevent it from appearing in the component API reference (inherited from HTMLAttributes)
+  Omit<HTMLAttributes<HTMLElement>, "onClick" | "lang"> {
   /** Label text displayed above the value. */
   label: string;
-  /** Pre-formatted metric value, e.g. "1.2M", "99.9". */
-  value: string;
+  /**
+   * Metric value to display. Strings and numbers receive automatic metric typography
+   * (text-xl, font-semibold, tabular-nums). ReactNode values like Badge render as-is.
+   * Optional when `loading` or `error` is true.
+   */
+  value?: ReactNode;
   /** Unit displayed after the value in smaller text, e.g. "%", "ms". */
   unit?: string;
   /** Trend indicator with direction arrow and label. */
@@ -182,19 +146,22 @@ function Sparkline({ data, theme, color, yMin, yMax }: MetricCardSparkline) {
     color ?? (theme ? SPARKLINE_THEME_COLORS[theme] : DEFAULT_SPARKLINE_COLOR);
 
   // Map data points to SVG coordinates
-  // x range: [0, width] — line spans full width edge-to-edge
+  // x range: [-pad, width+pad] — extends beyond viewBox so round caps are clipped
+  //   and the visible line starts right at the card edges
   // y range: [strokePad, height - strokePad] — vertical padding to avoid clipping
   const drawHeight = height - strokePad * 2;
-  const coords = points.map((value, i) => {
-    const x = (i / (points.length - 1)) * width;
+  const pad = 2; // extend beyond viewBox to compensate for strokeLinecap clipping
+  const coords: [number, number][] = points.map((value, i) => {
+    const x = -pad + (i / (points.length - 1)) * (width + pad * 2);
     const y = strokePad + drawHeight * (1 - (value - min) / range);
-    return `${x},${y}`;
+    return [x, y];
   });
 
-  const polylinePoints = coords.join(" ");
+  const linePath = coords
+    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`)
+    .join(" ");
 
-  // Close the polygon at the bottom edge for the gradient fill
-  const polygonPoints = `${polylinePoints} ${width},${height} 0,${height}`;
+  const fillPath = `${linePath} L${width + pad},${height} L${-pad},${height} Z`;
 
   return (
     <svg
@@ -209,12 +176,14 @@ function Sparkline({ data, theme, color, yMin, yMax }: MetricCardSparkline) {
           <stop offset="100%" stopColor={resolvedColor} stopOpacity={0} />
         </linearGradient>
       </defs>
-      <polygon points={polygonPoints} fill={`url(#${gradientId})`} />
-      <polyline
-        points={polylinePoints}
+      <path d={fillPath} fill={`url(#${gradientId})`} />
+      <path
+        d={linePath}
         fill="none"
         stroke={resolvedColor}
-        strokeWidth={0.8}
+        strokeWidth={1.0}
+        strokeLinejoin="round"
+        strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
       />
     </svg>
@@ -223,23 +192,30 @@ function Sparkline({ data, theme, color, yMin, yMax }: MetricCardSparkline) {
 
 // Trend indicator (internal)
 
-function TrendIndicator({ direction, label, isPositive }: MetricCardTrend) {
+function TrendIndicator({ direction, label, lessIsBetter = false, isNeutral = false }: MetricCardTrend) {
   const colorClass =
-    direction === "neutral"
+    isNeutral || direction === "neutral"
       ? "text-kumo-subtle"
-      : isPositive
-        ? "text-kumo-success"
-        : "text-kumo-danger";
+      : lessIsBetter
+        ? direction === "down"
+          ? "text-kumo-success"
+          : "text-kumo-danger"
+        : direction === "up"
+          ? "text-kumo-success"
+          : "text-kumo-danger";
 
   return (
     <span
       className={cn("inline-flex items-baseline gap-1 text-xs", colorClass)}
     >
       {direction === "up" && (
-        <TrendUpIcon size={12} weight="bold" aria-hidden="true" />
+        <TrendUpIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
       )}
       {direction === "down" && (
-        <TrendDownIcon size={12} weight="bold" aria-hidden="true" />
+        <TrendDownIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
+      )}
+      {direction === "neutral" && (
+        <ArrowRightIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
       )}
       {label}
     </span>
@@ -251,10 +227,10 @@ function TrendIndicator({ direction, label, isPositive }: MetricCardTrend) {
 const BASE_CLASSES =
   "flex h-full min-w-[170px] flex-col overflow-hidden rounded-lg bg-kumo-base text-left ring ring-kumo-line";
 
-const CONTENT_CLASSES = "flex flex-col p-4 gap-px";
+const CONTENT_CLASSES = "flex flex-col justify-center p-4 gap-px";
 
 const INTERACTIVE_CLASSES =
-  "cursor-pointer transition-colors hover:bg-kumo-tint focus:outline-none focus-visible:ring-2 focus-visible:ring-kumo-brand";
+  "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-kumo-brand";
 
 /**
  * Compact card displaying a single metric with optional trend indicator,
@@ -271,10 +247,14 @@ const INTERACTIVE_CLASSES =
  *   label="Error Rate"
  *   value="0.12"
  *   unit="%"
- *   variant="danger"
- *   trend={{ direction: "up", label: "3.2%", isPositive: false }}
+ *   trend={{ direction: "up", label: "3.2%", lessIsBetter: true }}
  *   sparkline={{ data: [0.08, 0.09, 0.11, 0.12], theme: "danger" }}
  * />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * <MetricCard label="Health" value={<Badge variant="success">Healthy</Badge>} />
  * ```
  */
 export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
@@ -283,7 +263,6 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
       label,
       value,
       unit,
-      variant = KUMO_METRIC_CARD_DEFAULT_VARIANTS.variant,
       trend,
       sparkline,
       href,
@@ -302,6 +281,10 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
     // Content
 
     const displayValue = error ? "\u2014" : value;
+    const isTextValue =
+      displayValue == null ||
+      typeof displayValue === "string" ||
+      typeof displayValue === "number";
     const showSparkline = !loading && !error && sparkline;
 
     const TooltipIconComponent = tooltipIcon ?? InfoIcon;
@@ -310,6 +293,7 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
       <Text
         DANGEROUS_className="flex items-center gap-1.5 font-normal"
         as="span"
+        size="sm"
         variant="secondary"
       >
         {label}
@@ -335,12 +319,26 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
     const valueRow = loading ? (
       <SkeletonLine minWidth={40} maxWidth={70} blockHeight="1.75rem" />
     ) : (
-      <div className="flex items-baseline gap-2">
-        <div className="flex items-baseline gap-0.5">
-          <span className={metricCardVariants({ variant })}>
-            {displayValue}
-          </span>
-          {!error && unit && (
+      <div
+        className={cn(
+          "flex gap-2",
+          isTextValue ? "items-baseline" : "items-center",
+        )}
+      >
+        <div
+          className={cn(
+            "flex gap-0.5",
+            isTextValue ? "items-baseline" : "items-center",
+          )}
+        >
+          {isTextValue ? (
+            <span className="text-xl font-semibold leading-7 tabular-nums">
+              {displayValue}
+            </span>
+          ) : (
+            displayValue
+          )}
+          {!error && unit && isTextValue && (
             <Text as="span" size="sm" variant="secondary">
               {unit}
             </Text>
@@ -352,12 +350,12 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
 
     const content = (
       <>
-        <div className={CONTENT_CLASSES}>
+        <div className={cn(CONTENT_CLASSES, showSparkline && "pb-3", !isTextValue && "gap-1.5")}>
           {labelRow}
           {valueRow}
         </div>
         {showSparkline && (
-          <div className="pointer-events-none mt-auto h-[30px] w-full overflow-hidden rounded-b-lg">
+          <div className="pointer-events-none mt-auto h-[30px] w-full overflow-hidden">
             <Sparkline {...sparkline} />
           </div>
         )}
