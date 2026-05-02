@@ -192,31 +192,28 @@ function Sparkline({ data, theme, color, yMin, yMax }: MetricCardSparkline) {
 
 // Trend indicator (internal)
 
+const DIRECTION_ICONS = {
+  up: TrendUpIcon,
+  down: TrendDownIcon,
+  neutral: ArrowRightIcon,
+} as const;
+
+function getTrendColor(direction: MetricCardTrend["direction"], lessIsBetter: boolean, isNeutral: boolean): string {
+  if (isNeutral || direction === "neutral") return "text-kumo-subtle";
+
+  const isPositive = lessIsBetter ? direction === "down" : direction === "up";
+  return isPositive ? "text-kumo-success" : "text-kumo-danger";
+}
+
 function TrendIndicator({ direction, label, lessIsBetter = false, isNeutral = false }: MetricCardTrend) {
-  const colorClass =
-    isNeutral || direction === "neutral"
-      ? "text-kumo-subtle"
-      : lessIsBetter
-        ? direction === "down"
-          ? "text-kumo-success"
-          : "text-kumo-danger"
-        : direction === "up"
-          ? "text-kumo-success"
-          : "text-kumo-danger";
+  const colorClass = getTrendColor(direction, lessIsBetter, isNeutral);
+  const DirectionIcon = DIRECTION_ICONS[direction];
 
   return (
     <span
       className={cn("inline-flex items-baseline gap-1 text-xs", colorClass)}
     >
-      {direction === "up" && (
-        <TrendUpIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
-      )}
-      {direction === "down" && (
-        <TrendDownIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
-      )}
-      {direction === "neutral" && (
-        <ArrowRightIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
-      )}
+      <DirectionIcon size={12} weight="bold" aria-hidden="true" className="self-center" />
       {label}
     </span>
   );

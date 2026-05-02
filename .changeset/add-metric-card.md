@@ -5,7 +5,7 @@
 Add `MetricCard` and `MetricCardGroup` components for displaying dashboard-style metric summaries. `MetricCard` supports labels, values, units, trend indicators, loading/error states, tooltips, clickable cards, and lightweight SVG sparklines. `MetricCardGroup` wraps cards in a `LayerCard` with optional title and supports horizontal wrapping or vertical stacked layouts.
 
 ```tsx
-<MetricCardGrou title="Workers Analytics">
+<MetricCardGroup title="Workers Analytics">
   <MetricCard
     label="Requests"
     value="1.2"
