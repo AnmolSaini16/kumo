@@ -9,6 +9,7 @@ import {
 import type { HTMLAttributes } from "react";
 import { ArrowRightIcon, InfoIcon, TrendDownIcon, TrendUpIcon } from "@phosphor-icons/react";
 import { cn } from "../../utils/cn";
+import { useLinkComponent } from "../../utils/link-provider";
 import { Button } from "../button";
 import { SkeletonLine } from "../loader/skeleton-line";
 import { Text } from "../text";
@@ -273,6 +274,7 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
     },
     ref,
   ) {
+    const LinkComponent = useLinkComponent();
     const isInteractive = Boolean(href) || Boolean(onClick);
 
     // Content
@@ -369,15 +371,16 @@ export const MetricCard = forwardRef<HTMLElement, MetricCardProps>(
 
     if (href) {
       return (
-        <a
+        <LinkComponent
           ref={ref as Ref<HTMLAnchorElement>}
           href={href}
+          to={href}
           onClick={onClick}
           className={cn(sharedClassName, "no-underline")}
           {...(rest as HTMLAttributes<HTMLAnchorElement>)}
         >
           {content}
-        </a>
+        </LinkComponent>
       );
     }
 
