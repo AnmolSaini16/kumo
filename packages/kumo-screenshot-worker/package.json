@@ -13,9 +13,12 @@
     "lint": "oxlint src/"
   },
   "dependencies": {
-    "@cloudflare/puppeteer": "^1.0.0"
+    "@cloudflare/puppeteer": "^1.0.0",
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0"
   },
   "devDependencies": {
+    "@types/pngjs": "^6.0.5",
     "oxlint": "catalog:",
     "typescript": "catalog:",
     "wrangler": "catalog:"

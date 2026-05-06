@@ -1,9 +1,16 @@
 import puppeteer from "@cloudflare/puppeteer";
+import pixelmatch from "pixelmatch";
+import { PNG } from "pngjs";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const MAX_PAGES = 50;
+const MAX_COMPARE_PAGES = MAX_PAGES * 2;
 const MAX_ACTION_PAYLOAD_BYTES = 64_000; // 64 KB per css action payload
+const MAX_R2_PATH_LENGTH = 256;
+const MAX_PNG_BYTES = 10 * 1024 * 1024;
+const R2_PATH_PATTERN = /^vr\/[a-zA-Z0-9/_-]+\.png$/;
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 const HIDE_SIDEBAR_CSS = `
   aside[data-sidebar-open] { display: none !important; }
@@ -25,8 +32,8 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
       typeof o === "string" ? o === origin : o.test(origin),
     );
   return {
-    "Access-Control-Allow-Origin": allowed ? origin! : "null",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Origin": allowed ? origin : "null",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
   };
 }
@@ -36,6 +43,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
 interface Env {
   BROWSER: Fetcher;
   API_KEY: string;
+  SCREENSHOTS: R2Bucket;
 }
 
 interface PageAction {
@@ -55,14 +63,16 @@ interface PageConfig {
   viewport?: { width: number; height: number };
   hideSidebar?: boolean;
   captureSections?: boolean;
-  sectionSelector?: string;
+  storageKeyBase?: string;
 }
 
 interface BatchRequest {
   baseUrl: string;
   pages: PageConfig[];
+  comparePages?: PageConfig[];
   viewport?: { width: number; height: number };
   hideSidebar?: boolean;
+  uploadToR2?: { enabled: true };
 }
 
 interface ScreenshotResult {
@@ -70,6 +80,8 @@ interface ScreenshotResult {
   sectionId?: string;
   sectionTitle?: string;
   image?: string;
+  screenshotUrl?: string;
+  storageKey?: string;
   error?: string;
   debug?: {
     dimensions?: { width: number; height: number };
@@ -77,7 +89,30 @@ interface ScreenshotResult {
   };
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+interface ComparisonResult {
+  id: string;
+  name: string;
+  beforeUrl: string | null;
+  afterUrl: string | null;
+  diffUrl: string | null;
+  changed: boolean;
+  diffPixels: number;
+  diffPercent: number;
+  status: "added" | "removed" | "changed" | "unchanged";
+}
+
+type BatchResponse =
+  | { results: ScreenshotResult[] }
+  | { results: ScreenshotResult[]; comparisons: ComparisonResult[] };
+
+interface ScreenshotMetadata {
+  sectionId?: string;
+  sectionTitle?: string;
+  debug?: {
+    dimensions?: { width: number; height: number };
+    viewport?: { width: number; height: number };
+  };
+}
 
 /**
  * Validates that a URL is safe to navigate to:
@@ -133,15 +168,580 @@ function validateUrl(
   return { ok: true, url: parsed.toString() };
 }
 
+function validateR2Path(path: string): string | null {
+  if (path.length > MAX_R2_PATH_LENGTH) {
+    return `Path exceeds ${MAX_R2_PATH_LENGTH} characters`;
+  }
+  if (path.startsWith("/") || path.includes("..")) {
+    return "Path must not be absolute or contain ..";
+  }
+  if (!R2_PATH_PATTERN.test(path)) {
+    return "Path must match vr/[a-zA-Z0-9/_-]+.png";
+  }
+  return null;
+}
+
+function validateStorageKeyBase(keyBase: string | undefined): string | null {
+  if (!keyBase) {
+    return "storageKeyBase is required when uploadToR2 is enabled";
+  }
+  return validateR2Path(`${keyBase}.png`);
+}
+
+function isPng(buffer: Buffer): boolean {
+  if (buffer.length < PNG_SIGNATURE.length) {
+    return false;
+  }
+  return PNG_SIGNATURE.every((byte, index) => buffer[index] === byte);
+}
+
+function getScreenshotUrl(requestUrl: string, path: string): string {
+  return new URL(`/screenshots/${path}`, requestUrl).toString();
+}
+
+function getScreenshotPath(url: URL): string | { error: string } {
+  try {
+    return decodeURIComponent(url.pathname.replace(/^\/screenshots\//, ""));
+  } catch {
+    return { error: "Path must be valid URI encoding" };
+  }
+}
+
+function comparePngs(
+  beforeBuffer: Buffer,
+  afterBuffer: Buffer,
+): {
+  changed: boolean;
+  diffPixels: number;
+  diffPercent: number;
+  diffImage: Buffer | null;
+} {
+  if (beforeBuffer.equals(afterBuffer)) {
+    return { changed: false, diffPixels: 0, diffPercent: 0, diffImage: null };
+  }
+
+  const beforePng = PNG.sync.read(beforeBuffer);
+  const afterPng = PNG.sync.read(afterBuffer);
+  const width = Math.max(beforePng.width, afterPng.width);
+  const height = Math.max(beforePng.height, afterPng.height);
+
+  const padToSize = (png: PNG, targetWidth: number, targetHeight: number) => {
+    if (png.width === targetWidth && png.height === targetHeight) {
+      return new Uint8Array(
+        png.data.buffer,
+        png.data.byteOffset,
+        png.data.byteLength,
+      );
+    }
+    const padded = new Uint8Array(targetWidth * targetHeight * 4);
+    for (let y = 0; y < png.height; y++) {
+      const srcOffset = y * png.width * 4;
+      const dstOffset = y * targetWidth * 4;
+      padded.set(
+        png.data.subarray(srcOffset, srcOffset + png.width * 4),
+        dstOffset,
+      );
+    }
+    return padded;
+  };
+
+  const beforeData = padToSize(beforePng, width, height);
+  const afterData = padToSize(afterPng, width, height);
+  const diffData = new Uint8Array(width * height * 4);
+  const diffPixels = pixelmatch(
+    beforeData,
+    afterData,
+    diffData,
+    width,
+    height,
+    { threshold: 0.1, diffColor: [255, 0, 0], alpha: 0.3 },
+  );
+  const totalPixels = width * height;
+  const diffPercent = totalPixels > 0 ? (diffPixels / totalPixels) * 100 : 0;
+  const diffPng = new PNG({ width, height });
+  diffPng.data = Buffer.from(diffData);
+
+  return {
+    changed: true,
+    diffPixels,
+    diffPercent: Math.round(diffPercent * 100) / 100,
+    diffImage: PNG.sync.write(diffPng),
+  };
+}
+
+async function getPngFromR2(
+  env: Env,
+  key: string,
+): Promise<Buffer | { error: string }> {
+  const object = await env.SCREENSHOTS.get(key);
+  if (!object) {
+    return { error: `Screenshot not found: ${key}` };
+  }
+  const buffer = Buffer.from(await object.arrayBuffer());
+  if (buffer.length > MAX_PNG_BYTES) {
+    return { error: `Screenshot exceeds ${MAX_PNG_BYTES} bytes: ${key}` };
+  }
+  if (!isPng(buffer)) {
+    return { error: `Screenshot is not a PNG: ${key}` };
+  }
+  return buffer;
+}
+
+function getR2Key(
+  pageConfig: PageConfig,
+  metadata: ScreenshotMetadata,
+): string | { error: string } {
+  if (!pageConfig.storageKeyBase) {
+    return { error: "storageKeyBase is required when uploadToR2 is enabled" };
+  }
+
+  const key = metadata.sectionId
+    ? `${pageConfig.storageKeyBase}-${metadata.sectionId}.png`
+    : `${pageConfig.storageKeyBase}.png`;
+  const error = validateR2Path(key);
+  if (error) {
+    return { error };
+  }
+  return key;
+}
+
+async function addScreenshotResult(
+  results: ScreenshotResult[],
+  requestUrl: string,
+  env: Env,
+  pageConfig: PageConfig,
+  fullUrl: string,
+  shot: Uint8Array | Buffer,
+  uploadToR2: boolean,
+  metadata: ScreenshotMetadata = {},
+): Promise<void> {
+  const buffer = Buffer.from(shot);
+
+  if (!uploadToR2) {
+    results.push({
+      url: fullUrl,
+      ...metadata,
+      image: buffer.toString("base64"),
+    });
+    return;
+  }
+
+  const key = getR2Key(pageConfig, metadata);
+  if (typeof key !== "string") {
+    results.push({ url: fullUrl, ...metadata, error: key.error });
+    return;
+  }
+
+  const putResult = await env.SCREENSHOTS.put(key, buffer, {
+    httpMetadata: { contentType: "image/png" },
+    customMetadata: { source: "visual-regression" },
+  });
+  if (!putResult) {
+    results.push({ url: fullUrl, ...metadata, error: `R2 put failed: ${key}` });
+    return;
+  }
+
+  results.push({
+    url: fullUrl,
+    ...metadata,
+    screenshotUrl: getScreenshotUrl(requestUrl, key),
+    storageKey: key,
+  });
+}
+
+async function capturePageScreenshots(
+  browser: Awaited<ReturnType<typeof puppeteer.launch>>,
+  requestUrl: string,
+  env: Env,
+  baseUrl: string,
+  pageConfig: PageConfig,
+  defaultViewport: { width: number; height: number },
+  globalHideSidebar: boolean | undefined,
+  uploadToR2: boolean,
+): Promise<ScreenshotResult[]> {
+  const results: ScreenshotResult[] = [];
+  const rawUrl = pageConfig.url.startsWith("http")
+    ? pageConfig.url
+    : `${baseUrl}${pageConfig.url}`;
+
+  const urlCheck = validateUrl(rawUrl);
+  if (!urlCheck.ok) {
+    return [{ url: rawUrl, error: urlCheck.error }];
+  }
+  const fullUrl = urlCheck.url;
+  const page = await browser.newPage();
+
+  try {
+    const viewport = pageConfig.viewport || defaultViewport;
+    await page.setViewport(viewport);
+
+    await page.goto(fullUrl, {
+      waitUntil: "networkidle0",
+      timeout: 30000,
+    });
+
+    const shouldHideSidebar = pageConfig.hideSidebar ?? globalHideSidebar;
+    if (shouldHideSidebar) {
+      await page.addStyleTag({ content: HIDE_SIDEBAR_CSS });
+      await new Promise((r) => setTimeout(r, 100));
+    }
+
+    if (pageConfig.actions) {
+      for (const action of pageConfig.actions) {
+        await executeAction(page, action);
+      }
+    }
+
+    if (pageConfig.captureSections) {
+      const demoElements = await page.$$("[data-vr-demo]");
+
+      if (demoElements.length > 0) {
+        for (const element of demoElements) {
+          const attrs = await element.evaluate((el: Element) => ({
+            sectionId: el.getAttribute("data-vr-section"),
+            sectionTitle: el.getAttribute("data-vr-title"),
+          }));
+
+          if (attrs.sectionId) {
+            await element.scrollIntoView();
+            await new Promise((r) => setTimeout(r, 200));
+            const shot = await element.screenshot({ type: "png" });
+            await addScreenshotResult(
+              results,
+              requestUrl,
+              env,
+              pageConfig,
+              fullUrl,
+              shot,
+              uploadToR2,
+              {
+                sectionId: attrs.sectionId,
+                sectionTitle: attrs.sectionTitle || attrs.sectionId,
+              },
+            );
+          }
+        }
+      } else {
+        const shot = await page.screenshot({ type: "png" });
+        await addScreenshotResult(
+          results,
+          requestUrl,
+          env,
+          pageConfig,
+          fullUrl,
+          shot,
+          uploadToR2,
+        );
+      }
+    } else if (pageConfig.selector) {
+      const element = await page.$(pageConfig.selector);
+      if (element) {
+        const shot = await element.screenshot({ type: "png" });
+        await addScreenshotResult(
+          results,
+          requestUrl,
+          env,
+          pageConfig,
+          fullUrl,
+          shot,
+          uploadToR2,
+        );
+      } else {
+        throw new Error(`Selector not found: ${pageConfig.selector}`);
+      }
+    } else {
+      const shouldFullPage = pageConfig.fullPage ?? true;
+
+      if (shouldFullPage) {
+        const dimensions = await page.evaluate(() => {
+          const main = document.querySelector("main");
+          let contentHeight = 0;
+
+          if (main) {
+            let parent = main.parentElement;
+            while (parent && parent !== document.body) {
+              const style = window.getComputedStyle(parent);
+              if (
+                style.overflow === "auto" ||
+                style.overflow === "scroll" ||
+                style.overflowY === "auto" ||
+                style.overflowY === "scroll"
+              ) {
+                contentHeight = parent.scrollHeight;
+                break;
+              }
+              parent = parent.parentElement;
+            }
+            if (contentHeight === 0) {
+              contentHeight = main.scrollHeight;
+            }
+          }
+
+          const bodyHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight,
+            document.documentElement.clientHeight,
+          );
+
+          const finalHeight = Math.max(contentHeight, bodyHeight);
+
+          const width = Math.max(
+            document.documentElement.scrollWidth,
+            document.body.scrollWidth,
+            document.documentElement.clientWidth,
+          );
+
+          return { width, height: finalHeight };
+        });
+
+        await page.addStyleTag({
+          content: `
+            html, body { height: auto !important; min-height: auto !important; overflow: visible !important; }
+            [style*="overflow: auto"], [style*="overflow: scroll"],
+            [style*="overflow-y: auto"], [style*="overflow-y: scroll"] {
+              overflow: visible !important;
+              height: auto !important;
+              max-height: none !important;
+            }
+          `,
+        });
+        await new Promise((r) => setTimeout(r, 200));
+
+        const newViewport = {
+          width: Math.max(dimensions.width, viewport.width),
+          height: Math.max(dimensions.height, viewport.height),
+        };
+        await page.setViewport(newViewport);
+        await new Promise((r) => setTimeout(r, 300));
+
+        const shot = await page.screenshot({ type: "png" });
+        await addScreenshotResult(
+          results,
+          requestUrl,
+          env,
+          pageConfig,
+          fullUrl,
+          shot,
+          uploadToR2,
+          { debug: { dimensions, viewport: newViewport } },
+        );
+      } else {
+        const shot = await page.screenshot({ type: "png" });
+        await addScreenshotResult(
+          results,
+          requestUrl,
+          env,
+          pageConfig,
+          fullUrl,
+          shot,
+          uploadToR2,
+        );
+      }
+    }
+  } catch (error) {
+    results.push({
+      url: fullUrl,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  } finally {
+    await page.close();
+  }
+
+  return results;
+}
+
+function getScreenshotId(key: string, tag: "before" | "after"): string | null {
+  const filename = key.split("/").pop();
+  if (!filename?.endsWith(".png")) {
+    return null;
+  }
+  const withoutExtension = filename.slice(0, -4);
+  const prefix = `${tag}-`;
+  if (!withoutExtension.startsWith(prefix)) {
+    return null;
+  }
+  return withoutExtension.slice(prefix.length);
+}
+
+function getDiffKey(beforeKey: string): string | { error: string } {
+  const filename = beforeKey.split("/").pop();
+  const dir = beforeKey.slice(0, -(filename?.length ?? 0));
+  const id = getScreenshotId(beforeKey, "before");
+  if (!id) {
+    return { error: `Invalid before key: ${beforeKey}` };
+  }
+  const key = `${dir}diff-${id}.png`;
+  const error = validateR2Path(key);
+  return error ? { error } : key;
+}
+
+function getComparisonName(id: string, result: ScreenshotResult): string {
+  if (result.sectionId) {
+    const suffix = `-${result.sectionId}`;
+    const componentSlug = id.endsWith(suffix)
+      ? id.slice(0, -suffix.length)
+      : id;
+    return `${formatName(componentSlug)} / ${result.sectionTitle || result.sectionId}`;
+  }
+
+  if (id.endsWith("-open")) {
+    return `${formatName(id.slice(0, -5))} (Open)`;
+  }
+
+  return formatName(id);
+}
+
+function buildMissingComparison(
+  id: string,
+  before: ScreenshotResult | undefined,
+  after: ScreenshotResult | undefined,
+): ComparisonResult | { error: string } {
+  if (before?.screenshotUrl) {
+    return {
+      id,
+      name: `${getComparisonName(id, before)} (Removed)`,
+      beforeUrl: before.screenshotUrl,
+      afterUrl: null,
+      diffUrl: null,
+      changed: true,
+      diffPixels: 0,
+      diffPercent: 100,
+      status: "removed",
+    };
+  }
+
+  if (after?.screenshotUrl) {
+    return {
+      id,
+      name: `${getComparisonName(id, after)} (Added)`,
+      beforeUrl: null,
+      afterUrl: after.screenshotUrl,
+      diffUrl: null,
+      changed: true,
+      diffPixels: 0,
+      diffPercent: 100,
+      status: "added",
+    };
+  }
+
+  return { error: `Missing screenshot URL for ${id}` };
+}
+
+async function buildComparisons(
+  requestUrl: string,
+  env: Env,
+  beforeResults: ScreenshotResult[],
+  afterResults: ScreenshotResult[],
+): Promise<ComparisonResult[] | { error: string }> {
+  const beforeById = new Map<string, ScreenshotResult>();
+  const afterById = new Map<string, ScreenshotResult>();
+
+  for (const result of beforeResults) {
+    if (result.error || !result.storageKey) {
+      continue;
+    }
+    const id = getScreenshotId(result.storageKey, "before");
+    if (id) {
+      beforeById.set(id, result);
+    }
+  }
+
+  for (const result of afterResults) {
+    if (result.error || !result.storageKey) {
+      continue;
+    }
+    const id = getScreenshotId(result.storageKey, "after");
+    if (id) {
+      afterById.set(id, result);
+    }
+  }
+
+  const comparisons: ComparisonResult[] = [];
+  const allIds = new Set([...beforeById.keys(), ...afterById.keys()]);
+  for (const id of allIds) {
+    const before = beforeById.get(id);
+    const after = afterById.get(id);
+    if (!before || !after) {
+      const comparison = buildMissingComparison(id, before, after);
+      if ("error" in comparison) {
+        return comparison;
+      }
+      comparisons.push(comparison);
+      continue;
+    }
+
+    if (
+      !before.storageKey ||
+      !after.storageKey ||
+      !before.screenshotUrl ||
+      !after.screenshotUrl
+    ) {
+      return { error: `Missing screenshot data for ${id}` };
+    }
+
+    const beforeBuffer = await getPngFromR2(env, before.storageKey);
+    if ("error" in beforeBuffer) {
+      return beforeBuffer;
+    }
+    const afterBuffer = await getPngFromR2(env, after.storageKey);
+    if ("error" in afterBuffer) {
+      return afterBuffer;
+    }
+
+    const diff = comparePngs(beforeBuffer, afterBuffer);
+    let diffUrl: string | null = null;
+    if (diff.changed && diff.diffImage) {
+      const diffKey = getDiffKey(before.storageKey);
+      if (typeof diffKey !== "string") {
+        return diffKey;
+      }
+      const putResult = await env.SCREENSHOTS.put(diffKey, diff.diffImage, {
+        httpMetadata: { contentType: "image/png" },
+        customMetadata: { source: "visual-regression" },
+      });
+      if (!putResult) {
+        return { error: `R2 put failed: ${diffKey}` };
+      }
+      diffUrl = getScreenshotUrl(requestUrl, diffKey);
+    }
+
+    comparisons.push({
+      id,
+      name: getComparisonName(id, before),
+      beforeUrl: before.screenshotUrl,
+      afterUrl: after.screenshotUrl,
+      diffUrl,
+      changed: diff.changed,
+      diffPixels: diff.diffPixels,
+      diffPercent: diff.diffPercent,
+      status: diff.changed ? "changed" : "unchanged",
+    });
+  }
+
+  return comparisons;
+}
+
+function formatName(slug: string): string {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get("Origin");
     const cors = getCorsHeaders(origin);
+    const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: cors });
+    }
+
+    if (url.pathname.startsWith("/screenshots/") && request.method === "GET") {
+      return handleScreenshotGet(url, env, cors);
     }
 
     const apiKey = request.headers.get("X-API-Key");
@@ -151,8 +751,6 @@ export default {
         { status: 401, headers: cors },
       );
     }
-
-    const url = new URL(request.url);
 
     if (url.pathname === "/batch" && request.method === "POST") {
       return handleBatch(request, env, cors);
@@ -165,6 +763,37 @@ export default {
   },
 };
 
+async function handleScreenshotGet(
+  url: URL,
+  env: Env,
+  cors: Record<string, string>,
+): Promise<Response> {
+  const path = getScreenshotPath(url);
+  if (typeof path !== "string") {
+    return Response.json({ error: path.error }, { status: 400, headers: cors });
+  }
+  const pathError = validateR2Path(path);
+  if (pathError) {
+    return Response.json({ error: pathError }, { status: 400, headers: cors });
+  }
+
+  const object = await env.SCREENSHOTS.get(path);
+  if (!object) {
+    return Response.json(
+      { error: "Not found" },
+      { status: 404, headers: cors },
+    );
+  }
+
+  return new Response(object.body, {
+    headers: {
+      ...cors,
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=300",
+    },
+  });
+}
+
 // ─── Batch handler ───────────────────────────────────────────────────────────
 
 async function handleBatch(
@@ -172,13 +801,17 @@ async function handleBatch(
   env: Env,
   cors: Record<string, string>,
 ): Promise<Response> {
-  const body = (await request.json()) as BatchRequest;
+  const body: BatchRequest = await request.json();
   const {
     baseUrl,
     pages,
+    comparePages,
     viewport: globalViewport,
     hideSidebar: globalHideSidebar,
+    uploadToR2,
   } = body;
+  const shouldUploadToR2 = uploadToR2?.enabled === true;
+  const shouldCompare = comparePages !== undefined;
 
   // ── Input validation ──────────────────────────────────────────────────────
 
@@ -192,6 +825,22 @@ async function handleBatch(
   if (pages.length > MAX_PAGES) {
     return Response.json(
       { error: `Too many pages: max ${MAX_PAGES}, got ${pages.length}` },
+      { status: 400, headers: cors },
+    );
+  }
+
+  if (pages.length + (comparePages?.length ?? 0) > MAX_COMPARE_PAGES) {
+    return Response.json(
+      {
+        error: `Too many total pages: max ${MAX_COMPARE_PAGES}, got ${pages.length + (comparePages?.length ?? 0)}`,
+      },
+      { status: 400, headers: cors },
+    );
+  }
+
+  if (shouldCompare && !shouldUploadToR2) {
+    return Response.json(
+      { error: "comparePages requires uploadToR2" },
       { status: 400, headers: cors },
     );
   }
@@ -210,7 +859,17 @@ async function handleBatch(
   }
 
   // Validate per-page action payloads to avoid oversized CSS strings.
-  for (const pageConfig of pages) {
+  for (const pageConfig of [...pages, ...(comparePages ?? [])]) {
+    if (shouldUploadToR2) {
+      const keyError = validateStorageKeyBase(pageConfig.storageKeyBase);
+      if (keyError) {
+        return Response.json(
+          { error: keyError },
+          { status: 400, headers: cors },
+        );
+      }
+    }
+
     for (const action of pageConfig.actions ?? []) {
       if (action.css && action.css.length > MAX_ACTION_PAYLOAD_BYTES) {
         return Response.json(
@@ -225,181 +884,68 @@ async function handleBatch(
 
   const defaultViewport = globalViewport || { width: 1440, height: 900 };
   const results: ScreenshotResult[] = [];
+  const compareResults: ScreenshotResult[] = [];
 
   let browser;
   try {
     browser = await puppeteer.launch(env.BROWSER);
 
     for (const pageConfig of pages) {
-      // Resolve and validate the full URL for this page.
-      const rawUrl = pageConfig.url.startsWith("http")
-        ? pageConfig.url
-        : `${baseUrl}${pageConfig.url}`;
-
-      const urlCheck = validateUrl(rawUrl);
-      if (!urlCheck.ok) {
-        results.push({ url: rawUrl, error: urlCheck.error });
-        continue;
-      }
-      const fullUrl = urlCheck.url;
-
-      // Create a fresh page per URL to prevent cookie/localStorage/style bleed.
-      const page = await browser.newPage();
-
-      try {
-        const viewport = pageConfig.viewport || defaultViewport;
-        await page.setViewport(viewport);
-
-        await page.goto(fullUrl, {
-          waitUntil: "networkidle0",
-          timeout: 30000,
-        });
-
-        const shouldHideSidebar = pageConfig.hideSidebar ?? globalHideSidebar;
-        if (shouldHideSidebar) {
-          await page.addStyleTag({ content: HIDE_SIDEBAR_CSS });
-          await new Promise((r) => setTimeout(r, 100));
-        }
-
-        if (pageConfig.actions) {
-          for (const action of pageConfig.actions) {
-            await executeAction(page, action);
-          }
-        }
-
-        if (pageConfig.captureSections) {
-          // Find all elements with data-vr-demo attribute
-          const demoElements = await page.$$("[data-vr-demo]");
-
-          if (demoElements.length > 0) {
-            // Use explicit VR demo elements
-            for (const element of demoElements) {
-              const attrs = await element.evaluate((el: Element) => ({
-                sectionId: el.getAttribute("data-vr-section"),
-                sectionTitle: el.getAttribute("data-vr-title"),
-              }));
-
-              if (attrs.sectionId) {
-                await element.scrollIntoView();
-                await new Promise((r) => setTimeout(r, 200));
-                const shot = await element.screenshot({ type: "png" });
-                results.push({
-                  url: fullUrl,
-                  sectionId: attrs.sectionId,
-                  sectionTitle: attrs.sectionTitle || attrs.sectionId,
-                  image: Buffer.from(shot).toString("base64"),
-                });
-              }
-            }
-          } else {
-            // Fallback: full page screenshot if no VR demo elements found
-            const shot = await page.screenshot({ type: "png" });
-            results.push({
-              url: fullUrl,
-              image: Buffer.from(shot).toString("base64"),
-            });
-          }
-        } else if (pageConfig.selector) {
-          const element = await page.$(pageConfig.selector);
-          if (element) {
-            const shot = await element.screenshot({ type: "png" });
-            results.push({
-              url: fullUrl,
-              image: Buffer.from(shot).toString("base64"),
-            });
-          } else {
-            throw new Error(`Selector not found: ${pageConfig.selector}`);
-          }
-        } else {
-          const shouldFullPage = pageConfig.fullPage ?? true;
-
-          if (shouldFullPage) {
-            const dimensions = await page.evaluate(() => {
-              const main = document.querySelector("main");
-              let contentHeight = 0;
-
-              if (main) {
-                let parent = main.parentElement;
-                while (parent && parent !== document.body) {
-                  const style = window.getComputedStyle(parent);
-                  if (
-                    style.overflow === "auto" ||
-                    style.overflow === "scroll" ||
-                    style.overflowY === "auto" ||
-                    style.overflowY === "scroll"
-                  ) {
-                    contentHeight = parent.scrollHeight;
-                    break;
-                  }
-                  parent = parent.parentElement;
-                }
-                if (contentHeight === 0) {
-                  contentHeight = main.scrollHeight;
-                }
-              }
-
-              const bodyHeight = Math.max(
-                document.documentElement.scrollHeight,
-                document.body.scrollHeight,
-                document.documentElement.clientHeight,
-              );
-
-              const finalHeight = Math.max(contentHeight, bodyHeight);
-
-              const width = Math.max(
-                document.documentElement.scrollWidth,
-                document.body.scrollWidth,
-                document.documentElement.clientWidth,
-              );
-
-              return { width, height: finalHeight };
-            });
-
-            await page.addStyleTag({
-              content: `
-                html, body { height: auto !important; min-height: auto !important; overflow: visible !important; }
-                [style*="overflow: auto"], [style*="overflow: scroll"],
-                [style*="overflow-y: auto"], [style*="overflow-y: scroll"] {
-                  overflow: visible !important;
-                  height: auto !important;
-                  max-height: none !important;
-                }
-              `,
-            });
-            await new Promise((r) => setTimeout(r, 200));
-
-            const newViewport = {
-              width: Math.max(dimensions.width, viewport.width),
-              height: Math.max(dimensions.height, viewport.height),
-            };
-            await page.setViewport(newViewport);
-            await new Promise((r) => setTimeout(r, 300));
-
-            const shot = await page.screenshot({ type: "png" });
-            results.push({
-              url: fullUrl,
-              image: Buffer.from(shot).toString("base64"),
-              debug: { dimensions, viewport: newViewport },
-            });
-          } else {
-            const shot = await page.screenshot({ type: "png" });
-            results.push({
-              url: fullUrl,
-              image: Buffer.from(shot).toString("base64"),
-            });
-          }
-        }
-      } catch (error) {
-        results.push({
-          url: fullUrl,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      } finally {
-        await page.close();
-      }
+      results.push(
+        ...(await capturePageScreenshots(
+          browser,
+          request.url,
+          env,
+          baseUrl,
+          pageConfig,
+          defaultViewport,
+          globalHideSidebar,
+          shouldUploadToR2,
+        )),
+      );
     }
 
-    return Response.json({ results }, { headers: cors });
+    for (const pageConfig of comparePages ?? []) {
+      compareResults.push(
+        ...(await capturePageScreenshots(
+          browser,
+          request.url,
+          env,
+          baseUrl,
+          pageConfig,
+          defaultViewport,
+          globalHideSidebar,
+          shouldUploadToR2,
+        )),
+      );
+    }
+
+    if (!shouldCompare) {
+      return Response.json({ results } satisfies BatchResponse, {
+        headers: cors,
+      });
+    }
+
+    const comparisons = await buildComparisons(
+      request.url,
+      env,
+      results,
+      compareResults,
+    );
+    if ("error" in comparisons) {
+      return Response.json(
+        { error: comparisons.error },
+        { status: 500, headers: cors },
+      );
+    }
+
+    return Response.json(
+      {
+        results: [...results, ...compareResults],
+        comparisons,
+      } satisfies BatchResponse,
+      { headers: cors },
+    );
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : String(error) },
