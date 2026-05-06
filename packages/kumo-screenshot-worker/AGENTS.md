@@ -9,7 +9,14 @@ Cloudflare Worker that uses Puppeteer + Browser Rendering to capture screenshots
 ```
 kumo-screenshot-worker/
 ├── src/
-│   └── index.ts          # Worker entry — auth, validation, screenshot logic
+│   ├── index.ts          # Worker entry — route wiring and auth
+│   ├── batch.ts          # Screenshot batch request flow
+│   ├── actions.ts        # Browser action execution
+│   ├── storage.ts        # R2 keys, URLs, result persistence
+│   ├── validation.ts     # URL, storage prefix, screenshot key validation
+│   ├── cors.ts           # Allowed CORS origins
+│   ├── constants.ts      # Limits and shared CSS
+│   └── types.ts          # Worker request/response types
 ├── wrangler.jsonc        # Worker config (no secrets committed)
 ├── tsconfig.json         # Workers + DOM lib (DOM needed for evaluate() callbacks)
 ├── .dev.vars.example     # Template for local secrets
