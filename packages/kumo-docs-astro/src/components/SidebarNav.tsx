@@ -34,6 +34,7 @@ const staticPages: NavItem[] = [
   { label: "Figma Resources", href: "/figma" },
   { label: "CLI", href: "/cli" },
   { label: "Registry", href: "/registry" },
+  { label: "Page Layouts", href: "/page-layouts" },
   { label: "Changelog", href: "/changelog" },
 ];
 

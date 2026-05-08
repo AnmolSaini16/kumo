@@ -1,0 +1,13 @@
+---
+/**
+ * Full-page layout playground — no doc chrome, just the demo.
+ * Uses BaseLayout directly (no sidebar, no header) so the demo
+ * can fill the entire viewport with its own mock dashboard.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { PageLayoutDemo } from "~/components/demos/PageLayoutDemo";
+---
+
+<BaseLayout title="Page Layouts">
+  <PageLayoutDemo client:load />
+</BaseLayout>
