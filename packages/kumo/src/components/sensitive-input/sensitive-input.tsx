@@ -86,6 +86,7 @@ export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
       value: controlledValue,
       defaultValue = "",
       onChange,
+      onBlur,
       onValueChange,
       onCopy,
       size = KUMO_SENSITIVE_INPUT_DEFAULT_VARIANTS.size,
@@ -126,6 +127,7 @@ export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
     // Mask on blur (unless focus moves to a sibling button inside the group)
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
+        onBlur?.(e);
         if (
           containerRef.current &&
           e.relatedTarget instanceof Node &&
@@ -135,7 +137,7 @@ export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
         }
         if (hasValue) setRevealed(false);
       },
-      [hasValue],
+      [hasValue, onBlur],
     );
 
     // Escape to re-mask
