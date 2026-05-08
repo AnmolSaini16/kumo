@@ -126,7 +126,7 @@ export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
       onValueChange,
       onCopy,
       size = KUMO_SENSITIVE_INPUT_DEFAULT_VARIANTS.size,
-      variant = KUMO_SENSITIVE_INPUT_DEFAULT_VARIANTS.variant,
+      variant: _variant = KUMO_SENSITIVE_INPUT_DEFAULT_VARIANTS.variant,
       disabled = false,
       readOnly = false,
       autoComplete = "off",
@@ -293,7 +293,7 @@ function SensitiveInputInner({
   label?: ReactNode;
   labelTooltip?: ReactNode;
   description?: ReactNode;
-  error?: { message: ReactNode; match: FieldErrorMatch | boolean };
+  error?: { message: ReactNode; match: FieldErrorMatch };
   required?: boolean;
   handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -384,7 +384,7 @@ function SensitiveInputInner({
 }
 
 const INVERTED_POPUP_CLASS = cn(
-  "origin-[var(--transform-origin)] rounded-md bg-kumo-contrast px-2.5 py-1.5 text-sm font-medium text-kumo-base",
+          "origin-[var(--transform-origin)] rounded-md bg-kumo-contrast px-2.5 py-1.5 text-sm font-medium text-kumo-inverse",
   "shadow-lg",
   "transition-[transform,opacity] duration-150",
   "data-[starting-style]:scale-90 data-[starting-style]:opacity-0",
@@ -425,7 +425,7 @@ function AnchoredToastList() {
       <Toast.Root
         toast={toast}
         className={cn(
-          "origin-[var(--transform-origin)] rounded-md bg-kumo-contrast px-2.5 py-1.5 text-sm font-medium text-kumo-base",
+  "origin-[var(--transform-origin)] rounded-md bg-kumo-contrast px-2.5 py-1.5 text-sm font-medium text-kumo-inverse",
           "shadow-lg",
           "transition-[transform,opacity] duration-150",
           "data-[starting-style]:scale-90 data-[starting-style]:opacity-0",
