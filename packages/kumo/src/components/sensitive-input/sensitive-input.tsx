@@ -384,12 +384,13 @@ function SensitiveInputInner({
 }
 
 const INVERTED_POPUP_CLASS = cn(
-          "origin-[var(--transform-origin)] rounded-md bg-kumo-contrast px-2.5 py-1.5 text-sm font-medium text-kumo-inverse",
+  "rounded-md bg-kumo-contrast px-2.5 py-1.5 text-sm font-medium text-kumo-inverse",
   "shadow-lg",
-  "transition-[transform,opacity] duration-150",
+  "origin-[var(--transform-origin)]",
+  "transition-[transform,scale,opacity]",
   "data-[starting-style]:scale-90 data-[starting-style]:opacity-0",
   "data-[ending-style]:scale-90 data-[ending-style]:opacity-0",
-  "data-[instant]:duration-0",
+  "data-[instant]:transition-none",
 );
 
 /** Dark inverted tooltip used for SensitiveInput action buttons. */
