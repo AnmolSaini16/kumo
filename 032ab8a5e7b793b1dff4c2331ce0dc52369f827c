@@ -1,0 +1,23 @@
+packages/kumo/src/components/sensitive-input/sensitive-input.tsx
+  9fa111322a0530c1 387,389-390,393
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "032ab8a5e7b793b1dff4c2331ce0dc52369f827c",
+  "prompts": {
+    "9fa111322a0530c1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1fbd1e04cffepyh1wzSwofDhma",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 3,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
