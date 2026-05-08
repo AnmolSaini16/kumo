@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MdxDocLayout.astro
 title: "Sensitive Input"
-description: "A masked input for sensitive values like API keys and passwords. Toggle visibility and copy to clipboard."
+description: "A masked input for sensitive values like API keys and passwords. Toggle visibility, with optional copy-to-clipboard."
 sourceFile: "components/sensitive-input"
 ---
 
@@ -10,6 +10,8 @@ import ComponentSection from "~/components/docs/ComponentSection.astro";
 import PropsTable from "~/components/docs/PropsTable.astro";
 import {
   SensitiveInputDemo,
+  SensitiveInputBasicDemo,
+  SensitiveInputWithCopyDemo,
   SensitiveInputSizesDemo,
   SensitiveInputControlledDemo,
   SensitiveInputStatesDemo,
@@ -59,6 +61,48 @@ export default function Example() {
 
 </ComponentSection>
 
+{/* Basic (no copy) */}
+
+<ComponentSection>
+
+## Basic
+
+<p>
+  By default, SensitiveInput renders only a reveal/mask toggle. The value is
+  masked on blur and can be re-masked with Escape.
+</p>
+
+<ComponentExample demo="SensitiveInputBasicDemo">
+  <SensitiveInputBasicDemo client:visible />
+</ComponentExample>
+
+</ComponentSection>
+
+{/* With Copy */}
+
+<ComponentSection>
+
+## With Copy Button
+
+<p>
+  Pass <code class="rounded bg-kumo-control px-1 py-0.5 text-sm">onCopy</code> to
+  enable a copy-to-clipboard button. An anchored toast confirms the action.
+</p>
+
+```tsx
+<SensitiveInput
+  label="API Key"
+  defaultValue="sk_live_abc123xyz789"
+  onCopy={() => {}}
+/>
+```
+
+<ComponentExample demo="SensitiveInputWithCopyDemo">
+  <SensitiveInputWithCopyDemo client:load />
+</ComponentExample>
+
+</ComponentSection>
+
 {/* Sizes */}
 
 <ComponentSection>
@@ -96,6 +140,37 @@ export default function Example() {
   <ComponentExample demo="SensitiveInputStatesDemo">
     <SensitiveInputStatesDemo client:visible />
   </ComponentExample>
+</ComponentSection>
+
+{/* i18n */}
+
+<ComponentSection>
+
+## Internationalization
+
+<p>
+  Pass a <code class="rounded bg-kumo-control px-1 py-0.5 text-sm">labels</code> prop
+  to override the default English strings for tooltips, aria labels, and the
+  copy confirmation toast.
+</p>
+
+```tsx
+<SensitiveInput
+  label="Clé API"
+  defaultValue="sk_live_abc123xyz789"
+  onCopy={() => {}}
+  labels={{
+    copyAction: "Copier dans le presse-papiers",
+    copyTooltip: "Copier",
+    copiedToast: "Copié !",
+    reveal: "Afficher la valeur",
+    revealTooltip: "Afficher",
+    hide: "Masquer la valeur",
+    hideTooltip: "Masquer",
+  }}
+/>
+```
+
 </ComponentSection>
 
 {/* API Reference */}

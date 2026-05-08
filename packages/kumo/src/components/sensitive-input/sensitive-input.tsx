@@ -34,6 +34,34 @@ export const KUMO_SENSITIVE_INPUT_DEFAULT_VARIANTS = {
  * <SensitiveInput label="Secret" value={secret} onValueChange={setSecret} />
  * ```
  */
+/** Accessible labels for i18n. Pass translated strings to override English defaults. */
+export interface SensitiveInputLabels {
+  /** Aria label for the copy button. @default "Copy to clipboard" */
+  copyAction?: string;
+  /** Tooltip text for the copy button. @default "Copy" */
+  copyTooltip?: string;
+  /** Toast title shown after copying. @default "Copied!" */
+  copiedToast?: string;
+  /** Aria label for the reveal button when value is hidden. @default "Reveal value" */
+  reveal?: string;
+  /** Tooltip text for the reveal button. @default "Reveal" */
+  revealTooltip?: string;
+  /** Aria label for the hide button when value is visible. @default "Hide value" */
+  hide?: string;
+  /** Tooltip text for the hide button. @default "Hide" */
+  hideTooltip?: string;
+}
+
+const DEFAULT_LABELS: Required<SensitiveInputLabels> = {
+  copyAction: "Copy to clipboard",
+  copyTooltip: "Copy",
+  copiedToast: "Copied!",
+  reveal: "Reveal value",
+  revealTooltip: "Reveal",
+  hide: "Hide value",
+  hideTooltip: "Hide",
+};
+
 export interface SensitiveInputProps
   extends Omit<
     ComponentPropsWithoutRef<"input">,
@@ -45,7 +73,10 @@ export interface SensitiveInputProps
   defaultValue?: string;
   /** Simplified change handler receiving just the value */
   onValueChange?: (value: string) => void;
-  /** Callback fired after value is copied to clipboard */
+  /**
+   * Callback fired after value is copied to clipboard.
+   * When provided, a copy button is rendered alongside the reveal toggle.
+   */
   onCopy?: () => void;
   /**
    * Size of the input.
@@ -65,19 +96,24 @@ export interface SensitiveInputProps
   description?: ReactNode;
   /** Error message or validation error object */
   error?: string | { message: ReactNode; match: FieldErrorMatch };
+  /** Accessible labels for i18n. Pass translated strings to override English defaults. */
+  labels?: SensitiveInputLabels;
 }
 
 /**
  * Password/secret input that masks its value by default and reveals on toggle.
- * Includes copy-to-clipboard with an anchored toast confirmation and a
- * visibility toggle button.
+ * Built on InputGroup for consistent sizing and layout.
  *
- * Built on InputGroup for consistent sizing and layout, and Base UI Toast
- * for the anchored "Copied!" feedback.
+ * Pass `onCopy` to enable a copy-to-clipboard button with an anchored
+ * toast confirmation.
  *
  * @example
  * ```tsx
+ * // Basic — reveal/mask only
  * <SensitiveInput label="API Key" defaultValue="sk_live_abc123xyz789" />
+ *
+ * // With copy button
+ * <SensitiveInput label="API Key" defaultValue="sk_live_abc123xyz789" onCopy={() => {}} />
  * ```
  */
 export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
@@ -100,10 +136,12 @@ export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
       description,
       error,
       required,
+      labels: labelsProp,
       ...inputProps
     },
     ref,
   ) => {
+    const labels = { ...DEFAULT_LABELS, ...labelsProp };
     const isControlled = controlledValue !== undefined;
     const [internalValue, setInternalValue] = useState(defaultValue);
     const value = isControlled ? controlledValue : internalValue;
@@ -202,6 +240,7 @@ export const SensitiveInput = forwardRef<HTMLInputElement, SensitiveInputProps>(
           handleChange={handleChange}
           toggleVisibility={toggleVisibility}
           onCopy={onCopy}
+          labels={labels}
           inputProps={inputProps}
         />
       </Toast.Provider>
@@ -237,6 +276,7 @@ function SensitiveInputInner({
   handleChange,
   toggleVisibility,
   onCopy,
+  labels,
   inputProps,
 }: {
   containerRef: React.RefObject<HTMLElement | null>;
@@ -260,6 +300,7 @@ function SensitiveInputInner({
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   toggleVisibility: () => void;
   onCopy?: () => void;
+  labels: Required<SensitiveInputLabels>;
   inputProps: Record<string, unknown>;
 }) {
   const toastManager = Toast.useToastManager();
@@ -269,7 +310,7 @@ function SensitiveInputInner({
       await navigator.clipboard.writeText(value);
       toastManager.add({
         id: "sensitive-input-copied",
-        title: "Copied!",
+        title: labels.copiedToast,
         timeout: 1500,
         positionerProps: {
           anchor: copyButtonRef.current,
@@ -282,7 +323,7 @@ function SensitiveInputInner({
     } catch {
       console.warn("Clipboard copy failed");
     }
-  }, [value, onCopy, toastManager, copyButtonRef]);
+  }, [value, onCopy, toastManager, copyButtonRef, labels.copiedToast]);
 
   return (
     <>
@@ -309,22 +350,22 @@ function SensitiveInputInner({
           {...inputProps}
         />
         <InputGroup.Addon align="end">
-          {hasValue && !disabled && (
-            <InvertedTooltip content="Copy">
+          {onCopy && hasValue && !disabled && (
+            <InvertedTooltip content={labels.copyTooltip}>
               <InputGroup.Button
                 ref={copyButtonRef}
                 icon={Copy}
-                aria-label="Copy to clipboard"
+                aria-label={labels.copyAction}
                 onClick={copyToClipboard}
                 onBlur={() => toastManager.close("sensitive-input-copied")}
               />
             </InvertedTooltip>
           )}
           {!disabled && (
-            <InvertedTooltip content={revealed ? "Hide" : "Reveal"}>
+            <InvertedTooltip content={revealed ? labels.hideTooltip : labels.revealTooltip}>
               <InputGroup.Button
                 icon={revealed ? EyeSlash : Eye}
-                aria-label={revealed ? "Hide value" : "Reveal value"}
+                aria-label={revealed ? labels.hide : labels.reveal}
                 onClick={toggleVisibility}
               />
             </InvertedTooltip>

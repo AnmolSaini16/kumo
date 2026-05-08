@@ -4,7 +4,34 @@ import { SensitiveInput, Button } from "@cloudflare/kumo";
 export function SensitiveInputDemo() {
   return (
     <div className="w-80">
-      <SensitiveInput label="API Key" defaultValue="sk_live_abc123xyz789" />
+      <SensitiveInput
+        label="API Key"
+        defaultValue="sk_live_abc123xyz789"
+        onCopy={() => {}}
+      />
+    </div>
+  );
+}
+
+/** SensitiveInput with only the reveal toggle — no copy button. */
+export function SensitiveInputBasicDemo() {
+  return (
+    <div className="w-80">
+      <SensitiveInput label="Password" defaultValue="super-secret-password" />
+    </div>
+  );
+}
+
+/** SensitiveInput with copy enabled via onCopy. */
+export function SensitiveInputWithCopyDemo() {
+  return (
+    <div className="w-80">
+      <SensitiveInput
+        label="API Key"
+        defaultValue="sk_live_abc123xyz789"
+        readOnly
+        onCopy={() => {}}
+      />
     </div>
   );
 }
