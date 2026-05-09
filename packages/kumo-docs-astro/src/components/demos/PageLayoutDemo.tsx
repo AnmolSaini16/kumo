@@ -4,6 +4,7 @@ import {
   Tabs,
   Badge,
   Button,
+  LinkButton,
   Input,
   CloudflareLogo,
   DropdownMenu,
@@ -15,7 +16,6 @@ import {
   ShieldCheckIcon,
   GlobeIcon,
   GlobeSimpleIcon,
-  FunnelIcon,
   LockIcon,
   TerminalIcon,
   HardDrivesIcon,
@@ -25,6 +25,19 @@ import {
   ListIcon,
   PlayIcon,
   DotsThreeIcon,
+  MagnifyingGlassIcon,
+  ClockCounterClockwiseIcon,
+  SparkleIcon,
+  LightningIcon,
+  NetworkIcon,
+  ShieldStarIcon,
+  FileTextIcon,
+  SunIcon,
+  MoonIcon,
+  WarningIcon,
+  InfoIcon,
+  CheckCircleIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -35,7 +48,6 @@ import {
 //
 //   1. PageChrome    → white bar, breadcrumbs + actions. Always present.
 //   2. PageTabs      → underline tabs for page-level navigation. Optional.
-//   3. PageFilterBar → sticky toolbar for tab-specific filters. Optional.
 //   4. PageContent   → gray canvas. Cards (white) sit on top.
 //   5. Card          → white surface for content sections.
 //
@@ -79,6 +91,30 @@ function PageChrome({
   );
 }
 
+/** Toggles `data-mode` between light and dark on `<html>`. */
+function ThemeToggle() {
+  const [mode, setMode] = useState<"light" | "dark">(() => {
+    if (typeof document === "undefined") return "dark";
+    return document.documentElement.getAttribute("data-mode") === "dark" ? "dark" : "light";
+  });
+  const toggle = () => {
+    const next = mode === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-mode", next);
+    setMode(next);
+  };
+  const Icon = mode === "dark" ? SunIcon : MoonIcon;
+  return (
+    <button
+      type="button"
+      aria-label="Toggle theme"
+      onClick={toggle}
+      className="flex size-7 items-center justify-center rounded-md text-kumo-subtle hover:bg-kumo-tint hover:text-kumo-default"
+    >
+      <Icon size={14} />
+    </button>
+  );
+}
+
 /** Global actions that appear on every page. */
 function GlobalActions() {
   return (
@@ -89,6 +125,7 @@ function GlobalActions() {
       <button className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-kumo-subtle hover:bg-kumo-tint hover:text-kumo-default">
         Support
       </button>
+      <ThemeToggle />
       <button className="flex size-7 items-center justify-center rounded-full bg-kumo-tint text-xs font-medium text-kumo-default">
         M
       </button>
@@ -96,25 +133,20 @@ function GlobalActions() {
   );
 }
 
-type PageTabAction = {
-  label: string;
-  icon?: ReactNode;
-  trailingIcon?: ReactNode;
-  variant?: "primary" | "secondary";
-  onClick?: () => void;
-};
-
-/** Segmented tabs for page-level navigation. Tabs scroll horizontally; actions collapse to an ellipsis menu on small screens. */
+/**
+ * Segmented tabs for page-level navigation. Tabs scroll horizontally on
+ * overflow. Compose any actions you want as children — Button, LinkButton,
+ * DropdownMenu, etc. — they sit on the trailing edge.
+ */
 function PageTabs({
   tabs,
   selected,
-  actions,
+  children,
 }: {
   tabs: string[];
   selected?: string;
-  actions?: PageTabAction[];
+  children?: ReactNode;
 }) {
-  const portalContainer = useContext(PortalContainerContext);
   return (
     <div className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-kumo-line bg-kumo-base/75 px-5 backdrop-blur-md">
       <div className="min-w-0 flex-1">
@@ -127,46 +159,7 @@ function PageTabs({
           selectedValue={selected ?? tabs[0]?.toLowerCase().replace(/\s/g, "-")}
         />
       </div>
-      {actions && actions.length > 0 && (
-        <div className="shrink-0">
-          {/* Inline buttons on lg+ */}
-          <div className="hidden items-center gap-2 lg:flex">
-            {actions.map((a, i) => (
-              <Button
-                key={i}
-                variant={a.variant ?? "secondary"}
-                onClick={a.onClick}
-              >
-                {a.icon}
-                {a.label}
-                {a.trailingIcon}
-              </Button>
-            ))}
-          </div>
-          {/* Ellipsis menu on small screens */}
-          <div className="lg:hidden">
-            <DropdownMenu>
-              <DropdownMenu.Trigger>
-                <Button
-                  shape="square"
-                  aria-label="Actions"
-                  variant="outline"
-                  icon={<DotsThreeIcon size={18} weight="bold" />}
-                >
-
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end">
-                {actions.map((a, i) => (
-                  <DropdownMenu.Item key={i} onClick={a.onClick}>
-                    {a.label}
-                  </DropdownMenu.Item>
-                ))}
-              </DropdownMenu.Content>
-            </DropdownMenu>
-          </div>
-        </div>
-      )}
+      {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
     </div>
   );
 }
@@ -212,10 +205,75 @@ function PageHero({
   );
 }
 
-/** Sticky filter toolbar. Part of page content, not chrome. Stacks below sticky tabs. */
-function PageFilterBar({ children }: { children: ReactNode }) {
+/**
+ * Compact full-width banner for page-level announcements. Edge-to-edge,
+ * sits above PageContent. Variants & color semantics match Kumo's Banner
+ * component: `default` (info), `alert` (warning), `error` (danger).
+ */
+function PageBanner({
+  variant = "default",
+  icon,
+  children,
+  action,
+  onDismiss,
+}: {
+  variant?: "default" | "alert" | "error";
+  icon?: ReactNode;
+  children: ReactNode;
+  action?: ReactNode;
+  onDismiss?: () => void;
+}) {
+  const variants: Record<string, string> = {
+    default: "bg-kumo-info-tint/30 border-kumo-info/50 text-kumo-info selection:bg-kumo-info",
+    alert: "bg-kumo-warning-tint/15 border-kumo-warning/50 text-kumo-warning selection:bg-kumo-warning",
+    error: "bg-kumo-danger-tint/15 border-kumo-danger/50 text-kumo-danger selection:bg-kumo-danger",
+  };
+  const defaultIcons: Record<string, ReactNode> = {
+    default: <InfoIcon size={14} weight="fill" />,
+    alert: <WarningIcon size={14} weight="fill" />,
+    error: <WarningIcon size={14} weight="fill" />,
+  };
   return (
-    <div className="sticky top-14 z-9 mx-5 mt-5 flex items-center gap-2 rounded-lg bg-kumo-base px-3 py-2 ring ring-kumo-line/50">
+    <div className="shrink-0 border-b border-kumo-line bg-kumo-base">
+      <div className={`flex items-center gap-2 border-b px-5 py-2 text-sm ${variants[variant]}`}>
+        <span className="shrink-0">{icon ?? defaultIcons[variant]}</span>
+        <span className="min-w-0 flex-1 truncate">{children}</span>
+        {action && <span className="shrink-0">{action}</span>}
+        {onDismiss && (
+          <button
+            type="button"
+            aria-label="Dismiss"
+            onClick={onDismiss}
+            className="flex size-6 shrink-0 items-center justify-center rounded hover:bg-black/10"
+          >
+            <XIcon size={12} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Viewport-locked frame. Fills the remaining vertical space below the page
+ * chrome and clamps its contents to that height — children that need to scroll
+ * do so internally, never the page. Pure composition: arrange whatever you
+ * want inside (single card, split, sidebar + main, multiple stacked cards).
+ * Direct flex children inherit the clamped height; mark scrolling regions
+ * with `min-h-0 overflow-y-auto`.
+ */
+function PageViewport({
+  children,
+  padded = true,
+  className,
+}: {
+  children: ReactNode;
+  /** Inset contents from the page edges. Set false for flush layouts. */
+  padded?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`flex min-h-0 flex-1 gap-4 ${padded ? "p-4" : ""} ${className ?? ""}`}>
       {children}
     </div>
   );
@@ -269,7 +327,7 @@ function Card({
 }) {
   return (
     <div
-      className="flex items-center justify-center rounded-lg bg-kumo-base text-xs text-kumo-subtle ring ring-kumo-line/50"
+      className="flex items-center justify-center rounded-lg bg-kumo-base text-xs text-kumo-subtle ring ring-kumo-line"
       style={height ? { height } : undefined}
     >
       {children ?? label}
@@ -285,7 +343,6 @@ type LayoutVariant =
   | "scrolling"
   | "viewport-locked"
   | "two-column"
-  | "sticky-filter"
   | "full-takeover"
   | "worker-detail";
 
@@ -293,7 +350,6 @@ const VARIANTS: { value: LayoutVariant; label: string }[] = [
   { value: "scrolling", label: "Scrolling" },
   { value: "viewport-locked", label: "Locked" },
   { value: "two-column", label: "Two-Col" },
-  { value: "sticky-filter", label: "Filter" },
   { value: "full-takeover", label: "Takeover" },
   { value: "worker-detail", label: "Detail" },
 ];
@@ -302,7 +358,6 @@ const VARIANT_DESC: Record<LayoutVariant, string> = {
   scrolling: "Body scrolls. Most settings and list pages.",
   "viewport-locked": "Content fills viewport. Inner scroll regions.",
   "two-column": "Main + sticky sidebar. Resource overviews.",
-  "sticky-filter": "Sticky filter bar below tabs. Analytics pages.",
   "full-takeover": "Centered form. Checkout and onboarding.",
   "worker-detail": "Breadcrumb + sticky tabs + actions. Detail pages.",
 };
@@ -346,7 +401,6 @@ export function PageLayoutDemo() {
               {variant === "scrolling" && <ScrollingLayout />}
               {variant === "viewport-locked" && <ViewportLockedLayout />}
               {variant === "two-column" && <TwoColumnLayout />}
-              {variant === "sticky-filter" && <StickyFilterLayout />}
               {variant === "full-takeover" && <FullTakeoverLayout />}
               {variant === "worker-detail" && <WorkerDetailLayout />}
             </div>
@@ -362,35 +416,44 @@ export function PageLayoutDemo() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function DashSidebar({ activeVariant }: { activeVariant: LayoutVariant }) {
+  const computeActive = ["two-column", "viewport-locked", "worker-detail"].includes(activeVariant);
   return (
     <Sidebar>
       <Sidebar.Header className="h-14">
         <div className="flex items-center gap-2 px-1">
           <CloudflareLogo variant="glyph" className="size-5 shrink-0" />
           <span className="truncate text-sm font-semibold text-kumo-default group-data-[state=collapsed]/sidebar:hidden">
-            Design Engineering
+            Hello@mattrothenberg.com
           </span>
         </div>
       </Sidebar.Header>
       <Sidebar.Content>
         <Sidebar.Group>
-          <Sidebar.GroupLabel>Zone: example.com</Sidebar.GroupLabel>
+          <div className="px-1 group-data-[state=collapsed]/sidebar:hidden">
+            <Button variant="secondary" size="sm" className="w-full justify-between">
+              <span className="flex items-center gap-2">
+                <MagnifyingGlassIcon size={14} />
+                Quick search…
+              </span>
+              <span className="text-xs text-kumo-subtle">⌘K</span>
+            </Button>
+          </div>
+        </Sidebar.Group>
+        <Sidebar.Group>
           <Sidebar.Menu>
-            <Sidebar.MenuButton icon={HouseIcon} active={activeVariant === "scrolling"} tooltip="Overview">
-              Overview
+            <Sidebar.MenuButton icon={HouseIcon} active={activeVariant === "scrolling"} tooltip="Account home">
+              Account home
             </Sidebar.MenuButton>
-            <Sidebar.MenuButton icon={ChartBarIcon} tooltip="Analytics">Analytics</Sidebar.MenuButton>
-            <Sidebar.MenuButton icon={GlobeIcon} active={activeVariant === "scrolling"} tooltip="DNS">DNS</Sidebar.MenuButton>
+            <Sidebar.MenuButton icon={ClockCounterClockwiseIcon} tooltip="Recents">Recents</Sidebar.MenuButton>
+            <Sidebar.MenuButton icon={GlobeIcon} tooltip="Domains">Domains</Sidebar.MenuButton>
           </Sidebar.Menu>
         </Sidebar.Group>
         <Sidebar.Group collapsible defaultOpen>
-          <Sidebar.GroupLabel>Protect</Sidebar.GroupLabel>
+          <Sidebar.GroupLabel>Observe</Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
-              <Sidebar.MenuButton icon={ShieldCheckIcon} active={activeVariant === "sticky-filter"} tooltip="Security">
-                Security
-              </Sidebar.MenuButton>
-              <Sidebar.MenuButton icon={LockIcon} tooltip="SSL/TLS">SSL/TLS</Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={FileTextIcon} tooltip="Investigate">Investigate</Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={ChartBarIcon} tooltip="Analytics">Analytics</Sidebar.MenuButton>
             </Sidebar.Menu>
           </Sidebar.GroupContent>
         </Sidebar.Group>
@@ -398,23 +461,37 @@ function DashSidebar({ activeVariant }: { activeVariant: LayoutVariant }) {
           <Sidebar.GroupLabel>Build</Sidebar.GroupLabel>
           <Sidebar.GroupContent>
             <Sidebar.Menu>
-              <Sidebar.MenuButton
-                icon={TerminalIcon}
-                active={["two-column", "viewport-locked", "worker-detail"].includes(activeVariant)}
-                tooltip="Workers"
-              >
-                Workers &amp; Pages
+              <Sidebar.MenuButton icon={TerminalIcon} active={computeActive} tooltip="Compute">
+                Compute
               </Sidebar.MenuButton>
-              <Sidebar.MenuButton icon={HardDrivesIcon} tooltip="Storage">Storage</Sidebar.MenuButton>
-              <Sidebar.MenuButton icon={PlayIcon} tooltip="Stream">Stream</Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={SparkleIcon} tooltip="AI">AI</Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={HardDrivesIcon} tooltip="Storage & databases">
+                Storage &amp; databases
+              </Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={PlayIcon} tooltip="Media">Media</Sidebar.MenuButton>
+            </Sidebar.Menu>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
+        <Sidebar.Group collapsible defaultOpen>
+          <Sidebar.GroupLabel>Protect &amp; Connect</Sidebar.GroupLabel>
+          <Sidebar.GroupContent>
+            <Sidebar.Menu>
+              <Sidebar.MenuButton icon={ShieldCheckIcon} tooltip="Application security">
+                Application security
+              </Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={ShieldStarIcon} tooltip="Zero Trust">Zero Trust</Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={NetworkIcon} tooltip="Networking">Networking</Sidebar.MenuButton>
+              <Sidebar.MenuButton icon={LightningIcon} tooltip="Delivery & performance">
+                Delivery &amp; performance
+              </Sidebar.MenuButton>
             </Sidebar.Menu>
           </Sidebar.GroupContent>
         </Sidebar.Group>
         <Sidebar.Separator />
         <Sidebar.Group>
           <Sidebar.Menu>
-            <Sidebar.MenuButton icon={GearIcon} active={activeVariant === "full-takeover"} tooltip="Settings">
-              Settings
+            <Sidebar.MenuButton icon={GearIcon} active={activeVariant === "full-takeover"} tooltip="Manage account">
+              Manage account
             </Sidebar.MenuButton>
           </Sidebar.Menu>
         </Sidebar.Group>
@@ -434,6 +511,7 @@ function DashSidebar({ activeVariant }: { activeVariant: LayoutVariant }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ScrollingLayout() {
+  const [bannerOpen, setBannerOpen] = useState(true);
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <PageChrome
@@ -442,17 +520,33 @@ function ScrollingLayout() {
           { label: "example.com", active: true },
         ]}
       />
-      <PageTabs
-        tabs={["Records", "Analytics", "Settings"]}
-        actions={[{ label: "Documentation", variant: "secondary" }]}
-      />
+      <PageTabs tabs={["Records", "Analytics", "Settings"]}>
+        <Button variant="secondary">Documentation</Button>
+      </PageTabs>
+      {bannerOpen && (
+        <PageBanner
+          variant="alert"
+          action={
+            <Button variant="secondary" size="sm">
+              Review changes
+            </Button>
+          }
+          onDismiss={() => setBannerOpen(false)}
+        >
+          DNSSEC is partially configured. Activate at the registrar to complete the chain of trust.
+        </PageBanner>
+      )}
       <PageContent>
         <div className="flex flex-col gap-3">
           <Card height={48} label="Search + Add Record toolbar" />
-          <Card height={400} label="DNS records table" />
-          <Card height={100} label="DNSSEC" />
-          <Card height={80} label="Custom Nameservers" />
-          <Card height={100} label="DNS Settings" />
+          <Card height={520} label="DNS records table" />
+          <Card height={140} label="DNSSEC" />
+          <Card height={120} label="Custom Nameservers" />
+          <Card height={140} label="DNS Settings" />
+          <Card height={180} label="Email routing" />
+          <Card height={140} label="Zone holds" />
+          <Card height={200} label="Migration & exports" />
+          <Card height={160} label="API tokens scoped to this zone" />
         </div>
       </PageContent>
     </div>
@@ -476,10 +570,9 @@ function ViewportLockedLayout() {
           { label: "Logs", active: true },
         ]}
       />
-      {/* Single card fills remaining space */}
-      <div className="flex min-h-0 flex-1 p-4">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-kumo-base ring ring-kumo-line/50">
-          <div className="flex items-center justify-between border-b border-kumo-line px-3 py-2">
+      <PageViewport>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-kumo-base ring ring-kumo-line">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-kumo-line px-3 py-2">
             <div className="flex items-center gap-2">
               <Input size="sm" placeholder="Filter logs..." aria-label="Filter" className="w-48" />
               <Tabs
@@ -495,12 +588,12 @@ function ViewportLockedLayout() {
             </div>
             <Badge variant="success">Connected</Badge>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="flex flex-col">
               {Array.from({ length: 40 }, (_, i) => (
                 <div
                   key={i}
-                  className="flex h-9 items-center gap-3 border-b border-kumo-hairline px-3 last:border-b-0"
+                  className="flex h-9 items-center gap-3 border-b border-kumo-line px-3 last:border-b-0"
                 >
                   <div className="h-2 w-16 shrink-0 rounded bg-kumo-tint" />
                   <div className="h-2 w-24 shrink-0 rounded bg-kumo-tint" />
@@ -511,7 +604,7 @@ function ViewportLockedLayout() {
             </div>
           </div>
         </div>
-      </div>
+      </PageViewport>
     </div>
   );
 }
@@ -547,10 +640,13 @@ function TwoColumnLayout() {
         <div className="flex gap-4">
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             <Card height={48} label="Search + Create toolbar" />
-            <Card height={500} label="Dispatch namespaces table" />
+            <Card height={520} label="Dispatch namespaces table" />
+            <Card height={220} label="Recently deployed" />
+            <Card height={180} label="Saved deployments" />
+            <Card height={240} label="Archived applications" />
           </div>
           <div className="hidden w-[280px] shrink-0 lg:block">
-            <div className="sticky top-0 flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               <Card height={160} label="Usage metrics" />
               <Card height={140} label="Next Steps" />
             </div>
@@ -567,41 +663,6 @@ function TwoColumnLayout() {
 // Pattern: chrome → tabs → sticky filter bar → scrolling list
 // Used by: Security Events, Analytics, any filterable list
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function StickyFilterLayout() {
-  return (
-    <div className="flex h-full flex-col overflow-y-auto">
-      <PageChrome
-        breadcrumbs={[
-          { icon: <ShieldCheckIcon size={16} />, label: "Security" },
-          { label: "Events", active: true },
-        ]}
-      />
-      <PageTabs tabs={["Events", "Analytics", "Rules", "Rate Limiting"]} />
-      <PageFilterBar>
-        <FunnelIcon size={14} className="shrink-0 text-kumo-subtle" />
-        <Input size="sm" placeholder="Filter by IP, path, rule, or ASN..." aria-label="Filter" className="w-64" />
-        <Tabs
-          variant="segmented"
-          size="sm"
-          tabs={[
-            { value: "all", label: "All" },
-            { value: "block", label: "Block" },
-            { value: "challenge", label: "Challenge" },
-          ]}
-          selectedValue="all"
-        />
-      </PageFilterBar>
-      <PageContent>
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 12 }, (_, i) => (
-            <Card key={i} height={52} label={`Event row ${i + 1}`} />
-          ))}
-        </div>
-      </PageContent>
-    </div>
-  );
-}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // LAYOUT: Full Takeover (Checkout)
@@ -656,33 +717,36 @@ function WorkerDetailLayout() {
       />
       <PageTabs
         tabs={["Overview", "Metrics", "Deployments", "Previews", "Bindings", "Observability", "Domains", "Settings"]}
-        actions={[
-          {
-            label: "Edit code",
-            variant: "secondary",
-            icon: <CodeIcon size={14} />,
-          },
-          {
-            label: "Visit",
-            variant: "primary",
-            icon: <GlobeSimpleIcon size={14} />,
-            trailingIcon: <ArrowSquareOutIcon size={12} />,
-          },
-        ]}
-      />
+      >
+        <Button variant="secondary" >
+          <CodeIcon size={14} />
+          Edit code
+        </Button>
+        <LinkButton variant="primary" href="https://example.com" target="_blank" rel="noopener noreferrer">
+          <GlobeSimpleIcon size={14} />
+          Visit
+          <ArrowSquareOutIcon size={12} />
+        </LinkButton>
+      </PageTabs>
       <PageContent>
         <div className="flex flex-col gap-3">
           <Card height={44} label="Deployment banner" />
           <Card height={200} label="Architecture diagram (Domains → Worker → Bindings)" />
           <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-[1fr_280px]">
             <div className="flex flex-col gap-3">
-              <Card height={120} label="Metrics: Requests · Errors · CPU Time" />
-              <Card height={240} label="Request Distribution & Placement map" />
-              <Card height={100} label="Versions" />
+              <Card height={140} label="Metrics: Requests · Errors · CPU Time" />
+              <Card height={260} label="Request Distribution & Placement map" />
+              <Card height={140} label="Versions" />
+              <Card height={220} label="Recent invocations" />
+              <Card height={200} label="Logs preview" />
+              <Card height={180} label="Build history" />
             </div>
             <div className="flex flex-col gap-3">
               <Card height={180} label="Domains & Routes" />
               <Card height={200} label="Next Steps" />
+              <Card height={140} label="Bindings" />
+              <Card height={140} label="Triggers" />
+              <Card height={160} label="Secrets" />
             </div>
           </div>
         </div>
