@@ -183,7 +183,7 @@ function PageHero({
         aria-hidden
         className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,var(--color-kumo-line)_1px,transparent_0)] [background-size:14px_14px] [mask-image:radial-gradient(ellipse_120%_85%_at_0%_50%,black,transparent_75%)]"
       />
-      <div className="relative flex items-start justify-between gap-4 px-5 py-6">
+      <div className="relative flex items-start md:items-center justify-between gap-4 px-5 py-6">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
             {icon && <span className="text-kumo-default">{icon}</span>}
@@ -196,7 +196,7 @@ function PageHero({
           )}
         </div>
         {actions && (
-          <div className="flex max-w-64 w-full shrink-0 flex-col gap-2 [&>*]:w-full [&>*]:justify-center">
+          <div className="flex flex-col md:flex-row gap-2 [&>*]:w-full [&>*]:justify-center md:[&>*]:w-auto md:[&>*]:justify-start">
             {actions}
           </div>
         )}
@@ -577,7 +577,6 @@ function ViewportLockedLayout() {
               <Input size="sm" placeholder="Filter logs..." aria-label="Filter" className="w-48" />
               <Tabs
                 variant="segmented"
-                size="sm"
                 tabs={[
                   { value: "all", label: "All" },
                   { value: "errors", label: "Errors" },
@@ -631,8 +630,8 @@ function TwoColumnLayout() {
         tagline="Build & deploy serverless functions, sites, and full-stack applications."
         actions={
           <>
-            <Button variant="primary" size="sm">Create application</Button>
             <Button variant="secondary" size="sm">Documentation</Button>
+            <Button variant="primary" size="sm">Create application</Button>
           </>
         }
       />
@@ -691,8 +690,8 @@ function FullTakeoverLayout() {
         <div className="mt-6 flex flex-col gap-4">
           <Card height={70} label="Plan summary card" />
           <Card height={200} label="Payment form" />
-          <Button variant="primary" className="w-full">Subscribe — $5/month</Button>
-          <Button variant="ghost" className="w-full">Cancel</Button>
+          <Button variant="primary" className="w-full justify-center">Subscribe — $5/month</Button>
+          <Button variant="outline" className="w-full justify-center">Cancel</Button>
         </div>
       </div>
     </div>
