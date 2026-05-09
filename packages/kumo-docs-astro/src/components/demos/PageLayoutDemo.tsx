@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, type ReactNode, type RefObject } from "react";
+import { createContext, useContext, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import {
   Sidebar,
   Tabs,
@@ -44,16 +44,19 @@ import {
 // The sidebar provides context; the breadcrumb confirms location.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-/** White top bar. Breadcrumbs left, page actions + global actions right. */
+/** White top bar. Breadcrumbs left, page actions + global actions right.
+ *  Pass `sticky` on layouts without `PageTabs` so the chrome stays pinned. */
 function PageChrome({
   breadcrumbs,
   actions,
+  sticky,
 }: {
   breadcrumbs: { icon?: ReactNode; label: string; active?: boolean }[];
   actions?: ReactNode;
+  sticky?: boolean;
 }) {
   return (
-    <div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-kumo-line bg-kumo-base px-5">
+    <div className={`${sticky ? "sticky top-0 z-20 " : ""}flex h-14 shrink-0 items-center justify-between gap-4 border-b border-kumo-line bg-kumo-base px-5`}>
       <nav className="flex items-center gap-1.5 text-base">
         {breadcrumbs.map((crumb, i) => (
           <span key={i} className="flex items-center gap-1.5">
@@ -113,7 +116,7 @@ function PageTabs({
 }) {
   const portalContainer = useContext(PortalContainerContext);
   return (
-    <div className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-kumo-line bg-kumo-base px-5">
+    <div className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-kumo-line bg-kumo-base/75 px-5 backdrop-blur-md">
       <div className="min-w-0 flex-1">
         <Tabs
           variant="segmented"
@@ -168,6 +171,47 @@ function PageTabs({
   );
 }
 
+/** Hero block for index/landing pages. Non-sticky; sits between chrome and content. */
+function PageHero({
+  icon,
+  title,
+  tagline,
+  actions,
+}: {
+  icon?: ReactNode;
+  title: string;
+  tagline?: string;
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="relative shrink-0 overflow-hidden border-b border-kumo-line bg-kumo-base">
+      {/* Subtle dot grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,var(--color-kumo-line)_1px,transparent_0)] [background-size:14px_14px] [mask-image:radial-gradient(ellipse_120%_85%_at_0%_50%,black,transparent_75%)]"
+      />
+      <div className="relative flex items-start justify-between gap-4 px-5 py-6">
+        <div className="min-w-0">
+          <div className="flex items-center gap-3">
+            {icon && <span className="text-kumo-default">{icon}</span>}
+            <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">
+              {title}
+            </h1>
+          </div>
+          {tagline && (
+            <p className="mt-1.5 text-sm text-kumo-subtle">{tagline}</p>
+          )}
+        </div>
+        {actions && (
+          <div className="flex max-w-64 w-full shrink-0 flex-col gap-2 [&>*]:w-full [&>*]:justify-center">
+            {actions}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /** Sticky filter toolbar. Part of page content, not chrome. Stacks below sticky tabs. */
 function PageFilterBar({ children }: { children: ReactNode }) {
   return (
@@ -177,16 +221,41 @@ function PageFilterBar({ children }: { children: ReactNode }) {
   );
 }
 
-/** Gray canvas. All page content lives here. */
-function PageContent({
+/**
+ * Gray canvas. Lays content out in a CSS grid with a centered, max-width
+ * `content` track. Default children sit in the content track; wrap a child in
+ * `<PageContent.Bleed>` to break out and span the full canvas width.
+ */
+function PageContentRoot({
+  children,
+  className,
+  maxWidth = "1200px",
+}: {
+  children: ReactNode;
+  className?: string;
+  maxWidth?: string;
+}) {
+  return (
+    <div
+      style={{ "--page-content-max": maxWidth } as CSSProperties}
+      className={`grid grid-cols-[minmax(1.25rem,1fr)_minmax(0,var(--page-content-max))_minmax(1.25rem,1fr)] gap-y-3 py-5 [&>*]:col-start-2 ${className ?? ""}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function PageContentBleed({
   children,
   className,
 }: {
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`p-5 ${className ?? ""}`}>{children}</div>;
+  return <div className={`!col-span-full !col-start-1 ${className ?? ""}`}>{children}</div>;
 }
+
+const PageContent = Object.assign(PageContentRoot, { Bleed: PageContentBleed });
 
 /** White card surface. Sits on the gray canvas. */
 function Card({
@@ -299,7 +368,7 @@ function DashSidebar({ activeVariant }: { activeVariant: LayoutVariant }) {
         <div className="flex items-center gap-2 px-1">
           <CloudflareLogo variant="glyph" className="size-5 shrink-0" />
           <span className="truncate text-sm font-semibold text-kumo-default group-data-[state=collapsed]/sidebar:hidden">
-            Dashboard
+            Design Engineering
           </span>
         </div>
       </Sidebar.Header>
@@ -426,8 +495,20 @@ function ViewportLockedLayout() {
             </div>
             <Badge variant="success">Connected</Badge>
           </div>
-          <div className="flex-1 overflow-y-auto p-1">
-            <Card height={800} label="Log stream (scrolls independently)" />
+          <div className="flex-1 overflow-y-auto">
+            <div className="flex flex-col">
+              {Array.from({ length: 40 }, (_, i) => (
+                <div
+                  key={i}
+                  className="flex h-9 items-center gap-3 border-b border-kumo-hairline px-3 last:border-b-0"
+                >
+                  <div className="h-2 w-16 shrink-0 rounded bg-kumo-tint" />
+                  <div className="h-2 w-24 shrink-0 rounded bg-kumo-tint" />
+                  <div className="h-2 flex-1 rounded bg-kumo-tint" />
+                  <div className="h-2 w-12 shrink-0 rounded bg-kumo-tint" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -446,17 +527,21 @@ function TwoColumnLayout() {
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <PageChrome
+        sticky
         breadcrumbs={[
           { icon: <TerminalIcon size={16} />, label: "Workers & Pages", active: true },
         ]}
-
       />
-      <PageTabs
-        tabs={["Namespaces", "Detections"]}
-        actions={[
-          { label: "Documentation", variant: "secondary" },
-          { label: "Create application", variant: "primary" },
-        ]}
+      <PageHero
+        icon={<TerminalIcon size={28} weight="fill" />}
+        title="Workers & Pages"
+        tagline="Build & deploy serverless functions, sites, and full-stack applications."
+        actions={
+          <>
+            <Button variant="primary" size="sm">Create application</Button>
+            <Button variant="secondary" size="sm">Documentation</Button>
+          </>
+        }
       />
       <PageContent>
         <div className="flex gap-4">
@@ -527,8 +612,13 @@ function StickyFilterLayout() {
 
 function FullTakeoverLayout() {
   return (
-    <div className="flex h-full overflow-y-auto bg-kumo-base">
-      <div className="m-auto w-full max-w-md px-6 py-8">
+    <div className="relative flex h-full overflow-y-auto bg-kumo-base">
+      {/* Subtle dot grid across canvas */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_1px_1px,var(--color-kumo-line)_1px,transparent_0)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,transparent,black_90%)]"
+      />
+      <div className="relative m-auto w-full max-w-md px-6 py-8">
         <button className="mb-6 flex items-center gap-1.5 text-sm text-kumo-subtle hover:text-kumo-default">
           <ArrowLeftIcon size={14} />
           Back to Workers
