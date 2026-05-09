@@ -135,17 +135,17 @@ function GlobalActions() {
 
 /**
  * Segmented tabs for page-level navigation. Tabs scroll horizontally on
- * overflow. Compose any actions you want as children — Button, LinkButton,
- * DropdownMenu, etc. — they sit on the trailing edge.
+ * overflow. Pass any composed JSX as `actions` — Button, LinkButton,
+ * DropdownMenu, etc. — to sit on the trailing edge.
  */
 function PageTabs({
   tabs,
   selected,
-  children,
+  actions,
 }: {
   tabs: string[];
   selected?: string;
-  children?: ReactNode;
+  actions?: ReactNode;
 }) {
   return (
     <div className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-kumo-line bg-kumo-base/75 px-5 backdrop-blur-md">
@@ -159,7 +159,7 @@ function PageTabs({
           selectedValue={selected ?? tabs[0]?.toLowerCase().replace(/\s/g, "-")}
         />
       </div>
-      {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
+      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>
   );
 }
@@ -362,6 +362,96 @@ const VARIANT_DESC: Record<LayoutVariant, string> = {
   "worker-detail": "Breadcrumb + sticky tabs + actions. Detail pages.",
 };
 
+const VARIANT_SNIPPETS: Record<LayoutVariant, string> = {
+  scrolling: `PageChrome
+  └ breadcrumbs:  DNS › example.com
+
+PageTabs                                  ── sticky
+  ├ tabs:         Records · Analytics · Settings
+  └ actions:      Button "Documentation"
+
+PageBanner                                ── alert · dismissible
+  └ "DNSSEC partially configured…"
+
+PageContent                               ── scrolls
+  ├ Card  "Search + Add Record toolbar"
+  ├ Card  "DNS records table"
+  ├ Card  "DNSSEC"
+  └ … more sections`,
+
+  "viewport-locked": `PageChrome
+  └ breadcrumbs:  Workers › fragrant-heart-9525 › Logs
+
+PageViewport                              ── clamps to remaining height
+  └ <your composition>                    ── e.g. card · split · sidebar
+       ├ header bar         (shrink-0)
+       └ scrolling region   (min-h-0 overflow-y-auto)`,
+
+  "two-column": `PageChrome                                ── sticky
+  └ breadcrumbs:  Workers & Pages
+
+PageHero                                  ── dot-grid bg, scrolls away
+  ├ icon · title · tagline
+  └ actions:      Documentation · Create application
+
+PageContent                               ── scrolls
+  ├ main column
+  │   ├ Card  "Search + Create toolbar"
+  │   └ Card  "Dispatch namespaces table"
+  └ aside (280px)
+      ├ Card  "Usage metrics"
+      └ Card  "Next Steps"`,
+
+  "full-takeover": `(no chrome — full takeover)
+
+centered <main> · max-w-md
+  ├ BackLink   "Back to Workers"
+  ├ Title      "Upgrade to Workers Paid"
+  ├ Card       "Plan summary"
+  ├ Card       "Payment form"
+  └ actions    Subscribe · Cancel`,
+
+  "worker-detail": `PageChrome
+  └ breadcrumbs:  Workers & Pages › fragrant-heart-9525
+
+PageTabs                                  ── sticky · scrolls horizontally
+  ├ tabs:         Overview · Metrics · Deployments · …
+  └ actions:      Edit code · Visit ↗ (LinkButton)
+
+PageContent                               ── scrolls
+  ├ Card        "Deployment banner"
+  ├ Card        "Architecture diagram"
+  └ grid  [ 1fr | 280px ]
+       ├ main:   Metrics · Versions · Logs · …
+       └ aside:  Domains · Bindings · Triggers · …`,
+};
+
+/** Bottom-right toggle that swaps the live page for its composition snippet. */
+function CodePeek({ variant }: { variant: LayoutVariant }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      {open && (
+        <div className="absolute inset-0 z-30 overflow-y-auto bg-kumo-recessed/95 p-6 backdrop-blur-sm">
+          <pre className="mx-auto max-w-3xl whitespace-pre rounded-lg bg-kumo-base p-6 font-mono text-[13px] leading-6 text-kumo-default ring ring-kumo-line">
+            {VARIANT_SNIPPETS[variant]}
+          </pre>
+        </div>
+      )}
+      <div className="absolute bottom-4 right-4 z-40">
+        <Button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-pressed={open}
+        >
+          <CodeIcon size={14} weight="bold" />
+          {open ? "Show page" : "Show code"}
+        </Button>
+      </div>
+    </>
+  );
+}
+
 const PortalContainerContext = createContext<RefObject<HTMLDivElement | null> | null>(null);
 
 export function PageLayoutDemo() {
@@ -404,6 +494,7 @@ export function PageLayoutDemo() {
               {variant === "full-takeover" && <FullTakeoverLayout />}
               {variant === "worker-detail" && <WorkerDetailLayout />}
             </div>
+            <CodePeek variant={variant} />
           </main>
         </Sidebar.Provider>
       </div>
@@ -520,9 +611,10 @@ function ScrollingLayout() {
           { label: "example.com", active: true },
         ]}
       />
-      <PageTabs tabs={["Records", "Analytics", "Settings"]}>
-        <Button variant="secondary">Documentation</Button>
-      </PageTabs>
+      <PageTabs
+        tabs={["Records", "Analytics", "Settings"]}
+        actions={<Button variant="secondary">Documentation</Button>}
+      />
       {bannerOpen && (
         <PageBanner
           variant="alert"
@@ -716,17 +808,20 @@ function WorkerDetailLayout() {
       />
       <PageTabs
         tabs={["Overview", "Metrics", "Deployments", "Previews", "Bindings", "Observability", "Domains", "Settings"]}
-      >
-        <Button variant="secondary" >
-          <CodeIcon size={14} />
-          Edit code
-        </Button>
-        <LinkButton variant="primary" href="https://example.com" target="_blank" rel="noopener noreferrer">
-          <GlobeSimpleIcon size={14} />
-          Visit
-          <ArrowSquareOutIcon size={12} />
-        </LinkButton>
-      </PageTabs>
+        actions={
+          <>
+            <Button variant="secondary">
+              <CodeIcon size={14} />
+              Edit code
+            </Button>
+            <LinkButton variant="primary" href="https://example.com" target="_blank" rel="noopener noreferrer">
+              <GlobeSimpleIcon size={14} />
+              Visit
+              <ArrowSquareOutIcon size={12} />
+            </LinkButton>
+          </>
+        }
+      />
       <PageContent>
         <div className="flex flex-col gap-3">
           <Card height={44} label="Deployment banner" />
