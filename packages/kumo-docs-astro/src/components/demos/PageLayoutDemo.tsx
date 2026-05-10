@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import {
   Sidebar,
   Tabs,
@@ -62,14 +62,24 @@ function PageChrome({
   breadcrumbs,
   actions,
   sticky,
+  breadcrumbsHidden,
 }: {
   breadcrumbs: { icon?: ReactNode; label: string; active?: boolean }[];
   actions?: ReactNode;
   sticky?: boolean;
+  /** Fade the breadcrumb trail out (e.g. while a PageHero with the same
+   *  title is on-screen). Toggle to `false` to fade it back in. */
+  breadcrumbsHidden?: boolean;
 }) {
   return (
-    <div className={`${sticky ? "sticky top-0 z-20 " : ""}flex h-14 shrink-0 items-center justify-between gap-4 border-b border-kumo-line bg-kumo-base px-5`}>
-      <nav className="flex items-center gap-1.5 text-base">
+    <div className={`${sticky ? "sticky top-0 z-20 " : ""}flex h-14 shrink-0 items-center justify-between gap-3 border-b border-kumo-line bg-kumo-base px-5`}>
+      <Sidebar.Trigger className="md:hidden" aria-label="Open navigation">
+        <ListIcon size={18} weight="bold" />
+      </Sidebar.Trigger>
+      <nav
+        className={`flex flex-1 min-w-0 items-center gap-1.5 text-base transition-opacity duration-300 ${breadcrumbsHidden ? "opacity-0" : "opacity-100"}`}
+        aria-hidden={breadcrumbsHidden}
+      >
         {breadcrumbs.map((crumb, i) => (
           <span key={i} className="flex items-center gap-1.5">
             {i > 0 && <span className="text-kumo-subtle">›</span>}
@@ -164,30 +174,44 @@ function PageTabs({
   );
 }
 
-/** Hero block for index/landing pages. Non-sticky; sits between chrome and content. */
+/** Hero block. Non-sticky; sits flush above content.
+ *  `decorated` (default true) layers: a soft top-edge sheen + radial light
+ *  source from the top-left + a fine dot grid that fades into the right.
+ *  Set `decorated={false}` for flat nested heroes. */
 function PageHero({
   icon,
   title,
   tagline,
   actions,
+  decorated = true,
 }: {
   icon?: ReactNode;
   title: string;
   tagline?: string;
   actions?: ReactNode;
+  decorated?: boolean;
 }) {
   return (
     <div className="relative shrink-0 overflow-hidden border-b border-kumo-line bg-kumo-base">
-      {/* Subtle dot grid */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,var(--color-kumo-line)_1px,transparent_0)] [background-size:14px_14px] [mask-image:radial-gradient(ellipse_120%_85%_at_0%_50%,black,transparent_75%)]"
-      />
+      {decorated && (
+        <>
+          {/* Dark → darker diagonal gradient (base into recessed) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-kumo-base via-kumo-base to-kumo-recessed"
+          />
+          {/* Faint dot grid on top */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--color-kumo-line)_1px,transparent_0)] [background-size:22px_22px] opacity-30"
+          />
+        </>
+      )}
       <div className="relative flex items-start md:items-center justify-between gap-4 px-5 py-6">
         <div className="min-w-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {icon && <span className="text-kumo-default">{icon}</span>}
-            <h1 className="text-2xl font-semibold tracking-tight text-kumo-default">
+            <h1 className="text-2xl font-bold tracking-tight text-kumo-default">
               {title}
             </h1>
           </div>
@@ -196,7 +220,7 @@ function PageHero({
           )}
         </div>
         {actions && (
-          <div className="flex flex-col md:flex-row gap-2 [&>*]:w-full [&>*]:justify-center md:[&>*]:w-auto md:[&>*]:justify-start">
+          <div className="flex flex-col md:flex-row gap-2 *:w-full *:justify-center md:*:w-auto md:*:justify-start">
             {actions}
           </div>
         )}
@@ -234,7 +258,7 @@ function PageBanner({
     error: <WarningIcon size={14} weight="fill" />,
   };
   return (
-    <div className="shrink-0 border-b border-kumo-line bg-kumo-base">
+    <div className="shrink-0 bg-kumo-base">
       <div className={`flex items-center gap-2 border-b px-5 py-2 text-sm ${variants[variant]}`}>
         <span className="shrink-0">{icon ?? defaultIcons[variant]}</span>
         <span className="min-w-0 flex-1 truncate">{children}</span>
@@ -343,6 +367,7 @@ type LayoutVariant =
   | "scrolling"
   | "viewport-locked"
   | "two-column"
+  | "nested-hero"
   | "full-takeover"
   | "worker-detail";
 
@@ -350,6 +375,7 @@ const VARIANTS: { value: LayoutVariant; label: string }[] = [
   { value: "scrolling", label: "Scrolling" },
   { value: "viewport-locked", label: "Locked" },
   { value: "two-column", label: "Two-Col" },
+  { value: "nested-hero", label: "Nested" },
   { value: "full-takeover", label: "Takeover" },
   { value: "worker-detail", label: "Detail" },
 ];
@@ -358,6 +384,7 @@ const VARIANT_DESC: Record<LayoutVariant, string> = {
   scrolling: "Body scrolls. Most settings and list pages.",
   "viewport-locked": "Content fills viewport. Inner scroll regions.",
   "two-column": "Main + sticky sidebar. Resource overviews.",
+  "nested-hero": "Hero under tabs (no chrome). Sub-section landing.",
   "full-takeover": "Centered form. Checkout and onboarding.",
   "worker-detail": "Breadcrumb + sticky tabs + actions. Detail pages.",
 };
@@ -386,6 +413,20 @@ PageViewport                              ── clamps to remaining height
   └ <your composition>                    ── e.g. card · split · sidebar
        ├ header bar         (shrink-0)
        └ scrolling region   (min-h-0 overflow-y-auto)`,
+
+  "nested-hero": `PageChrome
+  └ breadcrumbs:  Observability › Destinations
+
+PageTabs                                  ── sticky
+  └ tabs:         Overview · Queries · Traces · Destinations*
+
+PageHero  decorated={false}               ── flat bg, no dot grid
+  ├ title:        Observability Destinations
+  ├ tagline:      Configure endpoints to send…
+  └ actions:      View docs ↗ · + Add Destination
+
+PageContent                               ── scrolls
+  └ Card  ── empty state · CTA`,
 
   "two-column": `PageChrome                                ── sticky
   └ breadcrumbs:  Workers & Pages
@@ -491,6 +532,7 @@ export function PageLayoutDemo() {
               {variant === "scrolling" && <ScrollingLayout />}
               {variant === "viewport-locked" && <ViewportLockedLayout />}
               {variant === "two-column" && <TwoColumnLayout />}
+              {variant === "nested-hero" && <NestedHeroLayout />}
               {variant === "full-takeover" && <FullTakeoverLayout />}
               {variant === "worker-detail" && <WorkerDetailLayout />}
             </div>
@@ -708,25 +750,47 @@ function ViewportLockedLayout() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function TwoColumnLayout() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    const target = heroRef.current;
+    if (!root || !target) return;
+    // Shrink the observation area by the sticky chrome height (h-14 = 56px)
+    // so "intersecting" means the hero is in the visible region *below* the
+    // chrome — fade fires the instant the hero's bottom passes the chrome.
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { root, rootMargin: "-56px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(target);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div ref={scrollRef} className="flex h-full flex-col overflow-y-auto">
       <PageChrome
         sticky
+        breadcrumbsHidden={heroVisible}
         breadcrumbs={[
           { icon: <TerminalIcon size={16} />, label: "Workers & Pages", active: true },
         ]}
       />
-      <PageHero
-        icon={<TerminalIcon size={28} weight="fill" />}
-        title="Workers & Pages"
-        tagline="Build & deploy serverless functions, sites, and full-stack applications."
-        actions={
-          <>
-            <Button variant="secondary" size="sm">Documentation</Button>
-            <Button variant="primary" size="sm">Create application</Button>
-          </>
-        }
-      />
+      <div ref={heroRef}>
+        <PageHero
+          icon={<TerminalIcon size={28} weight="fill" />}
+          title="Workers & Pages"
+          tagline="Build & deploy serverless functions, sites, and full-stack applications."
+          actions={
+            <>
+              <Button variant="secondary" size="sm">Documentation</Button>
+              <Button variant="primary" size="sm">Create application</Button>
+            </>
+          }
+        />
+      </div>
       <PageContent>
         <div className="flex gap-4">
           <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -754,6 +818,60 @@ function TwoColumnLayout() {
 // Pattern: chrome → tabs → sticky filter bar → scrolling list
 // Used by: Security Events, Analytics, any filterable list
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// LAYOUT: Nested Hero (sub-section landing inside a tab)
+//
+// Pattern: chrome → tabs → un-decorated PageHero → content with empty state
+// Used by: Observability › Destinations, any tab-rooted sub-page where
+// the section deserves a hero but isn't the top-of-product entry point.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function NestedHeroLayout() {
+  return (
+    <div className="flex h-full flex-col overflow-y-auto">
+      <PageChrome
+        breadcrumbs={[
+          { icon: <ChartBarIcon size={16} />, label: "Observability" },
+          { label: "Destinations", active: true },
+        ]}
+      />
+      <PageTabs
+        tabs={["Overview", "Queries", "Traces", "Destinations"]}
+        selected="destinations"
+      />
+      <PageHero
+        decorated={false}
+        title="Observability Destinations"
+        tagline="Configure endpoints to send trace data to observability platforms."
+        actions={
+          <>
+            <LinkButton variant="secondary" size="sm" href="https://example.com" target="_blank" rel="noopener noreferrer">
+              View docs
+              <ArrowSquareOutIcon size={12} />
+            </LinkButton>
+            <Button variant="primary" size="sm">+ Add Destination</Button>
+          </>
+        }
+      />
+      <PageContent>
+        <Card height={420}>
+          <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+            <SparkleIcon size={28} className="text-kumo-subtle" />
+            <div className="text-base font-semibold text-kumo-default">
+              No observability destinations configured
+            </div>
+            <p className="max-w-md text-sm text-kumo-subtle">
+              Create your first destination to start sending trace and log data
+              to external observability platforms.
+            </p>
+            <Button variant="primary" size="sm">+ Add Destination</Button>
+          </div>
+        </Card>
+      </PageContent>
+    </div>
+  );
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // LAYOUT: Full Takeover (Checkout)
