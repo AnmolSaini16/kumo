@@ -174,10 +174,8 @@ function PageTabs({
   );
 }
 
-/** Hero block. Non-sticky; sits flush above content.
- *  `decorated` (default true) layers: a soft top-edge sheen + radial light
- *  source from the top-left + a fine dot grid that fades into the right.
- *  Set `decorated={false}` for flat nested heroes. */
+/** Hero block. Non-sticky; full-width, sits flush above content.
+ *  `decorated` (default true) renders the gradient + dot-grid wash. */
 function PageHero({
   icon,
   title,
@@ -195,12 +193,10 @@ function PageHero({
     <div className="relative shrink-0 overflow-hidden border-b border-kumo-line bg-kumo-base">
       {decorated && (
         <>
-          {/* Dark → darker diagonal gradient (base into recessed) */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-gradient-to-br from-kumo-base via-kumo-base to-kumo-recessed"
           />
-          {/* Faint dot grid on top */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--color-kumo-line)_1px,transparent_0)] [background-size:22px_22px] opacity-30"
