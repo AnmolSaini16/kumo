@@ -221,14 +221,10 @@ export const Chart = forwardRef<echarts.ECharts, ChartProps>(function Chart(
   useEffect(() => {
     if (!elRef.current) return;
 
-    const chart = echarts.init(
-      elRef.current,
-      isDarkMode
-        ? "dark"
-        : {
-            color: isDarkMode ? CHART_DARK_COLORS : CHART_LIGHT_COLORS,
-          },
-    );
+    const chart = echarts.init(elRef.current, {
+      backgroundColor: "transparent",
+      color: isDarkMode ? CHART_DARK_COLORS : CHART_LIGHT_COLORS,
+    });
     chartRef.current = chart;
 
     if (typeof ref === "function") ref(chart);
