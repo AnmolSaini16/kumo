@@ -158,10 +158,13 @@ const transformTooltip = (tooltipObj: SafeTooltipOption) => {
   };
 };
 
-const prepareChartOptions = (
-  options: KumoChartOption,
-  isDarkMode?: boolean,
-): EChartsOption => {
+const prepareChartOptions = ({
+  options,
+  isDarkMode,
+}: {
+  options: KumoChartOption;
+  isDarkMode?: boolean;
+}): EChartsOption => {
   const withDefaults: EChartsOption = {
     backgroundColor: "transparent",
     color: isDarkMode ? CHART_DARK_COLORS : CHART_LIGHT_COLORS,
@@ -254,7 +257,7 @@ export const Chart = forwardRef<echarts.ECharts, ChartProps>(function Chart(
     const chart = chartRef.current;
     if (!chart) return;
 
-    chart.setOption(prepareChartOptions(options, isDarkMode), {
+    chart.setOption(prepareChartOptions({ options, isDarkMode }), {
       notMerge: false,
       lazyUpdate: true,
       ...optionUpdateBehavior,
