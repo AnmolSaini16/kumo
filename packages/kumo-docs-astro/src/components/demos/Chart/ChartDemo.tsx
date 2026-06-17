@@ -9,7 +9,7 @@ import {
 import * as echarts from "echarts/core";
 import type { EChartsOption } from "echarts";
 import { BarChart, LineChart, PieChart } from "echarts/charts";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIsDarkMode } from "~/lib/use-is-dark-mode";
 import {
   AriaComponent,
@@ -689,14 +689,18 @@ export function LegendOnClickDemo() {
     [series],
   );
 
+  // A theme switch re-inits the ECharts instance, resetting legend selection to
+  // all-visible. Reset our state to match so the legend doesn't desync.
+  useEffect(() => {
+    setHiddenSeries({});
+  }, [isDarkMode]);
+
   // Click isolates a series: show only the clicked one and hide the rest via the
   // (hidden) ECharts legend. Clicking the already-isolated series restores all.
   const handleClick = (name: string) => {
     const chart = chartRef.current;
     if (!chart) return;
 
-    // Functional update so each click works from the latest state — rapid
-    // clicks won't race with React's state batching.
     setHiddenSeries((prev) => {
       // Already isolated to this series? (only it visible, everything else hidden)
       const isIsolated = series.every((s) =>
