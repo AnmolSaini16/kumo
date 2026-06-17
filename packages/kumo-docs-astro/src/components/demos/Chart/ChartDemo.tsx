@@ -598,7 +598,7 @@ export function LegendHighlightDemo() {
     <LayerCard>
       <LayerCard.Secondary>Read latency</LayerCard.Secondary>
       <LayerCard.Primary>
-        <div className="flex divide-x divide-kumo-line gap-4 px-2 mb-2">
+        <div className="flex divide-x divide-kumo-line px-2 mb-2">
           {series.map((s) => (
             <ChartLegend.LargeItem
               key={s.name}
@@ -621,6 +621,7 @@ export function LegendHighlightDemo() {
                   seriesName: s.name,
                 });
               }}
+              className="not-first:pl-4"
             />
           ))}
         </div>
@@ -714,7 +715,7 @@ export function LegendOnClickDemo() {
     <LayerCard>
       <LayerCard.Secondary>Read latency</LayerCard.Secondary>
       <LayerCard.Primary>
-        <div className="flex divide-x divide-kumo-line gap-4 px-2 mb-2">
+        <div className="flex divide-x divide-kumo-line px-2 mb-2">
           {series.map((s) => (
             <ChartLegend.LargeItem
               key={s.name}
@@ -724,6 +725,7 @@ export function LegendOnClickDemo() {
               unit={s.unit}
               inactive={hiddenSeries[s.name] ?? false}
               onClick={() => handleClick(s.name)}
+              className="not-first:pl-4"
             />
           ))}
         </div>
