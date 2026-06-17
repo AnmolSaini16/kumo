@@ -506,15 +506,19 @@ export const TimeseriesChart = forwardRef<
       globalout: () => {
         setTooltipState(null);
       },
-      // Keep the tooltip in sync with legend selection.
-      legendselectchanged: (params: any) => {
-        if (params?.selected) legendSelectedRef.current = params.selected;
+      // Keep the tooltip in sync with legend selection. Each action fires a
+      // different event — `legendToggleSelect` → `legendselectchanged`,
+      // `legendSelect` → `legendselected`, `legendUnSelect` → `legendunselected`
+      // — and all three carry the full `selected` map, so we listen to all of
+      // them (params type inferred from `ChartEvents`).
+      legendselectchanged: (params) => {
+        legendSelectedRef.current = params.selected;
       },
-      legendselected: (params: any) => {
-        if (params?.selected) legendSelectedRef.current = params.selected;
+      legendselected: (params) => {
+        legendSelectedRef.current = params.selected;
       },
-      legendunselected: (params: any) => {
-        if (params?.selected) legendSelectedRef.current = params.selected;
+      legendunselected: (params) => {
+        legendSelectedRef.current = params.selected;
       },
       ...(onTimeRangeChange && {
         brushend: (params: any) => {
