@@ -695,20 +695,25 @@ export function LegendOnClickDemo() {
     const chart = chartRef.current;
     if (!chart) return;
 
-    const isIsolated = series.every((s) =>
-      s.name === name ? !hiddenSeries[s.name] : hiddenSeries[s.name],
-    );
+    // Functional update so each click works from the latest state — rapid
+    // clicks won't race with React's state batching.
+    setHiddenSeries((prev) => {
+      // Already isolated to this series? (only it visible, everything else hidden)
+      const isIsolated = series.every((s) =>
+        s.name === name ? !prev[s.name] : prev[s.name],
+      );
 
-    const nextHidden: Record<string, boolean> = {};
-    for (const s of series) {
-      const shouldHide = isIsolated ? false : s.name !== name;
-      nextHidden[s.name] = shouldHide;
-      chart.dispatchAction({
-        type: shouldHide ? "legendUnSelect" : "legendSelect",
-        name: s.name,
-      });
-    }
-    setHiddenSeries(nextHidden);
+      const nextHidden: Record<string, boolean> = {};
+      for (const s of series) {
+        const shouldHide = isIsolated ? false : s.name !== name;
+        nextHidden[s.name] = shouldHide;
+        chart.dispatchAction({
+          type: shouldHide ? "legendUnSelect" : "legendSelect",
+          name: s.name,
+        });
+      }
+      return nextHidden;
+    });
   };
 
   return (

@@ -254,8 +254,12 @@ export const TimeseriesChart = forwardRef<
   // Tracks legend selection (series name → visible) so the tooltip can skip toggled-off series
   const legendSelectedRef = useRef<Record<string, boolean> | null>(null);
   // Clear stale selection when legend selection is disabled so it can't keep
-  // filtering the tooltip after the hidden legend is removed.
-  if (!enableLegendSelection) legendSelectedRef.current = null;
+  // filtering the tooltip after the hidden legend is removed. Done in an effect
+  // (not during render) to stay safe under concurrent rendering.
+  useEffect(() => {
+    if (!enableLegendSelection) legendSelectedRef.current = null;
+  }, [enableLegendSelection]);
+
   const tooltipModeRef = useRef(tooltipMode);
   tooltipModeRef.current = tooltipMode;
   const tooltipMaxItemsRef = useRef(tooltipMaxItems);
