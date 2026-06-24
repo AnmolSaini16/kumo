@@ -276,7 +276,7 @@ export function BubbleMap<T>({
           coordinateSystem: "geo",
           data: points,
           itemStyle: { opacity: 0.8 },
-          emphasis: { scale: 1.1, itemStyle: { opacity: 1 } },
+          emphasis: { scale: 1.2, itemStyle: { opacity: 1 } },
           z: 3,
         },
       ],
