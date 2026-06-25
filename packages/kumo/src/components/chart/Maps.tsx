@@ -1,5 +1,12 @@
 import type * as echarts from "echarts/core";
-import { useCallback, useId, useLayoutEffect, useMemo, useRef } from "react";
+import type { ForwardedRef, ReactElement, RefAttributes } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { Chart, type ChartEvents, type KumoChartOption } from "./EChart";
 import { ChartPalette } from "./Color";
 import { defaultValueFormat, escapeHtml } from "./tooltip-utils";
@@ -38,6 +45,31 @@ function resolveStyle<T, V>(row: T, style: MapStyle<T, V>): V {
 /** Furthest `roam` zoom-in, as a multiple of the auto-fit scale. */
 const MAX_ZOOM_FACTOR = 8;
 
+const geoJsonMapNames = new WeakMap<MapGeoJson, string>();
+
+function sanitizeMapName(name: string) {
+  return name.replace(/[^a-zA-Z0-9_-]/g, "-");
+}
+
+function hashString(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = Math.imul(31, hash) + value.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function getMapName(geoJson: MapGeoJson, mapName?: string) {
+  if (mapName) return sanitizeMapName(mapName);
+
+  const existing = geoJsonMapNames.get(geoJson);
+  if (existing) return existing;
+
+  const generated = `kumo-map-${hashString(JSON.stringify(geoJson))}`;
+  geoJsonMapNames.set(geoJson, generated);
+  return generated;
+}
+
 /** Build the `geo` coordinate-system config (land base for the bubbles). */
 function buildGeo(opts: {
   mapName: string;
@@ -50,9 +82,15 @@ function buildGeo(opts: {
     map: opts.mapName,
     nameProperty: "name",
     roam: opts.roam,
-    // Constrain roam so users can't zoom out into empty space or in past context.
+    // Prevent zooming far out into empty space while still allowing users to
+    // zoom back to the lesser of ECharts' base scale and the configured zoom.
     ...(opts.roam
-      ? { scaleLimit: { min: opts.zoom, max: opts.zoom * MAX_ZOOM_FACTOR } }
+      ? {
+          scaleLimit: {
+            min: Math.min(1, opts.zoom),
+            max: opts.zoom * MAX_ZOOM_FACTOR,
+          },
+        }
       : {}),
     center: opts.center,
     zoom: opts.zoom,
@@ -84,6 +122,12 @@ export interface BubbleMapProps<T> {
   echarts: typeof echarts;
   /** GeoJSON `FeatureCollection` for the land base. */
   geoJson: MapGeoJson;
+  /**
+   * Optional stable ECharts map registry name. Set this when the same GeoJSON is
+   * parsed into new object instances across mounts and should reuse one global
+   * ECharts registration.
+   */
+  mapName?: string;
   /** Raw data rows. Coordinates/value/name are read via the accessors below. */
   data: T[];
   /** Longitude accessor (key of `T` or `(row) => number`). */
@@ -99,6 +143,11 @@ export interface BubbleMapProps<T> {
   minRadius?: number;
   /** Largest bubble radius in px. Default: `26`. */
   maxRadius?: number;
+  /**
+   * Explicit bubble radius `(value) => px`. Overrides the default
+   * `minRadius`/`maxRadius` scaling.
+   */
+  bubbleSize?: (value: number) => number;
   /** Bubble fill colour — constant or `(row) => color`. Defaults to the chart blue. */
   bubbleColor?: MapStyle<T, string>;
   /** Bubble border colour — constant or `(row) => color`. Default: `transparent`. */
@@ -166,39 +215,58 @@ interface BubblePoint<T> {
  * />
  * ```
  */
-export function BubbleMap<T>({
-  echarts: ec,
-  geoJson,
-  data,
-  lng,
-  lat,
-  value,
-  name,
-  minRadius = 6,
-  maxRadius = 26,
-  bubbleColor,
-  bubbleBorderColor = "transparent",
-  bubbleBorderWidth = 0,
-  center,
-  zoom = 1.25,
-  roam = true,
-  showTooltip = true,
-  valueFormat = defaultValueFormat,
-  tooltipFormatter,
-  onBubbleHover,
-  onBubbleClick,
-  height = 400,
-  className,
-  isDarkMode,
-}: BubbleMapProps<T>) {
-  // Per-instance map name so distinct maps don't clobber each other in
-  // ECharts' global, name-keyed registry.
-  const mapName = useId();
+function BubbleMapRoot<T>(
+  {
+    echarts: ec,
+    geoJson,
+    mapName: mapNameProp,
+    data,
+    lng,
+    lat,
+    value,
+    name,
+    minRadius = 6,
+    maxRadius = 26,
+    bubbleSize,
+    bubbleColor,
+    bubbleBorderColor = "transparent",
+    bubbleBorderWidth = 0,
+    center,
+    zoom = 1.25,
+    roam = true,
+    showTooltip = true,
+    valueFormat = defaultValueFormat,
+    tooltipFormatter,
+    onBubbleHover,
+    onBubbleClick,
+    height = 400,
+    className,
+    isDarkMode,
+  }: BubbleMapProps<T>,
+  ref: ForwardedRef<echarts.ECharts | null>,
+) {
+  // ECharts has no public unregisterMap API, so reuse a deterministic
+  // registration name for equivalent GeoJSON instead of creating one per mount.
+  const mapName = useMemo(
+    () => getMapName(geoJson, mapNameProp),
+    [geoJson, mapNameProp],
+  );
   useRegisterMap(ec, mapName, geoJson);
 
   // Keep the latest hover callback without re-binding chart events.
   const hoverRef = useRef(onBubbleHover);
   hoverRef.current = onBubbleHover;
+
+  const mergedRef = useCallback(
+    (instance: echarts.ECharts | null) => {
+      if (typeof ref === "function") {
+        ref(instance);
+      } else if (ref) {
+        ref.current = instance;
+      }
+    },
+    [ref],
+  );
 
   const options = useMemo<KumoChartOption>(() => {
     const palette = ChartPalette.mapColors(isDarkMode);
@@ -208,6 +276,7 @@ export function BubbleMap<T>({
     const vmax = values.length ? Math.max(...values) : 1;
 
     const radiusFor = (v: number) => {
+      if (bubbleSize) return bubbleSize(v);
       if (vmax <= vmin) return maxRadius;
       const t = Math.sqrt((v - vmin) / (vmax - vmin));
       return minRadius + t * (maxRadius - minRadius);
@@ -284,6 +353,7 @@ export function BubbleMap<T>({
   }, [
     isDarkMode,
     geoJson,
+    mapNameProp,
     mapName,
     data,
     lng,
@@ -292,6 +362,7 @@ export function BubbleMap<T>({
     name,
     minRadius,
     maxRadius,
+    bubbleSize,
     bubbleColor,
     bubbleBorderColor,
     bubbleBorderWidth,
@@ -346,6 +417,7 @@ export function BubbleMap<T>({
   return (
     <Chart
       echarts={ec}
+      ref={mergedRef}
       options={options}
       className={className}
       isDarkMode={isDarkMode}
@@ -354,6 +426,10 @@ export function BubbleMap<T>({
     />
   );
 }
+
+export const BubbleMap = forwardRef(BubbleMapRoot) as (<T>(
+  props: BubbleMapProps<T> & RefAttributes<echarts.ECharts | null>,
+) => ReactElement | null) & { displayName?: string };
 
 BubbleMap.displayName = "BubbleMap";
 

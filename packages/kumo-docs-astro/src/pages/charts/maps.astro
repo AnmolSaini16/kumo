@@ -17,8 +17,13 @@ try {
   const response = await fetch(WORLD_GEO_JSON_URL);
   if (response.ok) {
     geoJson = (await response.json()) as MapGeoJson;
+  } else {
+    console.warn(
+      `Failed to fetch BubbleMap GeoJSON: ${response.status} ${response.statusText}`,
+    );
   }
-} catch {
+} catch (error) {
+  console.warn("Failed to fetch BubbleMap GeoJSON", error);
   geoJson = null;
 }
 ---
