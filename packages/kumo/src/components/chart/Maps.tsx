@@ -3,6 +3,7 @@ import type { ForwardedRef, ReactElement, RefAttributes } from "react";
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -96,8 +97,6 @@ function buildGeo(opts: {
     zoom: opts.zoom,
     aspectScale: 1,
     silent: true,
-    layoutCenter: ["50%", "50%"],
-    layoutSize: "180%",
     itemStyle: {
       areaColor: opts.areaColor,
       // Stroke the seams in the fill colour so the land reads as one seamless
@@ -158,7 +157,7 @@ export interface BubbleMapProps<T> {
   center?: [number, number];
   /** Zoom level — multiplies the auto-fit scale. Default: `1.25`. */
   zoom?: number;
-  /** Enable drag-to-pan and scroll-to-zoom. Default: `true`. */
+  /** Enable drag-to-pan and scroll-to-zoom. Default: `false`. */
   roam?: boolean;
 
   /** Show the tooltip. Default: `true`. */
@@ -233,7 +232,7 @@ function BubbleMapRoot<T>(
     bubbleBorderWidth = 0,
     center,
     zoom = 1.25,
-    roam = true,
+    roam = false,
     showTooltip = true,
     valueFormat = defaultValueFormat,
     tooltipFormatter,
@@ -253,6 +252,41 @@ function BubbleMapRoot<T>(
   );
   useRegisterMap(ec, mapName, geoJson);
 
+  const palette = useMemo(
+    () => ChartPalette.mapColors(isDarkMode),
+    [isDarkMode],
+  );
+
+  // Rebuild `geo` only when the map data or view changes. Depend on `center`'s
+  // components, not the array ref, so an inline `center={[x, y]}` doesn't rebuild
+  // `geo` (and reset the view) every render.
+  const centerX = center?.[0];
+  const centerY = center?.[1];
+  const geo = useMemo(
+    () =>
+      buildGeo({
+        mapName,
+        areaColor: palette.area,
+        center:
+          centerX !== undefined && centerY !== undefined
+            ? [centerX, centerY]
+            : undefined,
+        zoom,
+        roam,
+      }),
+    [mapName, geoJson, palette, centerX, centerY, zoom, roam],
+  );
+
+  // Apply `geo` only when its identity changes, so refetches don't reset a
+  // roamed/zoomed view. The ref is updated post-commit (not during render) so
+  // discarded render passes (StrictMode/concurrent) can't mark `geo` applied
+  // before it reaches the chart.
+  const appliedGeoRef = useRef<typeof geo | undefined>(undefined);
+  const shouldIncludeGeo = appliedGeoRef.current !== geo;
+  useEffect(() => {
+    appliedGeoRef.current = geo;
+  }, [geo]);
+
   // Keep the latest hover callback without re-binding chart events.
   const hoverRef = useRef(onBubbleHover);
   hoverRef.current = onBubbleHover;
@@ -269,16 +303,13 @@ function BubbleMapRoot<T>(
   );
 
   const options = useMemo<KumoChartOption>(() => {
-    const palette = ChartPalette.mapColors(isDarkMode);
-
     const values = data.map((row) => resolve(row, value));
-    const vmin = values.length ? Math.min(...values) : 0;
     const vmax = values.length ? Math.max(...values) : 1;
 
     const radiusFor = (v: number) => {
       if (bubbleSize) return bubbleSize(v);
-      if (vmax <= vmin) return maxRadius;
-      const t = Math.sqrt((v - vmin) / (vmax - vmin));
+      if (vmax <= 0) return minRadius;
+      const t = Math.sqrt(Math.max(0, v) / vmax);
       return minRadius + t * (maxRadius - minRadius);
     };
 
@@ -301,7 +332,8 @@ function BubbleMapRoot<T>(
       backgroundColor: "transparent",
       animation: true,
       animationDuration: 500,
-      geo: buildGeo({ mapName, areaColor: palette.area, center, zoom, roam }),
+      animationDurationUpdate: 0,
+      ...(shouldIncludeGeo ? { geo } : {}),
       tooltip: showTooltip
         ? {
             trigger: "item",
@@ -341,6 +373,7 @@ function BubbleMapRoot<T>(
         : undefined,
       series: [
         {
+          id: "bubbles",
           type: "scatter",
           coordinateSystem: "geo",
           data: points,
@@ -351,10 +384,9 @@ function BubbleMapRoot<T>(
       ],
     };
   }, [
-    isDarkMode,
-    geoJson,
-    mapNameProp,
-    mapName,
+    palette,
+    geo,
+    shouldIncludeGeo,
     data,
     lng,
     lat,
@@ -366,9 +398,6 @@ function BubbleMapRoot<T>(
     bubbleColor,
     bubbleBorderColor,
     bubbleBorderWidth,
-    center,
-    zoom,
-    roam,
     showTooltip,
     tooltipFormatter,
     valueFormat,
