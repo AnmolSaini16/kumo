@@ -21,10 +21,12 @@ export {
 } from "./SankeyChart";
 export {
   BubbleMap,
+  ChoroplethMap,
   type MapGeoJson,
   type MapAccessor,
   type MapStyle,
   type BubbleMapProps,
+  type ChoroplethMapProps,
 } from "./Maps";
 // Re-export color utilities for consumers who need to match chart colors outside of a chart instance
 export { ChartPalette } from "./Color";

@@ -6,6 +6,7 @@ import ComponentExample from "../../components/docs/ComponentExample.astro";
 import CodeBlock from "../../components/docs/CodeBlock.astro";
 import PropsTable from "../../components/docs/PropsTable.astro";
 import { BubbleMapBasicDemo } from "~/components/demos/Chart/BubbleMapDemo";
+import { ChoroplethMapBasicDemo } from "~/components/demos/Chart/ChoroplethMapDemo";
 import type { MapGeoJson } from "@cloudflare/kumo";
 
 const WORLD_GEO_JSON_URL =
@@ -50,15 +51,15 @@ try {
   <ComponentSection>
     <Heading level={2}>Installation</Heading>
     <p class="mb-4 text-kumo-subtle">
-      <code class="text-kumo-default">BubbleMap</code> requires <code class="text-kumo-default">echarts</code> as a peer dependency. Consumers provide the GeoJSON feature collection; the component does not fetch map data or use map tiles.
+      <code class="text-kumo-default">BubbleMap</code> and <code class="text-kumo-default">ChoroplethMap</code> require <code class="text-kumo-default">echarts</code> as a peer dependency. Consumers provide the GeoJSON feature collection; map components do not fetch map data or use map tiles.
     </p>
     <CodeBlock code={`npm install echarts`} lang="bash" />
 
     <Heading level={3} class="mb-2 mt-6 text-lg">Barrel</Heading>
-    <CodeBlock code={`import { BubbleMap } from "@cloudflare/kumo";`} lang="tsx" />
+    <CodeBlock code={`import { BubbleMap, ChoroplethMap } from "@cloudflare/kumo";`} lang="tsx" />
     <Heading level={3} class="mb-2 mt-4 text-lg">Granular</Heading>
     <CodeBlock
-      code={`import { BubbleMap } from "@cloudflare/kumo/components/chart";`}
+      code={`import { BubbleMap, ChoroplethMap } from "@cloudflare/kumo/components/chart";`}
       lang="tsx"
     />
   </ComponentSection>
@@ -66,15 +67,21 @@ try {
   <ComponentSection>
     <Heading level={2}>Usage</Heading>
     <CodeBlock
-      code={`import { BubbleMap, type MapGeoJson } from "@cloudflare/kumo";
+      code={`import { BubbleMap, ChoroplethMap, type MapGeoJson } from "@cloudflare/kumo";
 import * as echarts from "echarts/core";
 import { MapChart, ScatterChart } from "echarts/charts";
-import { TooltipComponent } from "echarts/components";
+import { TooltipComponent, VisualMapComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 
-echarts.use([MapChart, ScatterChart, TooltipComponent, CanvasRenderer]);
+echarts.use([
+  MapChart,
+  ScatterChart,
+  TooltipComponent,
+  VisualMapComponent,
+  CanvasRenderer,
+]);
 
-// Load GeoJSON in your app and pass it to BubbleMap.
+// Load GeoJSON in your app and pass it to map components.
 const geoJson = world as MapGeoJson;
 
 const colos = [
@@ -82,17 +89,32 @@ const colos = [
   { iata: "LHR", city: "London", lat: 51.5, lon: -0.12, requests: 1500 },
 ];
 
+const countries = [
+  { country: "United States of America", requests: 4200 },
+  { country: "Germany", requests: 3100 },
+];
+
 export default function Example() {
   return (
-    <BubbleMap
-      echarts={echarts}
-      geoJson={geoJson}
-      data={colos}
-      lng="lon"
-      lat="lat"
-      name="city"
-      value="requests"
-    />
+    <>
+      <BubbleMap
+        echarts={echarts}
+        geoJson={geoJson}
+        data={colos}
+        lng="lon"
+        lat="lat"
+        name="city"
+        value="requests"
+      />
+
+      <ChoroplethMap
+        echarts={echarts}
+        geoJson={geoJson}
+        data={countries}
+        name="country"
+        value="requests"
+      />
+    </>
   );
 }`}
       lang="tsx"
@@ -143,11 +165,28 @@ export default function Example() {
           lang="tsx"
         />
       </div>
+
+      <div>
+        <Heading level={3}>Choropleth Map</Heading>
+        <p class="mb-4 text-kumo-subtle">
+          Shade regions by value. Data rows are joined to GeoJSON features by <code class="text-kumo-default">name</code> (matched against the feature's <code class="text-kumo-default">nameProperty</code>, default <code class="text-kumo-default">"name"</code>).
+        </p>
+        <ComponentExample code={`<ChoroplethMap
+  echarts={echarts}
+  geoJson={geoJson}
+  data={countries}
+  name="country"
+  value="requests"
+/>`}>
+          <ChoroplethMapBasicDemo geoJson={geoJson} client:visible />
+        </ComponentExample>
+      </div>
     </div>
   </ComponentSection>
 
   <ComponentSection>
     <Heading level={2}>API Reference</Heading>
+    <Heading level={3} class="mb-2 mt-4 text-lg">BubbleMap</Heading>
     <PropsTable component="BubbleMap" />
   </ComponentSection>
 </DocLayout>

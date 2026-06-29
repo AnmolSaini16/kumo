@@ -250,6 +250,7 @@ export {
   TimeseriesChart,
   ChartLegend,
   BubbleMap,
+  ChoroplethMap,
   type KumoChartOption,
   type SankeyChartProps,
   type SankeyNodeData,
@@ -259,6 +260,7 @@ export {
   type MapAccessor,
   type MapStyle,
   type BubbleMapProps,
+  type ChoroplethMapProps,
 } from "./components/chart";
 export {
   Autocomplete,
