@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { geoMercator } from "d3-geo";
 import { Chart, type ChartEvents, type KumoChartOption } from "./EChart";
 import { ChartPalette } from "./Color";
 import { defaultValueFormat, escapeHtml } from "./tooltip-utils";
@@ -41,6 +42,81 @@ function resolveStyle<T, V>(row: T, style: MapStyle<T, V>): V {
   return typeof style === "function"
     ? (style as (r: T) => V)(row)
     : (style as V);
+}
+
+/**
+ * A geographic projection in ECharts' `{ project, unproject }` shape. Maps
+ * default to Mercator (the familiar flat 2D web-map look); pass another d3-geo
+ * projection (e.g. `geoNaturalEarth1`) to override, or `null` for raw lng/lat.
+ */
+export interface MapProjection {
+  project: (point: number[]) => number[];
+  unproject: (point: number[]) => number[];
+}
+
+/**
+ * Mercator's latitude cutoff. It stretches toward ±90° to infinity, so we clamp
+ * at ±85.0511° — otherwise Antarctica projects to an unbounded height and the
+ * whole map shrinks to fit. Renders the poles as a flat edge, like web maps do.
+ */
+const MERCATOR_MAX_LAT = 85.0511;
+
+/**
+ * Default projection for all maps: latitude-clamped Mercator. A single shared
+ * instance is fine - `project`/`unproject` are pure (no per-chart state).
+ */
+const mercatorProjection = geoMercator();
+const DEFAULT_PROJECTION: MapProjection = {
+  project: (point) => {
+    const lat = Math.max(
+      -MERCATOR_MAX_LAT,
+      Math.min(MERCATOR_MAX_LAT, point[1]),
+    );
+    return mercatorProjection([point[0], lat]) ?? [0, 0];
+  },
+  unproject: (point) =>
+    mercatorProjection.invert?.(point as [number, number]) ?? [0, 0],
+};
+
+/**
+ * Default displayed window as ECharts `boundingCoords`
+ * (`[[west, north], [east, south]]`). Crops the empty Arctic and most of
+ * Antarctica so the populated landmasses fill the container.
+ */
+const DEFAULT_BOUNDING_COORDS: [[number, number], [number, number]] = [
+  [-180, 80],
+  [180, -58],
+];
+
+/**
+ * Resolve the effective projection: `undefined` → the Mercator default,
+ * `null` → none (raw plotting), otherwise the caller's projection.
+ */
+function resolveProjection(
+  projection: MapProjection | null | undefined,
+): MapProjection | undefined {
+  if (projection === null) return undefined;
+  return projection ?? DEFAULT_PROJECTION;
+}
+
+/**
+ * Aspect ratio (`width / height`) of the projected window, used to size the
+ * container so the map fills it (ECharts contain-fits the map, so a mismatched
+ * container letterboxes it).
+ *
+ * Measures width at the equator and height down the central meridian - exact
+ * for cylindrical projections (Mercator/equirectangular/raw), close enough for
+ * curved ones (at worst a small letterbox).
+ */
+function projectedAspect(
+  projection: MapProjection | undefined,
+  [[west, north], [east, south]]: [[number, number], [number, number]],
+): number {
+  const project = projection ? projection.project : (p: number[]) => p;
+  const midLat = Math.min(north, Math.max(south, 0));
+  const w = Math.abs(project([east, midLat])[0] - project([west, midLat])[0]);
+  const h = Math.abs(project([0, north])[1] - project([0, south])[1]);
+  return w > 0 && h > 0 ? w / h : 16 / 9;
 }
 
 /** Furthest `roam` zoom-in, as a multiple of the auto-fit scale. */
@@ -78,6 +154,7 @@ function buildGeo(opts: {
   center?: [number, number];
   zoom: number;
   roam: boolean;
+  projection?: MapProjection;
 }) {
   return {
     map: opts.mapName,
@@ -95,12 +172,12 @@ function buildGeo(opts: {
       : {}),
     center: opts.center,
     zoom: opts.zoom,
-    aspectScale: 1,
+    // Crop empty poles / Antarctica so land fills the container.
+    boundingCoords: DEFAULT_BOUNDING_COORDS,
+    ...(opts.projection ? { projection: opts.projection } : { aspectScale: 1 }),
     silent: true,
     itemStyle: {
       areaColor: opts.areaColor,
-      // Stroke the seams in the fill colour so the land reads as one seamless
-      // mass rather than dotted internal borders.
       borderColor: opts.areaColor,
       borderWidth: 0.5,
     },
@@ -159,6 +236,15 @@ export interface BubbleMapProps<T> {
   zoom?: number;
   /** Enable drag-to-pan and scroll-to-zoom. Default: `false`. */
   roam?: boolean;
+  /**
+   * Geographic projection. Defaults to a latitude-clamped Mercator (flat 2D
+   * web-map look). Pass another d3-geo projection to override, or `null` for
+   * ECharts' raw equirectangular plotting.
+   *
+   * Use a stable reference (module-level or memoised): a new object each render
+   * rebuilds the view and resets a roamed/zoomed map.
+   */
+  projection?: MapProjection | null;
 
   /** Show the tooltip. Default: `true`. */
   showTooltip?: boolean;
@@ -178,7 +264,17 @@ export interface BubbleMapProps<T> {
   /** Called when a bubble is clicked. */
   onBubbleClick?: (row: T) => void;
 
-  /** Height of the chart in pixels. Default: `400`. */
+  /**
+   * Container aspect ratio as `width / height` (e.g. `1.7` or `"16 / 9"`). The
+   * height derives from the rendered width so the map fills the frame with no
+   * letterboxing. Defaults to the projected aspect of the displayed window, so
+   * the land fits edge-to-edge. Pass `height` to fix a pixel height instead.
+   */
+  aspectRatio?: number | string;
+  /**
+   * Fixed chart height in pixels. Overrides `aspectRatio` when set. Leave unset
+   * to size by aspect ratio (the default) so the map fills the container.
+   */
   height?: number;
   className?: string;
   isDarkMode?: boolean;
@@ -233,12 +329,14 @@ function BubbleMapRoot<T>(
     center,
     zoom = 1.25,
     roam = false,
+    projection,
     showTooltip = true,
     valueFormat = defaultValueFormat,
     tooltipFormatter,
     onBubbleHover,
     onBubbleClick,
-    height = 400,
+    aspectRatio,
+    height,
     className,
     isDarkMode,
   }: BubbleMapProps<T>,
@@ -273,9 +371,20 @@ function BubbleMapRoot<T>(
             : undefined,
         zoom,
         roam,
+        projection: resolveProjection(projection),
       }),
-    [mapName, geoJson, palette, centerX, centerY, zoom, roam],
+    [mapName, geoJson, palette, centerX, centerY, zoom, roam, projection],
   );
+
+  // Size the container to the projected window's aspect so the map fills the
+  // frame (no letterboxing). An explicit `height` opts out of aspect sizing.
+  const resolvedAspect = useMemo(() => {
+    if (height !== undefined) return undefined;
+    return (
+      aspectRatio ??
+      projectedAspect(resolveProjection(projection), DEFAULT_BOUNDING_COORDS)
+    );
+  }, [aspectRatio, height, projection]);
 
   // Apply `geo` only when its identity changes, so refetches don't reset a
   // roamed/zoomed view. The ref is updated post-commit (not during render) so
@@ -451,6 +560,7 @@ function BubbleMapRoot<T>(
       className={className}
       isDarkMode={isDarkMode}
       height={height}
+      aspectRatio={resolvedAspect}
       onEvents={onEvents}
     />
   );
@@ -535,8 +645,27 @@ export interface ChoroplethMapProps<T> {
   zoom?: number;
   /** Enable drag-to-pan and scroll-to-zoom. Default: `false`. */
   roam?: boolean;
+  /**
+   * Geographic projection. Defaults to a latitude-clamped Mercator (flat 2D
+   * web-map look). Pass another d3-geo projection to override, or `null` for
+   * ECharts' raw equirectangular plotting.
+   *
+   * Use a stable reference (module-level or memoised): a new object each render
+   * rebuilds the view and resets a roamed/zoomed map.
+   */
+  projection?: MapProjection | null;
 
-  /** Height of the chart in pixels. Default: `400`. */
+  /**
+   * Container aspect ratio as `width / height` (e.g. `1.7` or `"16 / 9"`). The
+   * height derives from the rendered width so the map fills the frame with no
+   * letterboxing. Defaults to the projected aspect of the displayed window, so
+   * the regions fit edge-to-edge. Pass `height` to fix a pixel height instead.
+   */
+  aspectRatio?: number | string;
+  /**
+   * Fixed chart height in pixels. Overrides `aspectRatio` when set. Leave unset
+   * to size by aspect ratio (the default) so the map fills the container.
+   */
   height?: number;
   className?: string;
   isDarkMode?: boolean;
@@ -592,7 +721,9 @@ function ChoroplethMapRoot<T>(
     center,
     zoom = 1.25,
     roam = false,
-    height = 400,
+    projection,
+    aspectRatio,
+    height,
     className,
     isDarkMode,
   }: ChoroplethMapProps<T>,
@@ -635,10 +766,24 @@ function ChoroplethMapRoot<T>(
           ? [centerX, centerY]
           : undefined,
       zoom,
-      aspectScale: 1,
+      // Crop empty poles / Antarctica so land fills the container.
+      boundingCoords: DEFAULT_BOUNDING_COORDS,
+      ...(resolveProjection(projection)
+        ? { projection: resolveProjection(projection) }
+        : { aspectScale: 1 }),
     }),
-    [centerX, centerY, zoom, roam, isDarkMode],
+    [centerX, centerY, zoom, roam, isDarkMode, projection],
   );
+
+  // Size the container to the projected window's aspect so the map fills the
+  // frame (no letterboxing). An explicit `height` opts out of aspect sizing.
+  const resolvedAspect = useMemo(() => {
+    if (height !== undefined) return undefined;
+    return (
+      aspectRatio ??
+      projectedAspect(resolveProjection(projection), DEFAULT_BOUNDING_COORDS)
+    );
+  }, [aspectRatio, height, projection]);
 
   // Update the applied-view ref post-commit (not during render) so discarded
   // render passes (StrictMode/concurrent) can't mark the view applied early.
@@ -751,19 +896,15 @@ function ChoroplethMapRoot<T>(
           data: regions,
           itemStyle: {
             areaColor: noData,
-            borderColor: palette.line,
-            borderWidth: 0.5,
+            borderColor: "transparent",
+            borderWidth: 0,
           },
           label: { show: false },
-          // Hover affordance: keep the region's own value colour and dim the
-          // rest (focus + blur), instead of recolouring to a loud accent.
           emphasis: {
             focus: "self" as const,
             label: { show: false },
             itemStyle: {
               areaColor: "inherit",
-              borderColor: palette.line,
-              borderWidth: 1.5,
             },
           },
           blur: {
@@ -844,6 +985,7 @@ function ChoroplethMapRoot<T>(
       className={className}
       isDarkMode={isDarkMode}
       height={height}
+      aspectRatio={resolvedAspect}
       onEvents={onEvents}
     />
   );

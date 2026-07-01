@@ -76,8 +76,6 @@ export interface MapColors {
   area: string;
   /** Default bubble fill (the chart palette blue). */
   bubble: string;
-  /** Seam / border between regions (used by choropleth maps). */
-  line: string;
   /**
    * Sequential ramp (low → high) for shading choropleth regions. Tuned so the
    * lowest band stays clearly distinct from the neutral no-data fill in both
@@ -91,12 +89,6 @@ export interface MapColors {
 const mapAreaByMode = {
   light: "#E5E7EB",
   dark: "#2B2C31",
-} as const;
-
-/** Region seam colour per mode — keeps adjacent choropleth regions distinct. */
-const mapLineByMode = {
-  light: "#FFFFFF",
-  dark: "#1F2024",
 } as const;
 
 /**
@@ -219,7 +211,6 @@ export namespace ChartPalette {
     return {
       area: mapAreaByMode[mode],
       bubble: categorical(0, isDarkMode),
-      line: mapLineByMode[mode],
       scale: [...mapScaleByMode[mode]],
     };
   }

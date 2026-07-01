@@ -5,7 +5,10 @@ import ComponentSection from "../../components/docs/ComponentSection.astro";
 import ComponentExample from "../../components/docs/ComponentExample.astro";
 import CodeBlock from "../../components/docs/CodeBlock.astro";
 import PropsTable from "../../components/docs/PropsTable.astro";
-import { BubbleMapBasicDemo } from "~/components/demos/Chart/BubbleMapDemo";
+import {
+  BubbleMapBasicDemo,
+  BubbleMapCloudflareLocationsDemo,
+} from "~/components/demos/Chart/BubbleMapDemo";
 import { ChoroplethMapBasicDemo } from "~/components/demos/Chart/ChoroplethMapDemo";
 import type { MapGeoJson } from "@cloudflare/kumo";
 
@@ -35,16 +38,29 @@ try {
   sourceFile="components/chart"
 >
   <ComponentSection>
-    <ComponentExample code={`<BubbleMap
+    <ComponentExample code={`const cloudflareLocations = [
+  { city: "San Francisco", iata: "SFO", lat: 37.77, lon: -122.42 },
+  { city: "London", iata: "LHR", lat: 51.51, lon: -0.13 },
+  { city: "Singapore", iata: "SIN", lat: 1.35, lon: 103.82 },
+  // ...more locations
+];
+
+<BubbleMap
   echarts={echarts}
   geoJson={geoJson}
-  data={colos}
+  data={cloudflareLocations}
   lng="lon"
   lat="lat"
   name="city"
-  value="requests"
+  value={() => 1}
+  bubbleColor="#F6821F"
+  minRadius={8}
+  maxRadius={8}
+  tooltipFormatter={(row) =>
+    "<strong>" + row.city + "</strong> " + row.iata
+  }
 />`}>
-      <BubbleMapBasicDemo geoJson={geoJson} client:visible />
+      <BubbleMapCloudflareLocationsDemo geoJson={geoJson} client:visible />
     </ComponentExample>
   </ComponentSection>
 
@@ -145,6 +161,22 @@ export default function Example() {
       </div>
 
       <div>
+        <Heading level={3}>Choropleth Map</Heading>
+        <p class="mb-4 text-kumo-subtle">
+          Shade regions by value. Data rows are joined to GeoJSON features by <code class="text-kumo-default">name</code> (matched against the feature's <code class="text-kumo-default">nameProperty</code>, default <code class="text-kumo-default">"name"</code>).
+        </p>
+        <ComponentExample code={`<ChoroplethMap
+  echarts={echarts}
+  geoJson={geoJson}
+  data={countries}
+  name="country"
+  value="requests"
+/>`}>
+          <ChoroplethMapBasicDemo geoJson={geoJson} client:visible />
+        </ComponentExample>
+      </div>
+
+      <div>
         <Heading level={3}>Custom Tooltips</Heading>
         <p class="mb-4 text-kumo-subtle">
           Provide <code class="text-kumo-default">tooltipFormatter</code> when the default name/value tooltip is not enough. The formatter returns HTML rendered by ECharts, so escape user-provided values.
@@ -164,22 +196,6 @@ export default function Example() {
 />`}
           lang="tsx"
         />
-      </div>
-
-      <div>
-        <Heading level={3}>Choropleth Map</Heading>
-        <p class="mb-4 text-kumo-subtle">
-          Shade regions by value. Data rows are joined to GeoJSON features by <code class="text-kumo-default">name</code> (matched against the feature's <code class="text-kumo-default">nameProperty</code>, default <code class="text-kumo-default">"name"</code>).
-        </p>
-        <ComponentExample code={`<ChoroplethMap
-  echarts={echarts}
-  geoJson={geoJson}
-  data={countries}
-  name="country"
-  value="requests"
-/>`}>
-          <ChoroplethMapBasicDemo geoJson={geoJson} client:visible />
-        </ComponentExample>
       </div>
     </div>
   </ComponentSection>
