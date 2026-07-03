@@ -23,6 +23,7 @@ export {
   BubbleMap,
   ChoroplethMap,
   type MapGeoJson,
+  type MapProjection,
   type MapAccessor,
   type MapStyle,
   type BubbleMapProps,

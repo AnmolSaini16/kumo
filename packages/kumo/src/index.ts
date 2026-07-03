@@ -257,6 +257,7 @@ export {
   type SankeyLinkData,
   type SankeyTooltipParams,
   type MapGeoJson,
+  type MapProjection,
   type MapAccessor,
   type MapStyle,
   type BubbleMapProps,
