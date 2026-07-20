@@ -309,6 +309,7 @@ export const TimeseriesChart = forwardRef<
   const incompleteAfter = incomplete?.after;
 
   const markerColor = ChartPalette.text("primary", isDarkMode);
+  const axisTextColor = ChartPalette.text("primary", isDarkMode);
   const markerLabelBackgroundColor = isDarkMode
     ? "rgba(0, 0, 0, 0.5)"
     : "rgba(255, 255, 255, 0.5)";
@@ -450,26 +451,30 @@ export const TimeseriesChart = forwardRef<
         name: xAxisName,
         nameLocation: "middle" as const,
         nameGap: 30,
+        nameTextStyle: { color: axisTextColor },
         type: "time" as const,
         splitLine: {
           show: false,
         },
         axisLine: { show: false },
         splitNumber: xAxisTickCount ?? DEFAULT_X_AXIS_TICK_COUNT,
-        ...(xAxisTickFormat && {
-          axisLabel: {
+        axisLabel: {
+          color: axisTextColor,
+          ...(xAxisTickFormat && {
             formatter: (value: number) => xAxisTickFormat(value),
-          },
-        }),
+          }),
+        },
       },
       yAxis: {
         name: yAxisName,
         nameLocation: "middle" as const,
         nameGap: 40,
+        nameTextStyle: { color: axisTextColor },
         type: "value" as const,
         axisTick: { show: true },
         axisLabel: {
           margin: 15,
+          color: axisTextColor,
           ...(yAxisTickFormat && {
             formatter: (value: number) => yAxisTickFormat(value),
           }),
@@ -513,6 +518,7 @@ export const TimeseriesChart = forwardRef<
     thresholds,
     markerColor,
     markerLabelBackgroundColor,
+    axisTextColor,
   ]);
 
   const events = useMemo<Partial<ChartEvents>>(() => {
