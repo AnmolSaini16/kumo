@@ -310,6 +310,7 @@ export const TimeseriesChart = forwardRef<
 
   const markerColor = ChartPalette.text("primary", isDarkMode);
   const axisTextColor = ChartPalette.text("primary", isDarkMode);
+  const gridLineColor = colorWithOpacity(axisTextColor, 0.2);
   const markerLabelBackgroundColor = isDarkMode
     ? "rgba(0, 0, 0, 0.5)"
     : "rgba(255, 255, 255, 0.5)";
@@ -481,7 +482,11 @@ export const TimeseriesChart = forwardRef<
         },
         splitLine: {
           show: true,
-          lineStyle: { type: "dashed" as const, width: 1 },
+          lineStyle: {
+            type: "dashed" as const,
+            width: 1,
+            color: gridLineColor,
+          },
         },
         splitNumber: yAxisTickCount,
         ...(thresholdExtent && {
@@ -519,6 +524,7 @@ export const TimeseriesChart = forwardRef<
     markerColor,
     markerLabelBackgroundColor,
     axisTextColor,
+    gridLineColor,
   ]);
 
   const events = useMemo<Partial<ChartEvents>>(() => {
