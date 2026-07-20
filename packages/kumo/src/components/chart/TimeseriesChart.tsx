@@ -435,8 +435,8 @@ export const TimeseriesChart = forwardRef<
         },
         brushStyle: {
           borderWidth: 1,
-          color: colorWithOpacity(axisTextColor, 0.2),
-          borderColor: colorWithOpacity(axisTextColor, 0.6),
+          color: "rgba(120,140,180,0.3)",
+          borderColor: "rgba(120,140,180,0.8)",
         },
       },
       tooltip: {

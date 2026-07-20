@@ -2,4 +2,4 @@
 "@cloudflare/kumo": patch
 ---
 
-Use muted chart colors for timeseries axes and brush selections.
+Use muted chart text colors for timeseries axis labels and titles.
