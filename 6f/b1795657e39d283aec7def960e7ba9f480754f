@@ -1,0 +1,19 @@
+packages/kumo/src/styles/theme-kumo.css
+  s_65dd74e8ad8edf::t_49c9182b175e58 260-261,349,406
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6fb1795657e39d283aec7def960e7ba9f480754f",
+  "prompts": {},
+  "sessions": {
+    "s_65dd74e8ad8edf": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_08fb11b52ffebPtlnzKiM1IGsn",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

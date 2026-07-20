@@ -1,0 +1,25 @@
+packages/kumo-docs-astro/src/pages/components/input.mdx
+  fd169805f3acf8a9 21,217-219
+packages/kumo-docs-astro/src/components/demos/InputDemo.tsx
+  fd169805f3acf8a9 69-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "86619f41881b8f4e146c4fd56054a950ec7acf51",
+  "prompts": {
+    "fd169805f3acf8a9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1d95e07beffeGgx3cw5EYQXQq8",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 23,
+      "total_deletions": 8,
+      "accepted_lines": 23,
+      "overriden_lines": 0
+    }
+  }
+}
