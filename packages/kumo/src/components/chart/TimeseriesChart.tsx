@@ -5,6 +5,7 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -163,8 +164,8 @@ export interface TimeseriesChartProps {
    */
   gradient?: boolean;
   /**
-   * When `true`, hides the chart and displays an animated sine-wave skeleton
-   * that oscillates back and forth to indicate that data is being fetched.
+   * When `true`, hides the chart and displays a skeleton matching the chart
+   * type with a subtle shimmer.
    */
   loading?: boolean;
   /**
@@ -323,7 +324,8 @@ export const TimeseriesChart = forwardRef<
         ? ({ type: "bar", stack: "total" } as const)
         : ({ type: "line", showSymbol: false } as const);
 
-    const thresholdAnnotations = buildTimeseriesThresholdAnnotations(thresholds);
+    const thresholdAnnotations =
+      buildTimeseriesThresholdAnnotations(thresholds);
     const thresholdExtent = getThresholdValueExtent(thresholds);
 
     const markerClusters = clusterTimeseriesMarkers(
@@ -698,11 +700,17 @@ export const TimeseriesChart = forwardRef<
             ref={containerRef}
             className="relative w-full"
             style={{ height }}
+            aria-busy={loading || undefined}
           />
         }
       >
-        {loading && <ChartWaveLoader height={height} isDarkMode={isDarkMode} />}
-        {!loading && (
+        {loading ? (
+          <ChartSkeletonLoader
+            height={height}
+            isDarkMode={isDarkMode}
+            type={type}
+          />
+        ) : (
           <Chart
             echarts={echarts}
             ref={mergedRef}
@@ -866,56 +874,145 @@ function isSameTooltipRows(a: TooltipRow[], b: TooltipRow[]): boolean {
   });
 }
 
+/** Line/area or bar chart skeleton with a reduced-motion-aware shimmer. */
+const CHART_LOADER_WIDTH = 400;
+const CHART_LOADER_SAMPLES = 80;
+const CHART_LOADER_BARS = 24;
+const CHART_LOADER_BAR_GAP_RATIO = 0.35;
+
 /**
- * Animated sine-wave skeleton shown while `TimeseriesChart` is in `loading` state.
- * Renders multiple staggered wave paths that sweep continuously left-to-right,
- * mimicking the motion of live time-series data being drawn.
+ * Sum of harmonics used to shape both the area line and the bar heights, so the
+ * two skeleton variants share the same calm, organic silhouette.
+ * Returns a value roughly in the range `[-1, 1]`.
  */
-function ChartWaveLoader({
+function chartLoaderWave(theta: number): number {
+  return (
+    0.45 * Math.sin(3 * theta) +
+    0.3 * Math.sin(5 * theta + 0.9) +
+    0.25 * Math.sin(7 * theta + 2.1)
+  );
+}
+
+function ChartSkeletonLoader({
   height,
   isDarkMode,
+  type = "line",
 }: {
   height: number;
   isDarkMode?: boolean;
+  type?: "line" | "bar";
 }) {
+  const id = `kumo-chart-loader-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const fillId = `${id}-fill`;
+  const shineId = `${id}-shine`;
+  const clipId = `${id}-clip`;
+  const color = ChartPalette.semantic("Skeleton", isDarkMode);
+
+  const strokeOpacity = isDarkMode ? 0.36 : 0.6;
+  const fillOpacity = isDarkMode ? 0.07 : 0.1;
+  const shineOpacity = isDarkMode ? 0.16 : 0.24;
+
+  const barFillOpacity = isDarkMode ? 0.12 : 0.16;
+
+  // Bars: harmonic-driven heights so the silhouette matches the line variant.
+  const slot = CHART_LOADER_WIDTH / CHART_LOADER_BARS;
+  const barW = slot * (1 - CHART_LOADER_BAR_GAP_RATIO);
+  const minBarH = height * 0.15;
+  const maxBarH = height * 0.85;
+  const bars = Array.from({ length: CHART_LOADER_BARS }, (_, i) => {
+    const theta = ((i + 0.5) / CHART_LOADER_BARS) * 2 * Math.PI;
+    const norm = (chartLoaderWave(theta) + 1) / 2;
+    const barH = minBarH + norm * (maxBarH - minBarH);
+    const x = i * slot + (slot - barW) / 2;
+    return { x, y: height - barH, w: barW, h: barH };
+  });
+
+  // Area: sampled wave line with a filled area beneath it.
   const mid = height / 2;
-  const amp = Math.min(height * 0.12, 28);
-  const period = 400;
-  const steps = 120;
+  const amp = Math.min(height * 0.18, 40);
+  const lineD = Array.from({ length: CHART_LOADER_SAMPLES + 1 }, (_, i) => {
+    const x = (i / CHART_LOADER_SAMPLES) * CHART_LOADER_WIDTH;
+    const theta = (x / CHART_LOADER_WIDTH) * 2 * Math.PI;
+    const y = mid - chartLoaderWave(theta) * amp;
+    return `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(" ");
+  const areaD = `${lineD} L${CHART_LOADER_WIDTH},${height} L0,${height} Z`;
 
-  const points: string[] = [];
-  for (let i = 0; i <= steps; i++) {
-    const x = -period + (i / steps) * period * 3;
-    const y = mid + Math.sin((i / steps) * 2 * Math.PI * 3) * amp;
-    points.push(`${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`);
-  }
-  const d = points.join(" ");
-
-  const strokeColor = isDarkMode ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.2)";
+  const isBar = type === "bar";
 
   return (
     <div
-      aria-hidden="true"
+      role="status"
+      aria-label="Loading chart"
       className="absolute inset-0 overflow-hidden"
       style={{ height }}
     >
       <svg
+        aria-hidden="true"
         width="100%"
         height={height}
-        viewBox={`0 0 ${period} ${height}`}
+        viewBox={`0 0 ${CHART_LOADER_WIDTH} ${height}`}
         preserveAspectRatio="none"
-        className="w-full animate-pulse"
+        className="block w-full"
       >
-        <path
-          d={d}
-          fill="none"
-          stroke={strokeColor}
-          strokeWidth="2"
-          style={{
-            animation: `kumo-chart-wave 2.4s linear infinite`,
-            transformOrigin: "0 0",
-          }}
-        />
+        <defs>
+          <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={fillOpacity} />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id={shineId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={color} stopOpacity="0" />
+            <stop offset="50%" stopColor={color} stopOpacity={shineOpacity} />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+          <clipPath id={clipId}>
+            {isBar ? (
+              bars.map((b, i) => (
+                <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} />
+              ))
+            ) : (
+              <path d={areaD} />
+            )}
+          </clipPath>
+        </defs>
+
+        {isBar ? (
+          bars.map((b, i) => (
+            <rect
+              key={i}
+              x={b.x}
+              y={b.y}
+              width={b.w}
+              height={b.h}
+              fill={color}
+              fillOpacity={barFillOpacity}
+              stroke="none"
+            />
+          ))
+        ) : (
+          <>
+            <path d={areaD} fill={`url(#${fillId})`} stroke="none" />
+            <path
+              d={lineD}
+              fill="none"
+              stroke={color}
+              strokeOpacity={strokeOpacity}
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
+            />
+          </>
+        )}
+
+        <g clipPath={`url(#${clipId})`}>
+          <rect
+            className="kumo-chart-shimmer"
+            x="0"
+            y="0"
+            width={CHART_LOADER_WIDTH}
+            height={height}
+            fill={`url(#${shineId})`}
+          />
+        </g>
       </svg>
     </div>
   );

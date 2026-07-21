@@ -141,15 +141,16 @@
   }
 }
 
-/* Chart wave-loader animation: slides the SVG path left by one full period,
-   creating a seamless looping sine wave. Used by TimeseriesChart loading state. */
-@keyframes kumo-chart-wave {
-  from {
-    transform: translateX(0);
-  }
+/* Chart loading skeleton: the wave stays static while the shimmer moves. */
+.kumo-chart-shimmer {
+  animation: shimmer 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+}
 
-  to {
-    transform: translateX(-400px);
+@media (prefers-reduced-motion: reduce) {
+  .kumo-chart-shimmer {
+    animation: none;
+    transform: none;
   }
 }
 
