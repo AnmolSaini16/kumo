@@ -146,7 +146,7 @@ function SmallItem({
     return (
       <div
         aria-hidden="true"
-        className={cn("inline-flex items-center gap-2", className)}
+        className={cn("inline-flex items-center gap-2 h-4", className)}
       >
         <span className="size-2 rounded-full inline-block bg-kumo-fill" />
         <SkeletonLine className="w-[5ch] h-3" />
@@ -161,7 +161,7 @@ function SmallItem({
       role="button"
       tabIndex={onClick ? 0 : -1}
       className={cn(
-        "inline-flex items-center gap-2",
+        "inline-flex items-center gap-2 h-4",
         { "cursor-pointer": !!onClick },
         className,
       )}
