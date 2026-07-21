@@ -143,7 +143,7 @@ const NESTED_UL_CLASSES =
 const TableOfContentsGroup = forwardRef<
   HTMLLIElement,
   TableOfContentsGroupProps
->(({ label, href, active = false, className, children, ...props }, ref) => {
+>(({ label, href, active = false, className, children, onClick, ...props }, ref) => {
   if (href) {
     const stateClasses = active
       ? KUMO_TABLE_OF_CONTENTS_VARIANTS.state.active.classes
@@ -155,8 +155,12 @@ const TableOfContentsGroup = forwardRef<
         className={cn("-ml-0.5 flex flex-col gap-2", className)}
         {...props}
       >
+        {/* onClick goes on the label link, not the <li>: the <li> also wraps
+            the nested items, so a handler there would fire for child clicks
+            too and override the child's own selection. */}
         <a
           href={href}
+          onClick={onClick as React.MouseEventHandler | undefined}
           aria-current={active ? ("true" as const) : undefined}
           data-kumo-component="TableOfContents"
           data-kumo-part="group-link"
@@ -169,6 +173,9 @@ const TableOfContentsGroup = forwardRef<
     );
   }
 
+  // Without an href the label is a non-interactive title, so `onClick` is
+  // intentionally not rendered — putting it on the <li> would also catch
+  // clicks bubbling up from the nested items.
   return (
     <li
       ref={ref}
