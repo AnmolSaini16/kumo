@@ -290,6 +290,39 @@ export const TimeseriesChart = forwardRef<
 
   const [tooltipState, setTooltipState] = useState<TooltipState | null>(null);
 
+  const closeTooltip = useCallback(() => {
+    activeMarkerKeyRef.current = null;
+    markerHoverRef.current = false;
+    setTooltipState(null);
+  }, []);
+  const tooltipOpen = tooltipState !== null;
+
+  // Fallback close: after a native context menu (right-click "Save image as…")
+  // the browser can drop the mouse events ECharts needs to fire `globalout`,
+  // leaving the tooltip stuck open. Closing on any mousemove outside the chart
+  // recovers from that.
+  useEffect(() => {
+    if (!tooltipOpen) return;
+
+    const closeWhenOutsideChart = (event: MouseEvent) => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      if (
+        event.clientX < rect.left ||
+        event.clientX > rect.right ||
+        event.clientY < rect.top ||
+        event.clientY > rect.bottom
+      ) {
+        closeTooltip();
+      }
+    };
+
+    window.addEventListener("mousemove", closeWhenOutsideChart);
+    return () => window.removeEventListener("mousemove", closeWhenOutsideChart);
+  }, [tooltipOpen, closeTooltip]);
+
   // Track cursor position for single-mode y lookup (convertFromPixel needs relative coords)
   const mousePosRef = useRef({ x: 0, y: 0 });
   useEffect(() => {
@@ -619,15 +652,9 @@ export const TimeseriesChart = forwardRef<
       },
       mouseout: (params) => {
         if (!getTimeseriesMarkerFromEvent(params)) return;
-        activeMarkerKeyRef.current = null;
-        markerHoverRef.current = false;
-        setTooltipState(null);
+        closeTooltip();
       },
-      globalout: () => {
-        activeMarkerKeyRef.current = null;
-        markerHoverRef.current = false;
-        setTooltipState(null);
-      },
+      globalout: closeTooltip,
       // Keep the tooltip in sync with legend selection. Each action fires a
       // different event — `legendToggleSelect` → `legendselectchanged`,
       // `legendSelect` → `legendselected`, `legendUnSelect` → `legendunselected`
@@ -650,7 +677,7 @@ export const TimeseriesChart = forwardRef<
         },
       }),
     };
-  }, [onTimeRangeChange, markerColor]);
+  }, [onTimeRangeChange, markerColor, closeTooltip]);
 
   // Activate the lineX brush cursor when a time-range callback is provided,
   // and reactivate it after options are replaced. ECharts clears the active
@@ -687,7 +714,6 @@ export const TimeseriesChart = forwardRef<
   }, [chartRef, hasTimeRangeCallback, loading, brushResetKey]);
 
   const formatFn = tooltipValueFormat ?? yAxisTickLabelFormat;
-  const tooltipOpen = tooltipState !== null;
 
   return (
     <TooltipPrimitive.Root

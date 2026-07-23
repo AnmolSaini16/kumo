@@ -1,4 +1,10 @@
-import { render, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { TimeseriesChart } from "./TimeseriesChart";
 
@@ -16,6 +22,47 @@ const createMockEcharts = (mockChart = createMockChart()) => ({
 });
 
 describe("TimeseriesChart", () => {
+  it("closes the tooltip when leaving the chart after a context menu interaction", async () => {
+    const mockChart = createMockChart();
+    const mockEcharts = createMockEcharts(mockChart);
+
+    render(
+      <TimeseriesChart
+        echarts={mockEcharts as any}
+        data={[
+          {
+            name: "Requests",
+            color: "#4290F0",
+            data: [[1, 10]],
+          },
+        ]}
+      />,
+    );
+
+    const updateAxisPointer = mockChart.on.mock.calls.find(
+      (call) => call[0] === "updateaxispointer",
+    )?.[1];
+    expect(updateAxisPointer).toBeTypeOf("function");
+
+    await act(() => updateAxisPointer({ axesInfo: [{ value: 1 }] }));
+    expect(await screen.findByText("Requests")).not.toBeNull();
+
+    const trigger = document.querySelector("[data-base-ui-tooltip-trigger]");
+    expect(trigger).toBeInstanceOf(HTMLElement);
+    fireEvent.contextMenu(trigger as HTMLElement);
+    expect(screen.queryByText("Requests")).not.toBeNull();
+
+    await act(() => updateAxisPointer({ axesInfo: [{ value: 1 }] }));
+    expect(await screen.findByText("Requests")).not.toBeNull();
+
+    vi.spyOn(trigger as HTMLElement, "getBoundingClientRect").mockReturnValue(
+      new DOMRect(0, 0, 100, 100),
+    );
+    fireEvent.mouseMove(window, { clientX: 101, clientY: 50 });
+
+    expect(screen.queryByText("Requests")).toBeNull();
+  });
+
   it("reactivates brush-to-zoom after a notMerge option update", async () => {
     const mockChart = createMockChart();
     const mockEcharts = createMockEcharts(mockChart);
