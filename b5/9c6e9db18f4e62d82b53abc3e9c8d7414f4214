@@ -1,0 +1,19 @@
+packages/kumo-docs-astro/src/components/demos/SidebarDemo.tsx
+  s_0508ce2e36c876::t_f671686f78190f 278-280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b59c6e9db18f4e62d82b53abc3e9c8d7414f4214",
+  "prompts": {},
+  "sessions": {
+    "s_0508ce2e36c876": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_06f9773a9ffemQQARUyUrp9Tqn",
+        "model": "@cf/zai-org/glm-5.2"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
