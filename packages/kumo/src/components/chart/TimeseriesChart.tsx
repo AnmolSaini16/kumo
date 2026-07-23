@@ -303,6 +303,7 @@ export const TimeseriesChart = forwardRef<
   // recovers from that.
   useEffect(() => {
     if (!tooltipOpen) return;
+    if (typeof window === "undefined") return;
 
     const closeWhenOutsideChart = (event: MouseEvent) => {
       const container = containerRef.current;

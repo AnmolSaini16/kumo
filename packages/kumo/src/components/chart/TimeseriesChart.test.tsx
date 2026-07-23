@@ -5,6 +5,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { TimeseriesChart } from "./TimeseriesChart";
 
@@ -22,6 +23,35 @@ const createMockEcharts = (mockChart = createMockChart()) => ({
 });
 
 describe("TimeseriesChart", () => {
+  it("server-renders without browser globals", () => {
+    const mockEcharts = createMockEcharts();
+    const originalWindow = globalThis.window;
+    const originalDocument = globalThis.document;
+
+    vi.stubGlobal("window", undefined);
+    vi.stubGlobal("document", undefined);
+
+    try {
+      expect(() =>
+        renderToString(
+          <TimeseriesChart
+            echarts={mockEcharts as any}
+            data={[
+              {
+                name: "Requests",
+                color: "#4290F0",
+                data: [[1, 10]],
+              },
+            ]}
+          />,
+        ),
+      ).not.toThrow();
+    } finally {
+      vi.stubGlobal("window", originalWindow);
+      vi.stubGlobal("document", originalDocument);
+    }
+  });
+
   it("closes the tooltip when leaving the chart after a context menu interaction", async () => {
     const mockChart = createMockChart();
     const mockEcharts = createMockEcharts(mockChart);
