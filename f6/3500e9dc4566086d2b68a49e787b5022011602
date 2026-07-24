@@ -1,0 +1,29 @@
+packages/kumo-docs-astro/src/components/demos/Chart/ChartDemo.tsx
+  s_cc179b3f1e1c3c::t_4788d3a516d3a9 8,455-460,517-522,563,581-657
+packages/kumo/src/styles/kumo-binding.css
+  s_4d5fc2713f9d18::t_b80541d0e40ffe 144-148,150-153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f63500e9dc4566086d2b68a49e787b5022011602",
+  "prompts": {},
+  "sessions": {
+    "s_4d5fc2713f9d18": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_081024769ffephroBvxTqiHIOh",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    },
+    "s_cc179b3f1e1c3c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_07bf70677ffeUnucsUpt6C8NxJ",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    }
+  }
+}
