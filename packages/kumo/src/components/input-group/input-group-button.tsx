@@ -149,6 +149,10 @@ export const Button = forwardRef<
         className={cn(
           // Ensure clicks register even when parent has pointer-events-none (e.g. disabled overlay)
           "pointer-events-auto",
+          // Suppress the base Button's drop shadow so InputGroup matches the flat
+          // appearance of the standalone Input (ghost already sets shadow-none,
+          // but secondary/primary/outline etc. inherit shadow-xs from Button base)
+          "shadow-none",
           // Suppress the base Button's non-visible focus ring in all modes
           "focus:ring-0",
           // Container-zone buttons: use a subtle ring as focus indicator

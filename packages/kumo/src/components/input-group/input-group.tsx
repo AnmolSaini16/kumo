@@ -123,8 +123,6 @@ const Root = forwardRef<
       "relative w-full cursor-text",
       // inputVariants provides base ring-kumo-line; must come before state overrides
       inputVariants({ size }),
-      // Subtle drop shadow to separate the group from the page surface
-      "shadow-xs",
       // Disabled state: prevent interaction and dim the entire group
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       // Container mode: clip children to rounded corners and show a shared focus ring
