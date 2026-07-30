@@ -1,0 +1,19 @@
+packages/kumo-docs-astro/src/lib/html-to-markdown.test.ts
+  s_db6b969cd3dc54::t_7a4f14bfce6326 52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c264986cc7a613360ccdf114a1dd6e6507566563",
+  "prompts": {},
+  "sessions": {
+    "s_db6b969cd3dc54": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_06b5d7445ffeaqez4JJiaVF4G6",
+        "model": "@cf/moonshotai/kimi-k2.7-code"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

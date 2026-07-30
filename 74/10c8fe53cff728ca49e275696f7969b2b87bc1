@@ -1,0 +1,19 @@
+skills/kumo-design/SKILL.md
+  s_db6b969cd3dc54::t_565ac6d7080036 45-47,139-141,188-190,199-201,221-222,306-314
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7410c8fe53cff728ca49e275696f7969b2b87bc1",
+  "prompts": {},
+  "sessions": {
+    "s_db6b969cd3dc54": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_06b5d7445ffeaqez4JJiaVF4G6",
+        "model": "@cf/moonshotai/kimi-k2.7-code"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
