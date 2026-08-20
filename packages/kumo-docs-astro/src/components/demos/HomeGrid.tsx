@@ -20,7 +20,6 @@ import {
   LayerCard,
   Link,
   Loader,
-  MenuBar,
   Meter,
   Pagination,
   Popover,
@@ -45,8 +44,6 @@ import { InputGroupDemo } from "~/components/demos/InputGroupDemo";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
-  TextBolderIcon,
-  TextItalicIcon,
   TranslateIcon,
   WarningIcon,
   WarningOctagonIcon,
@@ -78,7 +75,6 @@ const componentRoutes: Record<string, string> = {
   "layer-card": "/components/layer-card",
   link: "/components/link",
   loader: "/components/loader",
-  "menu-bar": "/components/menu-bar",
   meter: "/components/meter",
   pagination: "/components/pagination",
   popover: "/components/popover",
@@ -117,7 +113,6 @@ export function HomeGrid() {
   const [switchToggled, setSwitchToggled] = useState(true);
   const [checked, setChecked] = useState(true);
   const [collapsibleOpen, setCollapsibleOpen] = useState(false);
-  const [menuBarActive, setMenuBarActive] = useState<number | undefined>(0);
   const [paginationPage, setPaginationPage] = useState(1);
   const [value, setValue] = useState<{ id: string; value: string } | null>(
     null,
@@ -506,29 +501,6 @@ export function HomeGrid() {
       id: "meter",
       Component: (
         <Meter value={75} label="My meter" customValue="100 / 5,000" />
-      ),
-    },
-    {
-      name: "MenuBar",
-      id: "menu-bar",
-      Component: (
-        <MenuBar
-          isActive={menuBarActive}
-          options={[
-            {
-              icon: <TextBolderIcon />,
-              onClick: () =>
-                setMenuBarActive(menuBarActive === 0 ? undefined : 0),
-              tooltip: "Bold",
-            },
-            {
-              icon: <TextItalicIcon />,
-              onClick: () =>
-                setMenuBarActive(menuBarActive === 1 ? undefined : 1),
-              tooltip: "Italic",
-            },
-          ]}
-        />
       ),
     },
     {
