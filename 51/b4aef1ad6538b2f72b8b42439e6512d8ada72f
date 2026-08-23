@@ -1,0 +1,47 @@
+packages/kumo/src/components/sidebar/sidebar.test.tsx
+  s_4bbdb805355675::t_44c4720a239b4d 967-1328
+packages/kumo/src/components/sidebar/index.ts
+  s_bc9b2906193925::t_c41ba4e6af084b 38-40
+.changeset/sidebar-scroll-to-item.md
+  s_bc9b2906193925::t_4023ff0104a814 1-20
+packages/kumo-docs-astro/src/components/demos/SidebarDemo.tsx
+  s_8c1badbda4f822::t_1bbc56a01ef41c 887-987,1054
+packages/kumo/src/index.ts
+  s_4bbdb805355675::t_dd96bd68b2efcc 314-316
+packages/kumo/src/components/sidebar/sidebar.tsx
+  s_8c1badbda4f822::t_9139948995062d 159-196,381-446,474-475,925-931,933-961,1237-1273,1300-1301,1341,1347,1351-1370,1432-1436,1440,1448,1459,1464,1496,1498
+packages/kumo-docs-astro/src/pages/components/sidebar.astro
+  s_bc9b2906193925::t_2449d626e0e9f0 12,257-276
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "51b4aef1ad6538b2f72b8b42439e6512d8ada72f",
+  "prompts": {},
+  "sessions": {
+    "s_4bbdb805355675": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fe5dbfa6affemBQmTKnns8vNkP",
+        "model": "claude-opus-5"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    },
+    "s_8c1badbda4f822": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_feb2fa493ffe3n3WqyB1oMZkT4",
+        "model": "claude-opus-5"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    },
+    "s_bc9b2906193925": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_febbcda9effeAXwumkrzOReUS4",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    }
+  }
+}
