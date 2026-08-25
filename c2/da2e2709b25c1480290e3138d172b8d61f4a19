@@ -1,0 +1,19 @@
+packages/kumo/src/components/select/select.tsx
+  s_4f83b8fe2b59d7::t_f4649066e451ae 274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c2da2e2709b25c1480290e3138d172b8d61f4a19",
+  "prompts": {},
+  "sessions": {
+    "s_4f83b8fe2b59d7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fc7186ec2ffe49k2S6TEtIU5xc",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
