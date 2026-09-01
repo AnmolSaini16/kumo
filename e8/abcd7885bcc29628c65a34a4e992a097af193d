@@ -1,0 +1,19 @@
+packages/kumo/src/components/radio/radio.tsx
+  s_e1052991268b36::t_2cd870d125acc0 49,395
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e8abcd7885bcc29628c65a34a4e992a097af193d",
+  "prompts": {},
+  "sessions": {
+    "s_e1052991268b36": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_06af5f8a1ffes5j8gCfQm2NoQD",
+        "model": "@cf/moonshotai/kimi-k2.7-code"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

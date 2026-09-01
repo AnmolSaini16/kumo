@@ -1,0 +1,19 @@
+packages/kumo/src/components/clipboard-text/clipboard-text.test.tsx
+  s_a84bb04b04189c::t_504f066f1713a3 30-36,52,59,63,72,93,99,109,119,128,152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4cc4da1a158cb8e3c26e8ad54356ad8cd29fb431",
+  "prompts": {},
+  "sessions": {
+    "s_a84bb04b04189c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_056b4e92fffe2WEO0c9W1PwkGI",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

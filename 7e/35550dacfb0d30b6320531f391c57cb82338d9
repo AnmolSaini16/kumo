@@ -1,0 +1,25 @@
+packages/kumo-docs-astro/src/components/demos/TabsDemo.tsx
+  9fa111322a0530c1 86-100
+packages/kumo/src/styles/kumo-binding.css
+  9fa111322a0530c1 264-266,271-279
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "7e35550dacfb0d30b6320531f391c57cb82338d9",
+  "prompts": {
+    "9fa111322a0530c1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1fbd1e04cffepyh1wzSwofDhma",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 27,
+      "total_deletions": 16,
+      "accepted_lines": 27,
+      "overriden_lines": 0
+    }
+  }
+}

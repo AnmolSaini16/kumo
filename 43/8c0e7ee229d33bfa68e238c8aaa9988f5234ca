@@ -1,0 +1,23 @@
+packages/kumo/src/components/tabs/tabs.tsx
+  9fa111322a0530c1 1,153,171,225-227,231,238,245,247
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "438c0e7ee229d33bfa68e238c8aaa9988f5234ca",
+  "prompts": {
+    "9fa111322a0530c1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1fbd1e04cffepyh1wzSwofDhma",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 11,
+      "total_deletions": 16,
+      "accepted_lines": 11,
+      "overriden_lines": 0
+    }
+  }
+}

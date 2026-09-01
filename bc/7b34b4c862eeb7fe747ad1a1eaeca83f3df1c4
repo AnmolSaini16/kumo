@@ -1,0 +1,21 @@
+packages/kumo-docs-astro/src/components/demos/SidebarDemo.tsx
+  s_3aa638557f1d6b::t_51dc392949165a 117,136,159,169,980,1256
+packages/kumo/src/components/sidebar/sidebar.tsx
+  s_3aa638557f1d6b::t_138fef30012f4b 17,22,435-444,591,616,1651-1700,2348,2351-2353,2392,2421
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "bc7b34b4c862eeb7fe747ad1a1eaeca83f3df1c4",
+  "prompts": {},
+  "sessions": {
+    "s_3aa638557f1d6b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_05754ad43ffeKCEYq6pX0ODnlx",
+        "model": "@cf/moonshotai/kimi-k2.7-code"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

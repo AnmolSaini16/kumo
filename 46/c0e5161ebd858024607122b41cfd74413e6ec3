@@ -1,0 +1,23 @@
+packages/kumo/src/components/button/button.tsx
+  97ae79fc18663d50 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "46c0e5161ebd858024607122b41cfd74413e6ec3",
+  "prompts": {
+    "97ae79fc18663d50": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_200d8665effepodeyZuUVWPUpI",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": "Max Rozen",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}

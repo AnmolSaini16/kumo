@@ -1,0 +1,23 @@
+.github/workflows/preview.yml
+  bac3fbbac4028dad 68,92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "6ffa46b4be66791f70f5ca75106ded5e826c673c",
+  "prompts": {
+    "bac3fbbac4028dad": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_2019166aaffeFBI6Qa9PuMH6Wt",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": "Max Rozen",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}

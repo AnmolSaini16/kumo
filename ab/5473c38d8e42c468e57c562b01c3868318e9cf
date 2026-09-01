@@ -1,0 +1,19 @@
+packages/kumo/src/components/tabs/tabs.tsx
+  s_e4a0435c2c68b9::t_54659515f8c985 348-352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ab5473c38d8e42c468e57c562b01c3868318e9cf",
+  "prompts": {},
+  "sessions": {
+    "s_e4a0435c2c68b9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0289aa71bffeRw7d8u45GoiWQR",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

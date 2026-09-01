@@ -1,0 +1,23 @@
+.changeset/collapsible-default-panel-props.md
+  441f87c47e61a79e 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "e919772572f1c60c7ef21558d184085f5a1b662e",
+  "prompts": {
+    "441f87c47e61a79e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_21b73f243ffeTOI2uc6nxPGIkY",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 0,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    }
+  }
+}

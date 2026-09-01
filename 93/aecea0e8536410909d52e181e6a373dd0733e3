@@ -1,0 +1,25 @@
+packages/kumo-docs-astro/src/pages/installation.mdx
+  32a8702269a376ac 238-239
+packages/kumo-docs-astro/src/pages/components/link.mdx
+  32a8702269a376ac 93,96-99,103-138,147-157,249-256,259-262,375-381,383-384,387-388,391
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "93aecea0e8536410909d52e181e6a373dd0733e3",
+  "prompts": {
+    "32a8702269a376ac": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1fc948bb3ffeFl2U3B0mvWP8dd",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 84,
+      "total_deletions": 15,
+      "accepted_lines": 84,
+      "overriden_lines": 0
+    }
+  }
+}

@@ -1,0 +1,23 @@
+.changeset/sidebar-modernization.md
+  73361d29d1003d8b 1-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "6190a40cc830cee24a4963bc2b45a9e8c90d6586",
+  "prompts": {
+    "73361d29d1003d8b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b8d3009dffemxIZoeJydK2DlO",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 31,
+      "total_deletions": 0,
+      "accepted_lines": 31,
+      "overriden_lines": 0
+    }
+  }
+}

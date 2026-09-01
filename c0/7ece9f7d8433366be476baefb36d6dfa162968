@@ -1,0 +1,29 @@
+packages/kumo-docs-astro/package.json
+  s_dfc442be2508c2::t_d0e6f8b11d90f2 27
+packages/kumo/src/primitives/index.ts
+  s_dfc442be2508c2::t_14d36b09aae6f6 40
+packages/kumo/src/primitives/otp-field.ts
+  s_dfc442be2508c2::t_862dfe6d03bc20 14
+packages/kumo/src/styles/theme-fedramp.css
+  s_dfc442be2508c2::t_771d1692367c35 9,12-23,33-34
+packages/kumo/src/styles/theme-kumo.css
+  s_dfc442be2508c2::t_e22cedb75e0854 9,41-44,90,196,205-206,211,226,283,299-300,309,312-314,338,345,347,349,355-356,366,369-371,384,393,395-396,399,404,406,412
+pnpm-lock.yaml
+  s_dfc442be2508c2::t_1ac906d620b2e9 265-267,386,389,392,808,812,816,825,831,837,843,849,1801-1804,3370-3372,3497-3500,3557-3609,3614-3679,3712-3714,4201-4204,4237-4239,4334-4336,5398-5400,5413-5415,7531-7536,8552,8988-8989,9090-9091,9144-9194,9199-9291,9318-9321,10016-10019,10055-10058,10126-10127,11612-11613,11652-11653
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c07ece9f7d8433366be476baefb36d6dfa162968",
+  "prompts": {},
+  "sessions": {
+    "s_dfc442be2508c2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_022f7cecfffe41aBO65jCXreDE",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
