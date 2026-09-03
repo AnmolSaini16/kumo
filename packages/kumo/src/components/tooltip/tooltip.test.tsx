@@ -4,7 +4,7 @@ import { Text } from "../text/text";
 import { Tooltip } from "./tooltip";
 
 describe("Tooltip", () => {
-  it("preserves a visible line height for nested text", () => {
+  it("does not override the line height of nested text", () => {
     render(
       <Tooltip content="More information">
         <Text as="span" size="sm">
@@ -18,7 +18,6 @@ describe("Tooltip", () => {
       .closest("[data-base-ui-tooltip-trigger]");
 
     expect(trigger).not.toBeNull();
-    expect(trigger?.classList.contains("leading-none")).toBe(true);
-    expect(trigger?.classList.contains("leading-[0]")).toBe(false);
+    expect(trigger?.className).not.toMatch(/\bleading-/);
   });
 });
