@@ -1,0 +1,33 @@
+.opencode/package-lock.json
+  s_bc9b2906193925::t_617f8e58d7d9db 8-20,102-104,107-109,113-115,130-132,169-171,175,177,179,182-183,215-217,220,229-234,242-244,247,349-351
+packages/kumo-docs-astro/src/components/demos/SidebarDemo.tsx
+  s_8c1badbda4f822::t_1bbc56a01ef41c 887-987,1054
+packages/kumo/src/components/sidebar/index.ts
+  s_bc9b2906193925::t_c41ba4e6af084b 38-40
+packages/kumo/src/components/sidebar/sidebar.tsx
+  s_8c1badbda4f822::t_9139948995062d 5,160-199,384-454,482-484,934-941,943-972,1248-1284,1311-1312,1352,1358,1362-1371,1433-1437,1449,1465,1497,1499
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9837dfd21de27f54465d384da5d406dedb97f7f2",
+  "prompts": {},
+  "sessions": {
+    "s_8c1badbda4f822": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_feb2fa493ffe3n3WqyB1oMZkT4",
+        "model": "claude-opus-5"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    },
+    "s_bc9b2906193925": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_febbcda9effeAXwumkrzOReUS4",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    }
+  }
+}

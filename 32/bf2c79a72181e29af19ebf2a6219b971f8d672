@@ -1,0 +1,19 @@
+.changeset/eight-buses-bow.md
+  s_4f5343d7176e93::t_e73212a9e51825 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "32bf2c79a72181e29af19ebf2a6219b971f8d672",
+  "prompts": {},
+  "sessions": {
+    "s_4f5343d7176e93": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_022b5c726ffegf1hery6dY8Bs8",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

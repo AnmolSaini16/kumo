@@ -1,0 +1,25 @@
+packages/kumo-docs-astro/AGENTS.md
+  s_b5cc4f8edb2fa7::t_65b2ec1a755601 1,3,5-10,14,18-29,34-59,61-62,64,66-78,82-99,103-109
+packages/kumo-docs-astro/src/components/demos/AGENTS.md
+  s_b5cc4f8edb2fa7::t_7b0abb4997c800 1-57
+packages/kumo-docs-astro/src/pages/AGENTS.md
+  s_b5cc4f8edb2fa7::t_0638b58a0364e5 1-49
+packages/kumo-docs-astro/src/pages/components/AGENTS.md
+  s_b5cc4f8edb2fa7::t_1706b2a9f41234 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "748ffe5471f1fc44a2513e94d9a581ac383291ce",
+  "prompts": {},
+  "sessions": {
+    "s_b5cc4f8edb2fa7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f98562b14ffe9TDtPZS7RonnI7",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Max Rozen <3822106+rozenmd@users.noreply.github.com>"
+    }
+  }
+}

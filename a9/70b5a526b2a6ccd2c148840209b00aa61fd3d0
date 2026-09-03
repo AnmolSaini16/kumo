@@ -1,0 +1,21 @@
+packages/kumo-docs-astro/src/components/demos/MultiValueInputPrototypePlayground.tsx
+  s_054601bf0732ce::t_8a9fbd29be65b8 1-392
+packages/kumo/src/components/input/multi-value-input.prototype.tsx
+  s_054601bf0732ce::t_b901402ec78d29 1-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a970b5a526b2a6ccd2c148840209b00aa61fd3d0",
+  "prompts": {},
+  "sessions": {
+    "s_054601bf0732ce": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0574591ebffezIUEpOTuxZEtlK",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

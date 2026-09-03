@@ -1,0 +1,41 @@
+packages/kumo-docs-astro/src/components/demos/AccessPoliciesPrototype.tsx
+  s_01ad071b745549::t_ba3ba22742ff98 45-49,471,479,487,523,525,844-845,1070
+packages/kumo-docs-astro/src/components/demos/UploadFlowPrototype.tsx
+  s_9ebee2510d5468::t_8c37f580043a32 1-210
+packages/kumo/src/primitives/index.ts
+  s_9ebee2510d5468::t_358129c07672fe 40
+packages/kumo/src/primitives/otp-field.ts
+  s_9ebee2510d5468::t_39ae360de1e549 14
+packages/kumo/src/styles/theme-fedramp.css
+  s_9ebee2510d5468::t_ce545b4ba017c7 9,12-23,33-34
+packages/kumo/src/styles/theme-kumo.css
+  s_9ebee2510d5468::t_2a56f646913807 9,41-44,90,196,205-206,211,226,283,299-300,309,312-314,338,345,347,349,355-356,366,369-371,384,393,395-396,399,404,406,412
+prototypes/access-policies/bun.lock
+  s_01ad071b745549::t_ac51c435386ab0 1-360
+skills/kumo-design/SKILL.md
+  s_01ad071b745549::t_e56e70521f4e64 45,137,184,193,213-214,298-304
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "aacb510510e4a2668eb6d709346e80029e6a10c9",
+  "prompts": {},
+  "sessions": {
+    "s_01ad071b745549": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea4f7770ffe525BMPcDS5EmzJ",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    },
+    "s_9ebee2510d5468": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fdec27dc6ffeEUnn2ucS8xmiuu",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

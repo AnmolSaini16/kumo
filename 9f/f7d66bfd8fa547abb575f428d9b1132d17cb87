@@ -1,0 +1,19 @@
+opencode.jsonc
+  s_9ce7a5b584f410::t_03e111312648a8 2-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9ff7d66bfd8fa547abb575f428d9b1132d17cb87",
+  "prompts": {},
+  "sessions": {
+    "s_9ce7a5b584f410": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbbf74f59ffeIV8c5Bet3wR6kd",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

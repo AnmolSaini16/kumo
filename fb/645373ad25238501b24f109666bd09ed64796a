@@ -1,0 +1,19 @@
+packages/kumo/src/components/button/button.tsx
+  s_a84bb04b04189c::t_1d9eddcd95bff5 306-309,313-316
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fb645373ad25238501b24f109666bd09ed64796a",
+  "prompts": {},
+  "sessions": {
+    "s_a84bb04b04189c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_056b4e92fffe2WEO0c9W1PwkGI",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
