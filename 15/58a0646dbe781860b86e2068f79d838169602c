@@ -1,0 +1,19 @@
+.changeset/docs-search-chart-links.md
+  s_7d7aab30342b85::t_f93e05948b0af1 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1558a0646dbe781860b86e2068f79d838169602c",
+  "prompts": {},
+  "sessions": {
+    "s_7d7aab30342b85": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_08fb21f98ffe1kr3Ek4cCTeycv",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "plunet <plunet@cloudflare.com>"
+    }
+  }
+}

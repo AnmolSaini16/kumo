@@ -1,0 +1,19 @@
+packages/kumo-docs-astro/src/components/labs/SettingsTemplatesPrototype.tsx
+  s_0b54ba1aaead89::t_9dbabd7a118d11 1-1504
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4c3be803ce8ff51c0bcb2548850026d6ce413717",
+  "prompts": {},
+  "sessions": {
+    "s_0b54ba1aaead89": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_04c392f29ffen6Pxdy5DrUrC5z",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

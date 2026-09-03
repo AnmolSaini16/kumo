@@ -1,0 +1,21 @@
+packages/kumo-docs-astro/package.json
+  s_01ad071b745549::t_070690002587a5 27-29
+pnpm-lock.yaml
+  s_01ad071b745549::t_fe12ebb5b16f40 265-273,392,395,398,831,837,843,849,855,867-888,6753-6777,8450
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "be10a8711f90803ec6e9a68312f2f8b54ba0535a",
+  "prompts": {},
+  "sessions": {
+    "s_01ad071b745549": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fea4f7770ffe525BMPcDS5EmzJ",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

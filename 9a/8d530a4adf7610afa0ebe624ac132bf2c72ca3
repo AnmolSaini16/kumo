@@ -1,0 +1,23 @@
+packages/kumo/src/components/tabs/tabs.tsx
+  92dfcb2ce3803772 176,229-230,248
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "9a8d530a4adf7610afa0ebe624ac132bf2c72ca3",
+  "prompts": {
+    "92dfcb2ce3803772": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1e3420310ffeSfHHY9gzp5hnW9",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 16,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}

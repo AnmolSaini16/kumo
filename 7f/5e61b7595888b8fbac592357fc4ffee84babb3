@@ -1,0 +1,19 @@
+opencode.jsonc
+  s_5d9a936257973e::t_eaf2500f89a8cb 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7f5e61b7595888b8fbac592357fc4ffee84babb3",
+  "prompts": {},
+  "sessions": {
+    "s_5d9a936257973e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbb869f5effeOqfUsUP5oksq3K",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

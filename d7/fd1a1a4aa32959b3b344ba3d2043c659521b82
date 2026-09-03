@@ -1,0 +1,23 @@
+packages/kumo-docs-astro/src/components/demos/CheckboxDemo.tsx
+  s_e1052991268b36::t_cb98cea2593b6f 1-3,66,83,85-86,89-90,92,190,205
+packages/kumo/src/components/checkbox/checkbox.tsx
+  s_e1052991268b36::t_7b92e3ee3d6e81 1-9,13,21-22,25-28,32,49,55-56,64,67,75,138,146,148,235,247,256,259,261-262,266,269-270,285-287,289-292,323-325,339,342,352,356,358,361,368,370,373,376-377,379-380,394-395,397-398,418-419,426,429,435,442,455-456,458,460,473,483,485-488,490-492,511,514
+packages/kumo/src/components/radio/radio.tsx
+  s_e1052991268b36::t_b17733c25a8d53 330,337,386,403,407,410,425
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d7fd1a1a4aa32959b3b344ba3d2043c659521b82",
+  "prompts": {},
+  "sessions": {
+    "s_e1052991268b36": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_06af5f8a1ffes5j8gCfQm2NoQD",
+        "model": "@cf/moonshotai/kimi-k2.7-code"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

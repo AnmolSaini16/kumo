@@ -1,0 +1,21 @@
+packages/kumo/src/components/combobox/combobox.tsx
+  s_6d4c019e26d750::t_b27aa332840602 211-215,223-229,248-250
+  s_6d4c019e26d750::t_3b63bf8f8d816a 209-210
+  s_6d4c019e26d750::t_6bf3b6e48e2d62 251-253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f95cd0d4afeca5edb4f794c15346ab0959f40f1a",
+  "prompts": {},
+  "sessions": {
+    "s_6d4c019e26d750": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_01282179bffeTlB3uaInAj0kzJ",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

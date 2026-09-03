@@ -1,0 +1,19 @@
+packages/kumo/src/components/tabs/tabs.tsx
+  s_6c86262c63ba58::t_f402333b37b3c4 342
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b0d1a44e66307aefa47060f1e8867f1e4a8b2fa9",
+  "prompts": {},
+  "sessions": {
+    "s_6c86262c63ba58": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0289e30d1ffekpQQlvASAJ3I0p",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

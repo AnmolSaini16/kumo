@@ -1,0 +1,19 @@
+.opencode/package-lock.json
+  s_9ce7a5b584f410::t_5c8548608afa3c 8,90-92,95-96,100-102,117-119,156-158,162,164,166,169-170,202-204,207,223-225,228,330-332
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e5a083baaa1957c2f309da9562707aa045f6903c",
+  "prompts": {},
+  "sessions": {
+    "s_9ce7a5b584f410": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fbbf74f59ffeIV8c5Bet3wR6kd",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

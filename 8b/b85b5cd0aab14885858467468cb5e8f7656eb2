@@ -1,0 +1,29 @@
+.github/workflows/reviewer.yml
+  f3b4514702e25446 61
+.github/workflows/bonk.yml
+  f3b4514702e25446 33,45
+.github/workflows/bigbonk.yml
+  f3b4514702e25446 32,44
+.github/workflows/release.yml
+  f3b4514702e25446 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "8bb85b5cd0aab14885858467468cb5e8f7656eb2",
+  "prompts": {
+    "f3b4514702e25446": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1b99b0301ffeF9BfMHjJJlPMJw",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matt Rothenberg",
+      "messages": [],
+      "total_additions": 14,
+      "total_deletions": 14,
+      "accepted_lines": 6,
+      "overriden_lines": 0
+    }
+  }
+}

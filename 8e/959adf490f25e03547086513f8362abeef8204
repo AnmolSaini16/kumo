@@ -1,0 +1,29 @@
+packages/kumo-docs-astro/src/components/demos/SidebarDemo.tsx
+  s_8c1badbda4f822::t_1bbc56a01ef41c 887-985,1052
+packages/kumo/src/components/sidebar/index.ts
+  s_bc9b2906193925::t_c41ba4e6af084b 38-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8e959adf490f25e03547086513f8362abeef8204",
+  "prompts": {},
+  "sessions": {
+    "s_8c1badbda4f822": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_feb2fa493ffe3n3WqyB1oMZkT4",
+        "model": "claude-opus-5"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    },
+    "s_bc9b2906193925": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_febbcda9effeAXwumkrzOReUS4",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    }
+  }
+}
