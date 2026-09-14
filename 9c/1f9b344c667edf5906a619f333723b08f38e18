@@ -1,0 +1,19 @@
+packages/kumo/src/components/sidebar/sidebar.test.tsx
+  s_c57e4f021ef8f8::t_3096a9660d92b9 1096-1097
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9c1f9b344c667edf5906a619f333723b08f38e18",
+  "prompts": {},
+  "sessions": {
+    "s_c57e4f021ef8f8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fae1bbe83ffeXjsoUJrVW3EX6N",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    }
+  }
+}

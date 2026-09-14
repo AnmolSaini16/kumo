@@ -1,0 +1,21 @@
+.changeset/calm-sidebars-complete.md
+  s_fe8fdac18313a0::t_ffbade73d437ea 1-5
+packages/kumo/src/components/sidebar/sidebar.tsx
+  s_fe8fdac18313a0::t_80b8a21be31cae 103-140,276-277,344,555-574,581,2186-2187,2220,2224,2229,2283-2300,2309
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "07ad0e824ac2741523374a186914be02fc2a399b",
+  "prompts": {},
+  "sessions": {
+    "s_fe8fdac18313a0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f846f4a59ffeOeQYrXV9851Nxt",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    }
+  }
+}

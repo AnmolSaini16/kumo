@@ -1,0 +1,23 @@
+.changeset/sidebar-scroll-item-into-view.md
+  s_c57e4f021ef8f8::t_bb508304aadb7b 1-5
+packages/kumo-docs-astro/src/pages/components/sidebar.astro
+  s_c57e4f021ef8f8::t_ee10b38e16588a 262
+packages/kumo/src/components/sidebar/sidebar.test.tsx
+  s_c57e4f021ef8f8::t_3036b5c227474d 1092-1130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "322159679d234c81b79a8945362aaa02365b1d71",
+  "prompts": {},
+  "sessions": {
+    "s_c57e4f021ef8f8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_fae1bbe83ffeXjsoUJrVW3EX6N",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "michi <michi@cloudflare.com>"
+    }
+  }
+}
