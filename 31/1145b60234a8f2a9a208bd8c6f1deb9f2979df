@@ -1,0 +1,19 @@
+packages/kumo-docs-astro/src/components/demos/SidebarDemo.tsx
+  s_904f0c1b1c274d::t_75ecd53fe39398 626-696,785
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "311145b60234a8f2a9a208bd8c6f1deb9f2979df",
+  "prompts": {},
+  "sessions": {
+    "s_904f0c1b1c274d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a049-554f-75d1-9a2d-2b3733380846",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
