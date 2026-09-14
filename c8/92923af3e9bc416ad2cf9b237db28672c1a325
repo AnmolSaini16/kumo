@@ -1,0 +1,27 @@
+packages/kumo/src/components/checkbox/checkbox.tsx
+  s_6d0a5fb08cc387::t_1e97a38ba120a0 437
+.changeset/clean-fieldsets-rest.md
+  s_6d0a5fb08cc387::t_3742d157282633 1-5
+packages/kumo/src/components/radio/radio.test.tsx
+  s_6d0a5fb08cc387::t_15ad5ca2459c66 11,21
+packages/kumo/src/components/radio/radio.tsx
+  s_6d0a5fb08cc387::t_9dd54981ebf2db 475
+packages/kumo/src/components/checkbox/checkbox.test.tsx
+  s_6d0a5fb08cc387::t_64d44ef1b91c0d 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c892923af3e9bc416ad2cf9b237db28672c1a325",
+  "prompts": {},
+  "sessions": {
+    "s_6d0a5fb08cc387": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a00e-4f3e-7432-9b05-94ef2bd083cf",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
