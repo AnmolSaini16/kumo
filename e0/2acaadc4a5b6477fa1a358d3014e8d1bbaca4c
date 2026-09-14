@@ -1,0 +1,23 @@
+.changeset/portal-stacking-guidance.md
+  s_6d0a5fb08cc387::t_1ed571824a5a09 1-5
+AGENTS.md
+  s_6d0a5fb08cc387::t_c60aca5fd1bad8 50-58
+packages/kumo/src/utils/portal-provider.tsx
+  s_6d0a5fb08cc387::t_a0da9e40746468 26-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e02acaadc4a5b6477fa1a358d3014e8d1bbaca4c",
+  "prompts": {},
+  "sessions": {
+    "s_6d0a5fb08cc387": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a00e-4f3e-7432-9b05-94ef2bd083cf",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
