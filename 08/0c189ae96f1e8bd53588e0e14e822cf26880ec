@@ -1,0 +1,25 @@
+packages/kumo-docs-astro/src/components/demos/LayerDialogDemo.tsx
+  s_fc6a50e7e7e919::t_1034f79b175ac0 249-303
+packages/kumo/src/components/layer-dialog/layer-dialog.test.tsx
+  s_fc6a50e7e7e919::t_003379a6763a4c 315-318,341-343
+packages/kumo-docs-astro/src/pages/components/layer-dialog.mdx
+  s_fc6a50e7e7e919::t_6fe5e8231fc183 19,92,107,113,127-132
+packages/kumo/src/components/layer-dialog/layer-dialog.tsx
+  s_fc6a50e7e7e919::t_9e8126ca83b983 80,88,277,284-288,321,386,388,421,452-460,470-474,553,565-570,589,595
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "080c189ae96f1e8bd53588e0e14e822cf26880ec",
+  "prompts": {},
+  "sessions": {
+    "s_fc6a50e7e7e919": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ab55-d193-7d92-ba44-796fe1fb4ec0",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
