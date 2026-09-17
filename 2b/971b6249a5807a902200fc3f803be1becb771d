@@ -1,0 +1,23 @@
+.changeset/tidy-buttons-smile.md
+  s_8b240af270bdb6::t_69e4566479fe89 1-5
+packages/kumo/src/components/button-group/button-group.test.tsx
+  s_8b240af270bdb6::t_f666ca9701ac4c 65-77
+packages/kumo/src/components/button-group/button-group.tsx
+  s_8b240af270bdb6::t_96c36b4ade4899 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2b971b6249a5807a902200fc3f803be1becb771d",
+  "prompts": {},
+  "sessions": {
+    "s_8b240af270bdb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b056-7ccb-7b33-a1d8-81871bc94981",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
