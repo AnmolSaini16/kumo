@@ -1,0 +1,27 @@
+.changeset/fuzzy-badges-focus.md
+  s_4b84d018178275::t_7bcb2ac1ef5175 1-5
+packages/kumo/src/components/badge/badge.test.tsx
+  s_4b84d018178275::t_70ce2286807bd2 16
+packages/kumo/src/components/badge/badge.tsx
+  s_4b84d018178275::t_5cf51a72ecc7bc 279
+packages/kumo/src/components/link/link.test.tsx
+  s_4b84d018178275::t_4a7209d2f251ed 5,82-93
+packages/kumo/src/components/link/link.tsx
+  s_4b84d018178275::t_434f00577490ac 188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6efc6b7c37ea15bed77e5bff964ddf9ebb033d1c",
+  "prompts": {},
+  "sessions": {
+    "s_4b84d018178275": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b119-f210-7df3-8425-ed1ad8642e28",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

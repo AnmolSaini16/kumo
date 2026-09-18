@@ -1,0 +1,19 @@
+.github/workflows/release.yml
+  s_e1b5cbf300d3a0::t_c579c7f9b920a1 49-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fc69e8b9eaf5403038af5fa5e411f687c1a5a84d",
+  "prompts": {},
+  "sessions": {
+    "s_e1b5cbf300d3a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b02e-950f-7372-9c76-3c8d143c03f3",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}

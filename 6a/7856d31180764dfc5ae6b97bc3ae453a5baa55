@@ -1,0 +1,19 @@
+.changeset/nested-layer-dialogs.md
+  s_fc6a50e7e7e919::t_94fa9f9dbd6c47 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6a7856d31180764dfc5ae6b97bc3ae453a5baa55",
+  "prompts": {},
+  "sessions": {
+    "s_fc6a50e7e7e919": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ab55-d193-7d92-ba44-796fe1fb4ec0",
+        "model": "unknown"
+      },
+      "human_author": "Matt Rothenberg <mrothenberg@cloudflare.com>"
+    }
+  }
+}
