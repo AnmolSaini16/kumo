@@ -1,0 +1,55 @@
+packages/kumo/src/components/chart/index.ts
+  s_532c881d77c62f::t_4d39a2ee764c85 34-39
+packages/kumo-docs-astro/src/components/demos/Chart/GlobeMapDemo.tsx
+  s_c8998dd50d2975::t_0f4382f2cc1ef5 1-16,19-26,98-586
+packages/kumo/package.json
+  s_532c881d77c62f::t_966f98154eb959 458,512-514
+packages/kumo-docs-astro/src/components/SearchDialog.tsx
+  s_532c881d77c62f::t_68883d9a30baaa 45
+packages/kumo/scripts/generate-globe-land.mjs
+  s_c8998dd50d2975::t_6edf30a9590feb 3-11,16,19-22,24-52,56-62,66-118,124-145,147,150,152,154-155,157-170,174-176
+pnpm-lock.yaml
+  s_532c881d77c62f::t_930e54e4a0145d 324-332,3562-3564,5617-5628,9045-9046,11674-11686
+packages/kumo-docs-astro/src/pages/charts/maps.astro
+  s_532c881d77c62f::t_b9166264f36056 13-17,185,202-256
+packages/kumo/src/components/chart/Maps.tsx
+  s_c8998dd50d2975::t_e99f1fa5ad2542 2-7,20,272-284,357-358,424,427,437-448,460-462,464-485,505,520,531,533,543-563,571-574,579,582-583,675-687,768-769,849,852,862-864,868-903,948,984,989,991,997,1009,1011,1021-1056,1064-1067,1072,1075-1076,1102-1254
+packages/kumo/src/components/chart/globe-land.ts
+  s_c8998dd50d2975::t_bead7928686e23 1-3158
+packages/kumo/src/components/chart/Maps.test.tsx
+  s_532c881d77c62f::t_c98bbbef217a51 2,4-5,7-8,12,42-47,76-83,85-93,145-356,368-369,392-405,420-903,1013-1346
+packages/kumo-docs-astro/src/pages/tests/map.astro
+  s_532c881d77c62f::t_19193a872c20aa 8-17,45-46,62,67-157
+packages/kumo/src/components/chart/use-settled-value.ts
+  s_c8998dd50d2975::t_5a4b20b237ef32 1-23
+packages/kumo/src/components/chart/GlobeMap.tsx
+  s_c8998dd50d2975::t_e4c4fbf487009b 7,12-20,23-40,47-50,52,56-62,67,77,79-95,98-134,158-159,161-186,193-358,387-393,395-401,420,430,443,447-574,588-589,591-592,594-597,604-621,623-626,631,633,636-685,688-690,694-781,786-791,833-834,836-859,861-863,865-869,875-917,998-999,1020-1021,1043-1044,1062,1067-1104,1106-1120,1122-1125,1127,1129-1150,1153-1271,1275-1284,1289,1291,1293,1295-1300
+packages/kumo/src/index.ts
+  s_532c881d77c62f::t_0425dddf13031d 280
+packages/kumo-docs-astro/src/lib/use-is-dark-mode.ts
+  s_532c881d77c62f::t_25dee7efa192a6 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "74484a220c4eb862762a4704665bb093b3d62ab9",
+  "prompts": {},
+  "sessions": {
+    "s_532c881d77c62f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eeeeebf8affejGf8kR4iKsIDul",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    },
+    "s_c8998dd50d2975": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f0edfbd1effezEgb2bPKc8qH5c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    }
+  }
+}
