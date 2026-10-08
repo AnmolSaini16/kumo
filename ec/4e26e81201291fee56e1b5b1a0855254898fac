@@ -1,0 +1,25 @@
+.changeset/quick-globes-draw.md
+  s_c8998dd50d2975::t_0380ce818bb50f 13-14
+packages/kumo-docs-astro/src/components/demos/Chart/GlobeMapDemo.tsx
+  s_c8998dd50d2975::t_18124d030bb109 1,161-173,175-181,205-346
+packages/kumo/src/components/chart/GlobeMap.tsx
+  s_c8998dd50d2975::t_2b28fd2d45daa7 238-239,591-604,623-634,636,641,1107,1110,1210-1211
+packages/kumo/src/components/chart/Maps.test.tsx
+  s_c8998dd50d2975::t_fb3ed4b7eceb43 4,590-625,744-752
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ec4e26e81201291fee56e1b5b1a0855254898fac",
+  "prompts": {},
+  "sessions": {
+    "s_c8998dd50d2975": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f0edfbd1effezEgb2bPKc8qH5c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    }
+  }
+}
