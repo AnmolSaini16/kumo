@@ -1,0 +1,25 @@
+.changeset/quick-globes-draw.md
+  s_c8998dd50d2975::t_fcce58216e4a4c 13-14
+packages/kumo/scripts/generate-globe-land.mjs
+  s_c8998dd50d2975::t_1b616905bb4bb8 157-175
+packages/kumo/src/components/chart/GlobeMap.tsx
+  s_c8998dd50d2975::t_41ca87cf451885 381-382,1323-1324
+packages/kumo/src/components/chart/globe-land.ts
+  s_c8998dd50d2975::t_5bc1dbe95126dc 3145-3163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9c410dbfc1bae73301a26a64a79b35475d281896",
+  "prompts": {},
+  "sessions": {
+    "s_c8998dd50d2975": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f0edfbd1effezEgb2bPKc8qH5c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    }
+  }
+}
