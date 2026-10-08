@@ -14,6 +14,7 @@ import {
   GlobeMapControlledChoroplethDemo,
   GlobeMapFlatToggleDemo,
   GlobeMapManyBubblesDemo,
+  GlobeMapStressDemo,
 } from "../../components/demos/Chart/GlobeMapDemo";
 import type { MapGeoJson } from "@cloudflare/kumo";
 
@@ -153,6 +154,18 @@ try {
       </p>
       <div class="p-4 rounded-lg border border-kumo-hairline bg-kumo-base">
         <GlobeMapManyBubblesDemo client:visible />
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-2 text-lg font-semibold text-kumo-strong">GlobeMap: stress test</h2>
+      <p class="mb-4 text-sm text-kumo-subtle">
+        Every country as a region plus up to 1000 bubbles while rotating.
+        <em>Cycle focus</em> flies to a new top-10 item every 1.5s. The meter
+        shows frames per second and the slowest frame in the last 0.5s.
+      </p>
+      <div class="p-4 rounded-lg border border-kumo-hairline bg-kumo-base">
+        <GlobeMapStressDemo geoJson={geoJson} client:visible />
       </div>
     </section>
   </div>

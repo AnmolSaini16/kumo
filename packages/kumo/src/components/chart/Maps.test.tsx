@@ -1,7 +1,7 @@
 import { createRef } from "react";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { geoContains } from "d3-geo";
+import { geoContains, geoOrthographic, geoPath } from "d3-geo";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { GlobeMap } from "./GlobeMap";
 import { BubbleMap, ChoroplethMap, type MapGeoJson } from "./Maps";
@@ -587,6 +587,42 @@ describe("GlobeMap", () => {
       }
     });
 
+    it("matches the clipped projection in front and at the horizon", () => {
+      const clipped = geoPath(
+        geoOrthographic()
+          .translate([320, 320])
+          .scale(302)
+          .clipAngle(90)
+          .rotate([0, 0, 0]),
+      ).digits(1);
+      const numbers = (d: string | null | undefined) =>
+        (d?.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
+      const features = [square("Front", 10), square("Edge", 88)];
+      const { container } = renderRegions({
+        regionGeoJson: { type: "FeatureCollection", features },
+        regions: [
+          { name: "Front", value: 1 },
+          { name: "Edge", value: 2 },
+        ],
+      });
+      for (const feature of features) {
+        const ring = feature.geometry.coordinates[0]!;
+        const expected = numbers(
+          clipped({
+            type: "Polygon",
+            coordinates: [[...ring].reverse()],
+          }),
+        );
+        const actual = numbers(
+          regionPath(container, feature.properties.name)?.getAttribute("d"),
+        );
+        expect(actual).toHaveLength(expected.length);
+        actual.forEach((value, i) =>
+          expect(Math.abs(value - expected[i]!)).toBeLessThanOrEqual(0.1),
+        );
+      }
+    });
+
     it("colours region hatching along the colour range by value", () => {
       const { container } = renderRegions();
       expect(regionStroke(container, "Low")).toBe("#000000");
@@ -705,9 +741,15 @@ describe("GlobeMap", () => {
       await waitFor(() =>
         expect(getByRole("tooltip").textContent).toBe("Singapore (SIN)"),
       );
-      const active = activeVisual(container);
-      expect(Number(active?.getAttribute("cx"))).toBeCloseTo(320, 0);
-      expect(Number(active?.getAttribute("cy"))).toBeCloseTo(320, 0);
+      const position = /translate\(([-\d.]+) ([-\d.]+)\)/
+        .exec(
+          activeVisual(container)?.parentElement?.getAttribute("transform") ??
+            "",
+        )
+        ?.slice(1)
+        .map(Number);
+      expect(position?.[0]).toBeCloseTo(320, 0);
+      expect(position?.[1]).toBeCloseTo(320, 0);
       expect(
         container.querySelector(
           "[data-globe-marker-active] [data-globe-marker-halo]",

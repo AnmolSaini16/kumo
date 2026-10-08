@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   BubbleMap,
   Button,
@@ -158,19 +158,27 @@ export function GlobeMapBubbleDemo() {
   );
 }
 
-/** Deterministic pseudo-random bubbles to exercise overlap and rendering cost. */
-const manyBubbles: GlobeMapMarker[] = Array.from({ length: 300 }, (_, i) => {
-  const seed = Math.sin(i * 12.9898) * 43758.5453;
-  const random = seed - Math.floor(seed);
-  const seed2 = Math.sin(i * 78.233) * 12543.2341;
-  const random2 = seed2 - Math.floor(seed2);
-  return {
+/**
+ * Deterministic pseudo-random number in [0, 1). Integer maths keeps server and
+ * client output identical, so hydration matches.
+ */
+function pseudoRandom(seed: number): number {
+  let t = (seed + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+function randomBubbles(count: number, maxValue: number): GlobeMapMarker[] {
+  return Array.from({ length: count }, (_, i) => ({
     name: `Point ${i + 1}`,
-    latitude: random2 * 140 - 60,
-    longitude: random * 360 - 180,
-    value: Math.round(10 + random * random2 * 5000),
-  };
-});
+    latitude: pseudoRandom(i * 3) * 140 - 60,
+    longitude: pseudoRandom(i * 3 + 1) * 360 - 180,
+    value: Math.round(10 + pseudoRandom(i * 3 + 2) ** 3 * maxValue),
+  }));
+}
+
+const manyBubbles = randomBubbles(300, 5000);
 
 /** 300 value-sized bubbles for checking overlap and rotation performance. */
 export function GlobeMapManyBubblesDemo() {
@@ -188,6 +196,148 @@ export function GlobeMapManyBubblesDemo() {
         autoRotate
         autoRotateSpeed={12}
         aria-label="Many bubbles"
+        isDarkMode={isDarkMode}
+      />
+    </div>
+  );
+}
+
+/** Frames per second and the slowest frame over the last half second. */
+function useFrameStats() {
+  const [stats, setStats] = useState({ fps: 0, worst: 0 });
+
+  useEffect(() => {
+    let frame = 0;
+    let frames = 0;
+    let worst = 0;
+    let windowStart = performance.now();
+    let last = windowStart;
+    const tick = (now: number) => {
+      frames += 1;
+      worst = Math.max(worst, now - last);
+      last = now;
+      if (now - windowStart >= 500) {
+        setStats({
+          fps: Math.round((frames * 1000) / (now - windowStart)),
+          worst: Math.round(worst),
+        });
+        frames = 0;
+        worst = 0;
+        windowStart = now;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  return stats;
+}
+
+const STRESS_MARKER_COUNTS = [0, 250, 500, 1000];
+const STRESS_FOCUS_INTERVAL = 1500;
+
+interface GlobeMapStressDemoProps {
+  geoJson: MapGeoJson | null;
+}
+
+/** Every country as a region plus up to 1000 bubbles, with a frame meter. */
+export function GlobeMapStressDemo({ geoJson }: GlobeMapStressDemoProps) {
+  const isDarkMode = useIsDarkMode();
+  const [showRegions, setShowRegions] = useState(true);
+  const [markerCount, setMarkerCount] = useState(500);
+  const [cycleFocus, setCycleFocus] = useState(false);
+  const [focusStep, setFocusStep] = useState(0);
+  const { fps, worst } = useFrameStats();
+
+  const allRegions = useMemo<GlobeMapRegion[]>(() => {
+    if (!geoJson) return [];
+    return geoJson.features.flatMap((feature, i) => {
+      const name = feature.properties?.name;
+      if (typeof name !== "string") return [];
+      return [{ name, value: Math.round(pseudoRandom(10000 + i) ** 2 * 1e6) }];
+    });
+  }, [geoJson]);
+  const markers = useMemo(
+    () => randomBubbles(markerCount, 50000),
+    [markerCount],
+  );
+  const regions = showRegions ? allRegions : [];
+
+  const focusTargets = useMemo(
+    () =>
+      showRegions
+        ? [...allRegions]
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 10)
+            .map((region) => region.name)
+        : markers.slice(0, 10).map((marker) => marker.name),
+    [showRegions, allRegions, markers],
+  );
+
+  useEffect(() => {
+    if (!cycleFocus) return;
+    const timer = setInterval(
+      () => setFocusStep((step) => step + 1),
+      STRESS_FOCUS_INTERVAL,
+    );
+    return () => clearInterval(timer);
+  }, [cycleFocus]);
+
+  const focused = cycleFocus
+    ? (focusTargets[focusStep % Math.max(1, focusTargets.length)] ?? null)
+    : null;
+
+  if (!geoJson) return null;
+
+  return (
+    <div className="mx-auto flex max-w-xl flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <Button
+          size="sm"
+          variant={showRegions ? "primary" : "secondary"}
+          aria-pressed={showRegions}
+          onClick={() => setShowRegions((value) => !value)}
+        >
+          {allRegions.length} regions
+        </Button>
+        {STRESS_MARKER_COUNTS.map((count) => (
+          <Button
+            key={count}
+            size="sm"
+            variant={markerCount === count ? "primary" : "secondary"}
+            aria-pressed={markerCount === count}
+            onClick={() => setMarkerCount(count)}
+          >
+            {count} bubbles
+          </Button>
+        ))}
+        <Button
+          size="sm"
+          variant={cycleFocus ? "primary" : "secondary"}
+          aria-pressed={cycleFocus}
+          onClick={() => setCycleFocus((value) => !value)}
+        >
+          Cycle focus
+        </Button>
+        <span className="ml-auto font-mono text-kumo-subtle tabular-nums">
+          {fps} fps · worst {worst}ms
+        </span>
+      </div>
+      <GlobeMap
+        regionGeoJson={geoJson}
+        regions={regions}
+        markers={markers}
+        activeRegion={showRegions ? focused : null}
+        activeMarker={showRegions ? null : focused}
+        landHatchSpacing={6}
+        oceanColor="transparent"
+        minRadius={2}
+        maxRadius={16}
+        markerOpacity={0.6}
+        valueFormat={(value) => compactNumber.format(value)}
+        autoRotate
+        aria-label="Stress test"
         isDarkMode={isDarkMode}
       />
     </div>

@@ -235,6 +235,8 @@ const useIsomorphicLayoutEffect =
 const AUTO_ROTATE_INTERVAL = 1000 / 60 - 2;
 /** Screen movement at the globe's centre per degree of rotation (view-box px). */
 const PX_PER_DEGREE = (Math.PI / 180) * GLOBE_RADIUS;
+/** Angular margin (radians) before the horizon where regions are clipped. */
+const HORIZON_MARGIN = 0.05;
 /** Tall tiles avoid seams along a line that shimmer as the pattern moves. */
 const HATCH_TILE_LENGTH = GLOBE_VIEWBOX_SIZE * 2;
 
@@ -586,6 +588,20 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
       [rotation],
     );
     const path = useMemo(() => geoPath(projection).digits(1), [projection]);
+    // Regions fully on the front side need no horizon clipping, which is most
+    // of the cost of projecting them every frame.
+    const unclippedPath = useMemo(
+      () =>
+        geoPath(
+          geoOrthographic()
+            .translate([GLOBE_VIEWBOX_SIZE / 2, GLOBE_VIEWBOX_SIZE / 2])
+            .scale(GLOBE_RADIUS)
+            .rotate(rotation)
+            .preclip((stream) => stream)
+            .precision(0),
+        ).digits(1),
+      [rotation],
+    );
     const spherePath = getGlobeSpherePath();
     const graticulePath = useMemo(
       () => (showGraticule ? (path(GLOBE_GRATICULE) ?? undefined) : undefined),
@@ -604,20 +620,25 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
     const regionPaths = useMemo(
       () =>
         resolvedRegions.flatMap((region, index) => {
-          // Skip regions entirely on the far side.
-          if (
-            center &&
-            geoDistance(center, region.centroid) - region.angularRadius >
-              Math.PI / 2
-          ) {
-            return [];
+          const distance = center
+            ? geoDistance(center, region.centroid)
+            : undefined;
+          let project = path;
+          if (distance !== undefined) {
+            if (distance - region.angularRadius > Math.PI / 2) return [];
+            if (
+              distance + region.angularRadius <
+              Math.PI / 2 - HORIZON_MARGIN
+            ) {
+              project = unclippedPath;
+            }
           }
-          const d = path(region.geometry as GeoPermissibleObjects);
+          const d = project(region.geometry as GeoPermissibleObjects);
           return d
             ? [{ region, d, patternId: `${regionPatternPrefix}-${index}` }]
             : [];
         }),
-      [resolvedRegions, path, center, regionPatternPrefix],
+      [resolvedRegions, path, unclippedPath, center, regionPatternPrefix],
     );
 
     const onUserRotationChangeRef = useRef(onUserRotationChange);
@@ -1083,10 +1104,10 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
             </pattern>
             {/* Region patterns share the land hatch geometry, so coloured
                 lines sit exactly over the neutral land lines. */}
-            {resolvedRegions.map((region, index) => (
+            {regionPaths.map(({ region, patternId }) => (
               <pattern
                 key={region.key}
-                id={`${regionPatternPrefix}-${index}`}
+                id={patternId}
                 width={safeHatchSpacing}
                 height={HATCH_TILE_LENGTH}
                 patternUnits="userSpaceOnUse"
@@ -1186,6 +1207,8 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
               return (
                 <g
                   key={resolved.key}
+                  // One attribute per marker per frame instead of cx/cy on each circle.
+                  transform={`translate(${position[0].toFixed(1)} ${position[1].toFixed(1)})`}
                   opacity={edgeOpacity}
                   className={cn(
                     "outline-none focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kumo-brand",
@@ -1219,8 +1242,6 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
                   }
                 >
                   <circle
-                    cx={position[0]}
-                    cy={position[1]}
                     r={radius > 0 ? radius + MARKER_HIT_PADDING : 0}
                     fill="transparent"
                     data-globe-marker-hit-area=""
@@ -1228,8 +1249,6 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
                   />
                   {isActive && radius > 0 ? (
                     <circle
-                      cx={position[0]}
-                      cy={position[1]}
                       r={radius + ACTIVE_MARKER_HALO}
                       fill={marker.color ?? resolvedMarkerColor}
                       fillOpacity={0.25}
@@ -1239,8 +1258,6 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
                     />
                   ) : null}
                   <circle
-                    cx={position[0]}
-                    cy={position[1]}
                     r={radius}
                     fill={marker.color ?? resolvedMarkerColor}
                     fillOpacity={
