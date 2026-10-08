@@ -154,20 +154,25 @@ import type { GeoPermissibleObjects } from "d3-geo";
 const COORDINATE_SCALE = ${COORDINATE_SCALE};
 const ENCODED_LAND_COORDINATES = ${formatCoordinates(encodedCoordinates)};
 
-export const GLOBE_LAND = {
-  type: "MultiPolygon",
-  coordinates: ENCODED_LAND_COORDINATES.map((polygon) =>
-    polygon.map((ring) => {
-      let longitude = 0;
-      let latitude = 0;
-      return ring.map(([longitudeDelta, latitudeDelta], index) => {
-        longitude = index === 0 ? longitudeDelta : longitude + longitudeDelta;
-        latitude = index === 0 ? latitudeDelta : latitude + latitudeDelta;
-        return [longitude / COORDINATE_SCALE, latitude / COORDINATE_SCALE];
-      });
-    }),
-  ),
-} as GeoPermissibleObjects;
+function decodeLand(encoded: number[][][][]): GeoPermissibleObjects {
+  return {
+    type: "MultiPolygon",
+    coordinates: encoded.map((polygon) =>
+      polygon.map((ring) => {
+        let longitude = 0;
+        let latitude = 0;
+        return ring.map(([longitudeDelta, latitudeDelta], index) => {
+          longitude = index === 0 ? longitudeDelta : longitude + longitudeDelta;
+          latitude = index === 0 ? latitudeDelta : latitude + latitudeDelta;
+          return [longitude / COORDINATE_SCALE, latitude / COORDINATE_SCALE];
+        });
+      }),
+    ),
+  } as GeoPermissibleObjects;
+}
+
+// Pure so bundles that only use the flat maps drop the land data.
+export const GLOBE_LAND = /* @__PURE__ */ decodeLand(ENCODED_LAND_COORDINATES);
 `;
 
 await writeFile(OUTPUT_URL, source);

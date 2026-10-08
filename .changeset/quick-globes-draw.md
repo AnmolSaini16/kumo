@@ -10,6 +10,8 @@ GlobeMap can also shade countries like ChoroplethMap: pass `regionGeoJson` and `
 
 Maps can now be driven from outside, for example from a list: GlobeMap `activeMarker` / `activeRegion` rotate the globe to the item, pause auto-rotation, highlight it and show its tooltip; BubbleMap `activeIndex` and ChoroplethMap `activeRegion` highlight the item and show its tooltip. All three wait for the value to settle (`activeDelay`, default 300ms, then at most 100ms when moving between items; clearing is immediate) before reacting, so sweeping the pointer across a list doesn't make the map chase every item. BubbleMap and ChoroplethMap also no longer re-apply their options when a parent re-renders with inline `value` / `valueFormat` / `tooltipFormatter` functions or an inline `colorRange`.
 
+GlobeMap is now tree-shakeable, so apps that only use BubbleMap or ChoroplethMap no longer bundle the globe and its land data.
+
 Rotating a globe with many regions and markers is cheaper: regions fully on the visible side skip horizon clipping, hatch patterns are only kept for visible regions, and markers move with a single transform.
 
 Inline `onUserRotationChange` callbacks no longer restart the globe's focus animation. Unknown choropleth region names clear the previous focus and tooltip. Open flat-map tooltips refresh when formatter output changes without rebuilding chart options.

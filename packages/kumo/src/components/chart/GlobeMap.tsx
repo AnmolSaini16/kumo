@@ -378,8 +378,8 @@ function normalizeRotation(
  * GlobeMap — an SVG orthographic globe with hatched land and geographic
  * markers. Rendering is SVG-only and does not use WebGL.
  */
-export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
-  function GlobeMap(
+export const GlobeMap = /* @__PURE__ */ Object.assign(
+  /* @__PURE__ */ forwardRef<HTMLDivElement, GlobeMapProps>(function GlobeMap(
     {
       landColor,
       landHatchSpacing = 10,
@@ -1320,7 +1320,6 @@ export const GlobeMap = forwardRef<HTMLDivElement, GlobeMapProps>(
         ) : null}
       </div>
     );
-  },
+  }),
+  { displayName: "GlobeMap" },
 );
-
-GlobeMap.displayName = "GlobeMap";
