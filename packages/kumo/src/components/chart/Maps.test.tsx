@@ -808,6 +808,42 @@ describe("GlobeMap", () => {
       ).toHaveLength(1);
     });
 
+    it("uses a shorter delay when moving between items", async () => {
+      vi.stubGlobal("matchMedia", () => ({ matches: true }));
+      const { getByRole, rerender } = render(
+        <GlobeMap markers={markers} activeMarker="LHR" activeDelay={1000} />,
+      );
+      await waitFor(() =>
+        expect(getByRole("tooltip").textContent).toBe("London (LHR)"),
+      );
+      const start = performance.now();
+      rerender(
+        <GlobeMap markers={markers} activeMarker="SIN" activeDelay={1000} />,
+      );
+      expect(getByRole("tooltip").textContent).toBe("London (LHR)");
+      await waitFor(() =>
+        expect(getByRole("tooltip").textContent).toBe("Singapore (SIN)"),
+      );
+      expect(performance.now() - start).toBeLessThan(600);
+    });
+
+    it("waits the full delay again after clearing", async () => {
+      vi.stubGlobal("matchMedia", () => ({ matches: true }));
+      const { container, rerender } = render(
+        <GlobeMap markers={markers} activeMarker="LHR" activeDelay={400} />,
+      );
+      const halo = () => container.querySelector("[data-globe-marker-halo]");
+      rerender(
+        <GlobeMap markers={markers} activeMarker={null} activeDelay={400} />,
+      );
+      rerender(
+        <GlobeMap markers={markers} activeMarker="SIN" activeDelay={400} />,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(halo()).toBeNull();
+      await waitFor(() => expect(halo()).not.toBeNull(), { timeout: 1000 });
+    });
+
     it("clears immediately and cancels a pending item", async () => {
       vi.stubGlobal("matchMedia", () => ({ matches: true }));
       const { container, queryByRole, rerender } = render(

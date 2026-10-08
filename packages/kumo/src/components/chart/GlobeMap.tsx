@@ -128,8 +128,9 @@ export interface GlobeMapProps {
   /**
    * Milliseconds `activeMarker` / `activeRegion` must stay unchanged before
    * the globe reacts, so sweeping the pointer over a list doesn't spin the
-   * globe to every item passed. `0` reacts immediately. Clearing (`null`)
-   * applies immediately. Default: `300`.
+   * globe to every item passed. Once an item is active, moving to another
+   * waits at most 100ms. `0` reacts immediately. Clearing (`null`) applies
+   * immediately. Default: `300`.
    */
   activeDelay?: number;
   /** Initial globe rotation as `[longitude, latitude, roll]`. */

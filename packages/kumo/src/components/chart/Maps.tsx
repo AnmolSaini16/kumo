@@ -277,9 +277,9 @@ export interface BubbleMapProps<T> {
   activeIndex?: number | null;
   /**
    * Milliseconds `activeIndex` must stay unchanged before the map reacts, so
-   * sweeping the pointer over a list doesn't flash every bubble passed. `0`
-   * reacts immediately. Clearing (`null`) applies immediately.
-   * Default: `300`.
+   * sweeping the pointer over a list doesn't flash every bubble passed. Once
+   * an item is active, moving to another waits at most 100ms. `0` reacts
+   * immediately. Clearing (`null`) applies immediately. Default: `300`.
    */
   activeDelay?: number;
 
@@ -680,9 +680,9 @@ export interface ChoroplethMapProps<T> {
   activeRegion?: string | null;
   /**
    * Milliseconds `activeRegion` must stay unchanged before the map reacts, so
-   * sweeping the pointer over a list doesn't flash every region passed. `0`
-   * reacts immediately. Clearing (`null`) applies immediately.
-   * Default: `300`.
+   * sweeping the pointer over a list doesn't flash every region passed. Once
+   * an item is active, moving to another waits at most 100ms. `0` reacts
+   * immediately. Clearing (`null`) applies immediately. Default: `300`.
    */
   activeDelay?: number;
 
