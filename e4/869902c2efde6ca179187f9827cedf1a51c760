@@ -1,0 +1,51 @@
+packages/kumo-docs-astro/src/components/demos/Chart/MapTopListDemo.tsx
+  s_c8998dd50d2975::t_aef0229eaad925 1-212
+packages/kumo-docs-astro/src/pages/charts/maps.astro
+  s_c8998dd50d2975::t_22fe7c2e79e980 13
+packages/kumo-docs-astro/src/pages/tests/map.astro
+  s_c8998dd50d2975::t_e4fe51309f353a 8,10-12,40-41,57,64,66-67,70,75,77-78,81,86,88-89,92
+packages/kumo/scripts/generate-globe-land-mask.mjs
+  s_c8998dd50d2975::t_23da7f37cc330a 3,8,11-12,14-19,23-32,41-53,55,58,60-61,63-66,68-75,80
+packages/kumo/src/components/chart/Color.ts
+  s_4dd9e7c90f02aa::t_ebac5c0d0604c7 72-73,85-89,91-102,224
+packages/kumo/src/components/chart/GlobeMap.tsx
+  s_4dd9e7c90f02aa::t_9c4563f4ebe71c 12,15,22,24,28,33,41,43,45,47,49,76-77,79-81,89-90,92,94-95,99,111-113,138-155,171,191-192,216,226,243-251,263,265,276,278-279,287,329,331,339-342,344-345,417-436,451,474-475,514-519,526-528,546-552,554-555,557,559-626,628-652,654-655,657-659,662-672,676-680,685,689,691-692
+packages/kumo/src/components/chart/Maps.tsx
+  s_3d296ad36cacd3::t_e2199327db524d 496,500-501,504,517-522,946,950-951,954
+packages/kumo/src/components/chart/globe-land-mask.ts
+  s_c8998dd50d2975::t_c604c5b5e8be59 1-108
+packages/kumo/src/components/chart/index.ts
+  s_c8998dd50d2975::t_7764ae8dac4ea3 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e4869902c2efde6ca179187f9827cedf1a51c760",
+  "prompts": {},
+  "sessions": {
+    "s_3d296ad36cacd3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecb16ead9ffe5FVJCtRnt73LUF",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    },
+    "s_4dd9e7c90f02aa": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ee4c5ba1affeWj4bksGXXtxyRO",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    },
+    "s_c8998dd50d2975": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f0edfbd1effezEgb2bPKc8qH5c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "anmol <anmoldeep.singh@cloudflare.com>"
+    }
+  }
+}
